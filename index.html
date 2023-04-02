@@ -1,7 +1,43 @@
 <html>
-<img src="Classical.png" alt="description of image" usemap="#mapname">
+<head>
+  <script>
+    var imageUrls = [
+      "https://example.com/image0.jpg",
+      "https://example.com/image1.jpg",
+      "https://example.com/image2.jpg",
+      // add more URLs as needed
+    ];
 
-<map name="mapname">
-  <area shape="rect" coords="0,0,100,100" href="http://www.example.com">
-</map>
+    function changeImage(pixelValue) {
+      var canvas = document.getElementById("canvas");
+      var ctx = canvas.getContext("2d");
+      var x = event.clientX - canvas.getBoundingClientRect().left;
+      var y = event.clientY - canvas.getBoundingClientRect().top;
+      var pixelData = ctx.getImageData(x, y, 1, 1).data;
+      var pixelValue = pixelData[0];
+      document.getElementById('rightImage').src = imageUrls[pixelValue];
+    }
+  </script>
+</head>
+
+<body>
+  <canvas id="canvas" width="300" height="200"></canvas>
+  <img id="rightImage" src="https://example.com/image0.jpg" alt="description of right image" />
+  
+  <script>
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var img = new Image();
+    img.onload = function() {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = "leftImage.png";
+  </script>
+  
+  <script>
+    canvas.addEventListener("mousemove", changeImage);
+  </script>
+</body>
 </html>
