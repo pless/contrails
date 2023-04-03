@@ -2,10 +2,32 @@
 <head>
   <script>
     var imageUrls = [
-      "https://example.com/image0.jpg",
-      "https://example.com/image1.jpg",
-      "https://example.com/image2.jpg",
-      // add more URLs as needed
+      "http://pboshared.unavco.org/webcam/C160/20190211/C160201902111431.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111436.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111441.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111446.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111451.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111456.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111501.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111506.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111511.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111516.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111521.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111526.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111531.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111536.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111541.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111546.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111551.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111556.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111606.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111611.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111621.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111626.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111626.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111631.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111636.jpg",
+"http://pboshared.unavco.org/webcam/C160/20190211/C160201902111641.jpg"
     ];
 
     function changeImage(pixelValue) {
@@ -15,7 +37,7 @@
       var y = event.clientY - canvas.getBoundingClientRect().top;
       var pixelData = ctx.getImageData(x, y, 1, 1).data;
       var pixelValue = pixelData[0];
-      document.getElementById('rightImage').src = imageUrls[pixelValue];
+      document.getElementById('rightImage').src = imageUrls[pixelValue % 23 + 1];
     }
   </script>
 </head>
