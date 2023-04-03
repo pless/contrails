@@ -44,7 +44,7 @@
 
 <body>
   <canvas id="canvas" width="300" height="200"></canvas>
-  <img id="rightImage" src="https://example.com/image0.jpg" alt="description of right image" />
+  <img id="rightImage" src=imageUrls[1] alt="description of right image" />
   
   <script>
     var canvas = document.getElementById("canvas");
@@ -55,7 +55,7 @@
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
     };
-    img.src = "leftImage.png";
+    img.src = "Classical.png";
   </script>
   
   <script>
