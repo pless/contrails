@@ -1,22 +1,17 @@
 <html>
 <head>
   <script>
-    var imageUrls = [
-"rand.png",
-    "Classical.png",
-    "rand.png"];
-
     function changeImage(pixelValue) {
       var canvas = document.getElementById("canvas");
       var ctx = canvas.getContext("2d");
       var x = event.clientX - canvas.getBoundingClientRect().left;
       var y = event.clientY - canvas.getBoundingClientRect().top;
       var pixelData = ctx.getImageData(x, y, 1, 1).data;
-      var pixelValue = pixelData[0];
+      var pixelValue = pixelData[0]%100 + 1;
       filenamePrefix + zeroPad(fileNumber, 3)
       document.getElementById('rightImage').src = 'tmp/F' + zeroPad(pixelValue, 3) + '.jpg'
     }
-  </script>
+  </script> 
 </head>
 
 <body>
