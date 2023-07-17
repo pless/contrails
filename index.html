@@ -1,6 +1,9 @@
 <html>
 <head>
   <script>
+    function zeroPad(num, places) {
+      return String(num).padStart(places, '0');
+    }
     function changeImage(pixelValue) {
       var canvas = document.getElementById("canvas");
       var ctx = canvas.getContext("2d");
