@@ -21,18 +21,13 @@
     <div class="montage" id="imageMontage"></div>
 
     <script>
-        // Function to parse CSV data from the Google Spreadsheet
-        function parseCSV(csv) {
-            const rows = csv.split("\n").map(row => row.split(","));
-            return rows;
-        }
-
-        // Function to filter and display images with tag "#goodSky"
+        // Function to display images from the parsed data
         function displayImages(data) {
             const montageDiv = document.getElementById('imageMontage');
             data.forEach(row => {
-                const [imageURL, tag] = row;
-                console.log("tag: ", tag);
+                const imageURL = row.imageURL;
+                const tag = row.tags;
+                
                 if (tag && tag.trim() === '#goodSky') {
                     const imgElement = document.createElement('img');
                     imgElement.src = imageURL.trim();
@@ -44,8 +39,8 @@
         // Add extra logs to check the flow of the code
         console.log("Starting fetch operation...");
 
-        // Fetch CSV from the Google Spreadsheet
-        fetch('https://docs.google.com/spreadsheets/d/1_tbi4WTx9qGErN-2cvYvEd3qeJxgzd_9N9HJWWPD7SA/gviz/tq?tqx=out:csv')
+        // Fetch JSON data from the Google Spreadsheet
+        fetch('https://docs.google.com/spreadsheets/d/1_tbi4WTx9qGErN-2cvYvEd3qeJxgzd_9N9HJWWPD7SA/gviz/tq?tqx=out:json')
             .then(response => {
                 console.log("Fetch response received.");
                 console.log("Response status:", response.status);  // Log the status code
@@ -55,21 +50,28 @@
                     throw new Error(`Network response was not ok: ${response.statusText}`);
                 }
 
-                return response.text();  // Parse the response as text (CSV format)
+                return response.text();  // Parse the response as text (JSON format)
             })
             .then(data => {
-                // Log the raw CSV data received from Google Sheets
-                //console.log("Raw CSV data:", data);
+                // Strip out the "google.visualization" wrappers from the JSON response
+                const json = JSON.parse(data.substring(47).slice(0, -2));
+                console.log("Parsed JSON data:", json);
 
-                const parsedData = parseCSV(data);
-                // console.log("Parsed data:", parsedData);  // Log the parsed CSV data
+                // Process the rows to get the column data
+                const rows = json.table.rows.map(row => {
+                    const imageURL = row.c[0] ? row.c[0].v : "";  // Assuming imageURL is the first column
+                    const tags = row.c[1] ? row.c[1].v : "";  // Assuming tags is the second column
+                    return { imageURL, tags };
+                });
 
-                displayImages(parsedData);  // Display the images if data is parsed successfully
+                console.log("Processed rows:", rows);
+                displayImages(rows);  // Display the images
             })
             .catch(error => {
                 // Log the error if there is any issue during the fetch process
-                console.error('Error fetching or processing the CSV data:', error);
+                console.error('Error fetching or processing the JSON data:', error);
             });
     </script>
 </body>
 </html>
+
