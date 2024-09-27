@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoodSky Image Montage</title>
     <style>
         .montage img {
@@ -41,13 +40,34 @@
             });
         }
 
+        // Add extra logs to check the flow of the code
+        console.log("Starting fetch operation...");
+
         // Fetch CSV from the Google Spreadsheet
         fetch('https://docs.google.com/spreadsheets/d/1_tbi4WTx9qGErN-2cvYvEd3qeJxgzd_9N9HJWWPD7SA/gviz/tq?tqx=out:csv')
-            .then(response => response.text())
+            .then(response => {
+                console.log("Fetch response received.");
+                console.log("Response status:", response.status);  // Log the status code
+
+                // Check if response is okay
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+
+                return response.text();  // Parse the response as text (CSV format)
+            })
             .then(data => {
-                console.log("Downloaded CSV data:", data);  // Print CSV data to console
+                // Log the raw CSV data received from Google Sheets
+                console.log("Raw CSV data:", data);
+
                 const parsedData = parseCSV(data);
-                displayImages(parsedData);
+                console.log("Parsed data:", parsedData);  // Log the parsed CSV data
+
+                displayImages(parsedData);  // Display the images if data is parsed successfully
+            })
+            .catch(error => {
+                // Log the error if there is any issue during the fetch process
+                console.error('Error fetching or processing the CSV data:', error);
             });
     </script>
 </body>
