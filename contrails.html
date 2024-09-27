@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodSky Image Montage</title>
+    <style>
+        .montage img {
+            width: 200px;
+            height: auto;
+            margin: 10px;
+        }
+        .montage {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>#goodSky Image Montage</h1>
+    <div class="montage" id="imageMontage"></div>
+
+    <script>
+        // Function to parse CSV data from the Google Spreadsheet
+        function parseCSV(csv) {
+            const rows = csv.split("\n").map(row => row.split(","));
+            return rows;
+        }
+
+        // Function to filter and display images with tag "#goodSky"
+        function displayImages(data) {
+            const montageDiv = document.getElementById('imageMontage');
+            data.forEach(row => {
+                const [imageURL, tag] = row;
+                if (tag && tag.trim() === '#goodSky') {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imageURL.trim();
+                    montageDiv.appendChild(imgElement);
+                }
+            });
+        }
+
+        // Fetch CSV from the Google Spreadsheet
+        fetch('https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/gviz/tq?tqx=out:csv')
+            .then(response => response.text())
+            .then(data => {
+                const parsedData = parseCSV(data);
+                displayImages(parsedData);
+            });
+    </script>
+</body>
+</html>
