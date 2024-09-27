@@ -32,6 +32,7 @@
             const montageDiv = document.getElementById('imageMontage');
             data.forEach(row => {
                 const [imageURL, tag] = row;
+                console.log("tag: ", tag);
                 if (tag && tag.trim() === '#goodSky') {
                     const imgElement = document.createElement('img');
                     imgElement.src = imageURL.trim();
@@ -58,10 +59,10 @@
             })
             .then(data => {
                 // Log the raw CSV data received from Google Sheets
-                console.log("Raw CSV data:", data);
+                //console.log("Raw CSV data:", data);
 
                 const parsedData = parseCSV(data);
-                console.log("Parsed data:", parsedData);  // Log the parsed CSV data
+                // console.log("Parsed data:", parsedData);  // Log the parsed CSV data
 
                 displayImages(parsedData);  // Display the images if data is parsed successfully
             })
