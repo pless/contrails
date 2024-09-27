@@ -45,6 +45,7 @@
         fetch('https://docs.google.com/spreadsheets/d/1_tbi4WTx9qGErN-2cvYvEd3qeJxgzd_9N9HJWWPD7SA/gviz/tq?tqx=out:csv')
             .then(response => response.text())
             .then(data => {
+                console.log("Downloaded CSV data:", data);  // Print CSV data to console
                 const parsedData = parseCSV(data);
                 displayImages(parsedData);
             });
