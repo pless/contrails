@@ -59,8 +59,8 @@
 
                 // Process the rows to get the column data
                 const rows = json.table.rows.map(row => {
-                    const imageURL = row.c[0] ? row.c[0].v : "";  // Assuming imageURL is the first column
-                    const tags = row.c[1] ? row.c[1].v : "";  // Assuming tags is the second column
+                    const imageURL = row.c[1] ? row.c[1].v : "";  // Assuming imageURL is the first column
+                    const tags = row.c[9] ? row.c[9].v : "";  // Assuming tags is the second column
                     return { imageURL, tags };
                 });
 
