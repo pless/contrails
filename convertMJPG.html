@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capture MJPEG Frame</title>
+</head>
+<body>
+  <h1>Capture a Frame from MJPEG Stream</h1>
+  
+  <!-- Video element to play the MJPEG stream -->
+  <video id="mjpegVideo" style="display:none;" autoplay></video>
+
+  <!-- Canvas to draw the current video frame -->
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <!-- Button to capture the frame -->
+  <button onclick="captureFrame()">Capture Frame</button>
+
+  <!-- Image element to display the captured JPEG -->
+  <img id="capturedImage" alt="Captured Frame" style="border:1px solid black;" />
+
+  <script>
+    // Function to extract the query parameter from the URL
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Get the stream URL from the 'streamUrl' query parameter
+    const streamUrl = getQueryParam('streamUrl');
+
+    if (streamUrl) {
+      // Set the video element's source to the passed stream URL
+      const videoElement = document.getElementById('mjpegVideo');
+      videoElement.src = streamUrl;
+    } else {
+      alert("No stream URL provided. Please pass the 'streamUrl' as a query parameter.");
+    }
+
+    // Function to capture a frame and display it as a JPEG
+    function captureFrame() {
+      const videoElement = document.getElementById('mjpegVideo');
+      const canvas = document.getElementById('canvas');
+      const context = canvas.getContext('2d');
+
+      // Set the canvas size to match the video dimensions
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+
+      // Draw the current frame from the video onto the canvas
+      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+      // Convert the canvas to a data URL (JPEG format)
+      const dataURL = canvas.toDataURL('image/jpeg');
+
+      // Display the captured image
+      const img = document.getElementById('capturedImage');
+      img.src = dataURL;
+    }
+  </script>
+</body>
+</html>
