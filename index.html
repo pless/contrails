@@ -17,10 +17,22 @@
     </style>
 </head>
 <body>
-    <h1>#goodSky Image Montage</h1>
+    <h1>Image Montage</h1>
     <div class="montage" id="imageMontage"></div>
 
     <script>
+        // Function to get a query parameter value from the URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Get the tag from the URL, default to '#goodSky' if not provided
+        const tagToSearch = getQueryParam('tag') || '#goodSky';
+
+        // Update the heading to reflect the current tag
+        document.querySelector('h1').textContent = `${tagToSearch} Image Montage`;
+
         // Function to display images from the parsed data
         function displayImages(data) {
             const montageDiv = document.getElementById('imageMontage');
@@ -28,7 +40,7 @@
                 const imageURL = row.imageURL;
                 const tag = row.tags;
                 
-                if (tag && tag.trim() === '#goodSky') {
+                if (tag && tag.trim() === tagToSearch) {
                     const imgElement = document.createElement('img');
                     imgElement.src = imageURL.trim();
                     montageDiv.appendChild(imgElement);
@@ -74,4 +86,3 @@
     </script>
 </body>
 </html>
-
