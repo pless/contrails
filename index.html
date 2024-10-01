@@ -49,7 +49,7 @@
             const cameraData = rows.map(row => ({
                 name: row.c[0] ? row.c[0].v : '', // Check if the first column exists, otherwise use an empty string
                 url: row.c[1] ? row.c[1].v : '',  // Check if the second column exists
-                tags: row.c[9] && row.c[9].v ? row.c[8].v.split(',') : [] // Check if the ninth column exists and is not empty, otherwise use an empty array
+                tags: row.c[9] && row.c[9].v ? row.c[9].v.split(',') : [] // Check if the ninth column exists and is not empty, otherwise use an empty array
             }));
             // Filter cameras by tag
             const filteredCameras = cameraData.filter(camera => camera.tags.includes(tag));
