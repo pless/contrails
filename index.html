@@ -43,6 +43,7 @@
             // Clean up the response to make it valid JSON
             const json = JSON.parse(data.substring(47, data.length - 2));
             const rows = json.table.rows;
+            console.log(rows); // Log the rows to inspect the structure in the browser's console
 
             // Convert rows to a structured format with null checks
             const cameraData = rows.map(row => ({
