@@ -1,6 +1,88 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrail Dashboard</title>
+    <style>
+        .camera-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .camera {
+            width: 300px;
+            margin: 10px;
+        }
+    </style>
+</head>
 <body>
- <iframe width="560" height="315" src="https://www.youtube.com/embed/yo-xRprHXIQ?autoplay=1&mute=1" frameborder="0" allowfullscreen></iframe>
+
+<h1>Contrail Dashboard</h1>
+<div id="camera-container" class="camera-container"></div>
+
+<script>
+    // Your Google Sheet ID
+    const sheetID = "1_tbi4WTx9qGErN-2cvYvEd3qeJxgzd_9N9HJWWPD7SA"; 
+
+    // The Google Sheets API endpoint (formatted as CSV)
+    const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&gid=863946120`;
+
+    // Function to get URL parameters
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Get the 'tag' parameter from the URL
+    const tag = getQueryParam('tag');
+
+    // Fetch Google Sheet Data
+    fetch(sheetUrl)
+        .then(response => response.text())
+        .then(data => {
+            // Clean up the response to make it valid JSON
+            const json = JSON.parse(data.substring(47, data.length - 2));
+            const rows = json.table.rows;
+
+            // Convert rows to a structured format
+            const cameraData = rows.map(row => ({
+                name: row.c[0].v, // Name from first column
+                url: row.c[1].v,  // URL from second column
+                tags: row.c[8].v.split(',') // Tags from ninth column (comma-separated)
+            }));
+
+            // Filter cameras by tag
+            const filteredCameras = cameraData.filter(camera => camera.tags.includes(tag));
+
+            // Function to render the cameras
+            function renderCameras(cameras) {
+                const container = document.getElementById('camera-container');
+                container.innerHTML = ''; // Clear existing content
+
+                cameras.forEach(camera => {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = camera.url + "?autoplay=1&mute=1"; // Autoplay and mute for a cleaner experience
+                    iframe.width = "300";
+                    iframe.height = "200";
+                    iframe.frameBorder = "0";
+
+                    const cameraDiv = document.createElement('div');
+                    cameraDiv.classList.add('camera');
+                    cameraDiv.appendChild(iframe);
+
+                    container.appendChild(cameraDiv);
+                });
+            }
+
+            // Render the filtered cameras
+            if (filteredCameras.length > 0) {
+                renderCameras(filteredCameras);
+            } else {
+                document.getElementById('camera-container').innerHTML = '<p>No cameras found for this tag.</p>';
+            }
+        })
+        .catch(error => console.error('Error fetching Google Sheets data:', error));
+</script>
+
 </body>
 </html>
