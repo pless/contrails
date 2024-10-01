@@ -44,13 +44,12 @@
             const json = JSON.parse(data.substring(47, data.length - 2));
             const rows = json.table.rows;
 
-            // Convert rows to a structured format
+            // Convert rows to a structured format with null checks
             const cameraData = rows.map(row => ({
-                name: row.c[0].v, // Name from first column
-                url: row.c[1].v,  // URL from second column
-                tags: row.c[8].v.split(',') // Tags from ninth column (comma-separated)
+                name: row.c[0] ? row.c[0].v : '', // Check if the first column exists, otherwise use an empty string
+                url: row.c[1] ? row.c[1].v : '',  // Check if the second column exists
+                tags: row.c[8] && row.c[8].v ? row.c[8].v.split(',') : [] // Check if the ninth column exists and is not empty, otherwise use an empty array
             }));
-
             // Filter cameras by tag
             const filteredCameras = cameraData.filter(camera => camera.tags.includes(tag));
 
