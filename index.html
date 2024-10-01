@@ -53,6 +53,12 @@
             }));
             // Filter cameras by tag
             const filteredCameras = cameraData.filter(camera => camera.tags.includes(tag));
+            // Function to convert regular YouTube URL to embed URL
+            function convertToEmbedUrl(youtubeUrl) {
+                const url = new URL(youtubeUrl);
+                const videoId = url.searchParams.get("v");
+                return `https://www.youtube.com/embed/${videoId}`;
+            }
 
             // Function to render the cameras
             function renderCameras(cameras) {
@@ -61,9 +67,10 @@
 
                 cameras.forEach(camera => {
                     const iframe = document.createElement('iframe');
-                    iframe.src = camera.url + "?autoplay=1&mute=1"; // Autoplay and mute for a cleaner experience
-                    iframe.width = "300";
-                    iframe.height = "200";
+                    
+                    iframe.src = convertToEmbedUrl(camera.url) + "?autoplay=0&mute=1"; // Autoplay off and mute for a cleaner experience
+                    iframe.width = "400";
+                    iframe.height = "300";
                     iframe.frameBorder = "0";
 
                     const cameraDiv = document.createElement('div');
