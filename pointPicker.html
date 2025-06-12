@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <canvas id="myCanvas"></canvas>
+  <script>
+    const img = new Image();
+    img.src = "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/south/latest_orig.jpg"
+    img.onload = () => {
+      const canvas = document.getElementById("myCanvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+
+      canvas.addEventListener("click", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        console.log(`Clicked: (${x}, ${y})`);
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+    };
+  </script>
+</body>
+</html>
