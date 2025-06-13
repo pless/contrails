@@ -71,11 +71,16 @@
         const lat = e.latLng.lat().toFixed(6);
         const lng = e.latLng.lng().toFixed(6);
         mapPoints.push([lat, lng]);
-        new google.maps.Marker({ position: e.latLng, map: map });
+
+        const markerView = new google.maps.marker.AdvancedMarkerElement({
+          map: map,
+          position: e.latLng
+        });
+
         checkMatch();
       });
     }
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap&loading=async"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap&libraries=marker"></script>
 </body>
 </html>
