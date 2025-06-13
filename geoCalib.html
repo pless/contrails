@@ -13,7 +13,6 @@
     #matches th, #matches td { border: 1px solid #ddd; padding: 4px; text-align: center; }
     #matches th { background: #f0f0f0; }
     .btn { cursor: pointer; padding: 2px 6px; margin: 0 2px; }
-    #searchInput { padding: 4px; width: 200px; }
   </style>
 </head>
 <body>
@@ -24,8 +23,6 @@
   <div id="panel">
     <button id="exportBtn">Export JSON</button>
     <button id="exportCsvBtn">Export CSV</button>
-    <input type="text" id="searchInput" placeholder="Search map..." />
-    <button id="searchBtn">Go</button>
     <table id="matches">
       <thead>
         <tr><th>#</th><th>Image Pt</th><th>Map Pt</th><th>Actions</th></tr>
@@ -41,12 +38,10 @@
     const mapContainer = document.getElementById('map');
     const exportBtn = document.getElementById('exportBtn');
     const exportCsvBtn = document.getElementById('exportCsvBtn');
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
     const tbody = document.querySelector('#matches tbody');
 
-    let matches = [];   // {id, img:[x,y], map:[lat,lng], marker}
-    let editing = null; // { type: 'img'|'map', id }
+    let matches = [];
+    let editing = null;
     const colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999','#66c2a5'];
 
     // Load image
@@ -86,7 +81,41 @@
         mapId: '2e6d1e173674445b90e0edd1'
       });
       geocoder = new google.maps.Geocoder();
+
+      // Map Search Control
+      const searchDiv = document.createElement('div');
+      searchDiv.style.background = '#fff';
+      searchDiv.style.padding = '5px';
+      searchDiv.style.margin = '10px';
+      searchDiv.style.borderRadius = '3px';
+      searchDiv.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+      const searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.placeholder = 'Search map...';
+      searchInput.style.width = '200px';
+      const searchBtn = document.createElement('button');
+      searchBtn.textContent = 'Go';
+      searchBtn.style.marginLeft = '4px';
+      searchDiv.appendChild(searchInput);
+      searchDiv.appendChild(searchBtn);
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchDiv);
+
+      searchBtn.addEventListener('click', () => geocodeSearch(searchInput.value));
+      searchInput.addEventListener('keyup', e => { if (e.key === 'Enter') geocodeSearch(searchInput.value); });
+
       map.addListener('click', e => handleMapClick([e.latLng.lat(), e.latLng.lng()], e.latLng));
+    }
+
+    function geocodeSearch(address) {
+      if (!address) return;
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          map.setCenter(results[0].geometry.location);
+          map.setZoom(15);
+        } else {
+          alert('Geocode failed: ' + status);
+        }
+      });
     }
 
     function handleMapClick(latlngArr, latlngObj) {
@@ -114,7 +143,7 @@
       draw(); renderTable();
     }
 
-    // Draw image + markers
+    // Drawing and table functions remain unchanged...
     function draw() {
       if (!img.width) return;
       ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -129,8 +158,6 @@
         }
       });
     }
-
-    // Render table
     function renderTable() {
       tbody.innerHTML = '';
       matches.forEach(m => {
@@ -147,80 +174,39 @@
         tbody.appendChild(tr);
       });
     }
-
-    // Table button clicks
     tbody.addEventListener('click', e => {
       if (e.target.matches('.btn')) {
-        const id = parseInt(e.target.dataset.id);
+        const id = +e.target.dataset.id;
         const action = e.target.dataset.action;
         if (action === 'delete') {
           const idx = matches.findIndex(m => m.id === id);
           if (matches[idx].marker) matches[idx].marker.setMap(null);
-          matches.splice(idx,1);
-          matches.forEach((m,i)=>m.id=i+1);
+          matches.splice(idx,1); matches.forEach((m,i)=>m.id=i+1);
           draw(); renderMarkers(); renderTable();
-        } else if (action === 'edit-img') {
-          editing = { type:'img', id };
-        } else if (action === 'edit-map') {
-          editing = { type:'map', id };
-        }
+        } else editing = { type: action==='edit-img'?'img':'map', id };
       }
     });
-
-    // Re-render map markers after deletion/reindex
     function renderMarkers() {
-      matches.forEach(m => { if (m.marker) m.marker.setMap(null); m.marker = null; });
+      matches.forEach(m => { if (m.marker) m.marker.setMap(null); m.marker=null; });
       matches.forEach(m => {
         if (m.map) {
-          const latlng = new google.maps.LatLng(m.map[0], m.map[1]);
-          const content = document.createElement('div');
-          content.textContent = m.id;
-          content.style.cssText = `
-            background:${colors[(m.id-1)%colors.length]}; color:white;
-            width:24px; height:24px; border-radius:12px;
-            display:flex; align-items:center; justify-content:center;
-          `;
-          m.marker = new google.maps.marker.AdvancedMarkerElement({ map, position: latlng, content });
+          const loc = new google.maps.LatLng(m.map[0], m.map[1]);
+          const content = document.createElement('div'); content.textContent = m.id;
+          content.style.cssText = `background:${colors[(m.id-1)%colors.length]}; color:white; width:24px; height:24px; border-radius:12px; display:flex; align-items:center; justify-content:center;`;
+          m.marker = new google.maps.marker.AdvancedMarkerElement({ map, position: loc, content });
         }
       });
     }
-
-    // Export JSON
     exportBtn.addEventListener('click', () => {
       const data = matches.map(m => ({ id: m.id, img: m.img, map: m.map }));
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'matches.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url;a.download='matches.json';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
     });
-
-    // Export CSV
     exportCsvBtn.addEventListener('click', () => {
-      let csv = 'id,img_x,img_y,map_lat,map_lng\n';
-      matches.forEach(m => {
-        csv += `${m.id},${m.img?m.img[0]:''},${m.img?m.img[1]:''},${m.map?m.map[0]:''},${m.map?m.map[1]:''}\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'matches.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+      let csv='id,img_x,img_y,map_lat,map_lng\n'; matches.forEach(m=>{csv+=`${m.id},${m.img?m.img[0]:''},${m.img?m.img[1]:''},${m.map?m.map[0]:''},${m.map?m.map[1]:''}\n`;});
+      const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='matches.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
     });
-
-    // Map search
-    searchBtn.addEventListener('click', () => {
-      const addr = searchInput.value.trim(); if (!addr) return;
-      geocoder.geocode({ address: addr }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-          map.setCenter(results[0].geometry.location);
-          map.setZoom(15);
-        } else {
-          alert('Geocode failed: ' + status);
-        }
-      });
-    });
-    searchInput.addEventListener('keyup', e => { if (e.key === 'Enter') searchBtn.click(); });
   </script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap&libraries=marker"></script>
 </body>
 </html>
-
-
-
