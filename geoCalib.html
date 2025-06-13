@@ -28,11 +28,22 @@
       cursor: crosshair;
     }
     /* Loupe */
+//    #magnifierCanvas {
+//      position: absolute; width: 70px; height: 70px;
+//      border: 2px solid #333; border-radius: 50%;
+//      pointer-events: none; display: none; z-index: 10;
+//    }
     #magnifierCanvas {
-      position: absolute; width: 50px; height: 50px;
-      border: 2px solid #333; border-radius: 50%;
-      pointer-events: none; display: none; z-index: 10;
-    }
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border: 2px solid #333;
+      border-radius: 50%;
+      pointer-events: none;
+      display: none;
+      z-index: 10;
+      transform: translate(-50%, -50%);
+ }
     /* Bottom panel */
     #panel {
       height: 20vh; overflow-y: auto;
@@ -128,8 +139,11 @@
       mgCtx.moveTo(0, magSize/2); mgCtx.lineTo(magSize, magSize/2);
       mgCtx.stroke();
       // center loupe
-      magCanvas.style.left = (e.clientX - rect.left - magSize/2) + 'px';
-      magCanvas.style.top  = (e.clientY - rect.top  - magSize/2) + 'px';
+//      magCanvas.style.left = (e.clientX - rect.left - magSize/2) + 'px';
+//      magCanvas.style.top  = (e.clientY - rect.top  - magSize/2) + 'px';
+      magCanvas.style.left = (e.clientX - rect.left) + 'px';
+      magCanvas.style.top  = (e.clientY - rect.top)  + 'px';
+
     });
     canvas.addEventListener('mouseleave', () => magCanvas.style.display = 'none');
 
