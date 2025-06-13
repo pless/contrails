@@ -1,85 +1,206 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <title>Image ↔ Map Point Matcher</title>
   <style>
-    body { margin: 0; font-family: sans-serif; }
-    #container { display: flex; height: 80vh; }
-    #imageContainer, #map { flex: 1; }
-    #output { height: 20vh; overflow: auto; padding: 10px; background: #f0f0f0; font-family: monospace; }
-    canvas { width: 100%; height: 100%; cursor: crosshair; }
+    body { margin: 0; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+    #upper { flex: 1; display: flex; }
+    #imageContainer, #map { flex: 1; position: relative; }
+    #imageContainer canvas, #map { width: 100%; height: 100%; }
+    #panel { height: 20vh; overflow-y: auto; border-top: 1px solid #ccc; padding: 8px; box-sizing: border-box; }
+    #matches { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    #matches th, #matches td { border: 1px solid #ddd; padding: 4px; text-align: center; }
+    #matches th { background: #f0f0f0; }
+    .btn { cursor: pointer; padding: 2px 6px; margin: 0 2px; }
   </style>
 </head>
 <body>
-  <div id="container">
+  <div id="upper">
     <div id="imageContainer"><canvas id="imageCanvas"></canvas></div>
     <div id="map"></div>
   </div>
-  <div id="output"><b>Click points on image and map:</b><br></div>
+  <div id="panel">
+    <button id="exportBtn">Export JSON</button>
+    <table id="matches">
+      <thead>
+        <tr><th>#</th><th>Image Pt</th><th>Map Pt</th><th>Actions</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script>
+    // --- Setup ---
     const canvas = document.getElementById('imageCanvas');
     const ctx = canvas.getContext('2d');
-    const output = document.getElementById('output');
-    let imagePoints = [];
-    let mapPoints = [];
+    const mapContainer = document.getElementById('map');
+    const exportBtn = document.getElementById('exportBtn');
+    const tbody = document.querySelector('#matches tbody');
 
+    let matches = [];   // {id, img:[x,y], map:[lat,lng], marker}
+    let editing = null; // { type: 'img'|'map', id }
+    const colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999','#66c2a5'];
+
+    // Load image
     const img = new Image();
     img.src = 'https://f5.aos.wisc.edu/webcam_movies/latest_west_1024x768.jpg';
     img.onload = () => {
       canvas.width = img.width;
       canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+      draw();
     };
 
-    canvas.addEventListener('click', (e) => {
+    // Canvas click
+    canvas.addEventListener('click', e => {
       const rect = canvas.getBoundingClientRect();
       const x = Math.round((e.clientX - rect.left) * canvas.width / canvas.clientWidth);
       const y = Math.round((e.clientY - rect.top) * canvas.height / canvas.clientHeight);
-      imagePoints.push([x, y]);
-      checkMatch();
+      handleImgClick([x,y]);
     });
 
-    function addToOutput(text) {
-      output.innerHTML += text + "<br>";
-      output.scrollTop = output.scrollHeight;
-    }
-
-    function checkMatch() {
-      if (imagePoints.length > mapPoints.length) {
-        addToOutput(`Image point: (${imagePoints.at(-1)})`);
-      } else if (mapPoints.length > imagePoints.length) {
-        addToOutput(`Map point: (${mapPoints.at(-1)})`);
+    function handleImgClick(pt) {
+      let match;
+      if (editing && editing.type === 'img') {
+        match = matches.find(m => m.id === editing.id);
+        editing = null;
+      } else if (!matches.length || (matches[matches.length-1].img && matches[matches.length-1].map)) {
+        match = { id: matches.length + 1 };
+        matches.push(match);
       } else {
-        const iPt = imagePoints.at(-1);
-        const mPt = mapPoints.at(-1);
-        addToOutput(`PAIR ${imagePoints.length}: Image(${iPt}) ↔ Map(${mPt})`);
+        match = matches[matches.length-1];
       }
+      match.img = pt;
+      draw(); renderTable();
     }
 
+    // Initialize Google Map
     let map;
     function initMap() {
-      map = new google.maps.Map(document.getElementById('map'), {
+      map = new google.maps.Map(mapContainer, {
         center: { lat: 38.9, lng: -77.04 },
         zoom: 4,
         mapId: '2e6d1e173674445b90e0edd1'
       });
+      map.addListener('click', e => handleMapClick([e.latLng.lat(), e.latLng.lng()], e.latLng));
+    }
 
-      map.addListener('click', (e) => {
-        const lat = e.latLng.lat().toFixed(6);
-        const lng = e.latLng.lng().toFixed(6);
-        mapPoints.push([lat, lng]);
+    function handleMapClick(latlngArr, latlngObj) {
+      let match;
+      if (editing && editing.type === 'map') {
+        match = matches.find(m => m.id === editing.id);
+        editing = null;
+      } else if (!matches.length || (matches[matches.length-1].img && matches[matches.length-1].map)) {
+        match = { id: matches.length + 1 };
+        matches.push(match);
+      } else {
+        match = matches[matches.length-1];
+      }
+      match.map = latlngArr;
+      // remove old marker if exists
+      if (match.marker) match.marker.setMap(null);
+      // add new advanced marker
+      const content = document.createElement('div');
+      content.textContent = match.id;
+      content.style.cssText = `
+        background:${colors[(match.id-1)%colors.length]};
+        color:white; width:24px; height:24px;
+        border-radius:12px; display:flex;
+        align-items:center; justify-content:center;
+      `;
+      match.marker = new google.maps.marker.AdvancedMarkerElement({
+        map, position: latlngObj, content
+      });
+      draw(); renderTable();
+    }
 
-        const markerView = new google.maps.marker.AdvancedMarkerElement({
-          map: map,
-          position: e.latLng
-        });
-
-        checkMatch();
+    // Draw image + markers
+    function draw() {
+      if (!img.width) return;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.drawImage(img,0,0);
+      matches.forEach(m => {
+        if (m.img) {
+          const [x,y] = m.img;
+          ctx.fillStyle = colors[(m.id-1)%colors.length];
+          ctx.beginPath(); ctx.arc(x,y,6,0,2*Math.PI); ctx.fill();
+          ctx.fillStyle = '#fff'; ctx.font='12px sans-serif';
+          ctx.fillText(m.id, x-4, y+4);
+        }
       });
     }
+
+    // Render table
+    function renderTable() {
+      tbody.innerHTML = '';
+      matches.forEach(m => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${m.id}</td>
+          <td>${m.img ? `(${m.img[0]},${m.img[1]})` : ''}</td>
+          <td>${m.map ? `(${m.map[0].toFixed(6)},${m.map[1].toFixed(6)})` : ''}</td>
+          <td>
+            <button class="btn" data-action="edit-img" data-id="${m.id}">Edit Img</button>
+            <button class="btn" data-action="edit-map" data-id="${m.id}">Edit Map</button>
+            <button class="btn" data-action="delete" data-id="${m.id}">Delete</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Table button clicks
+    tbody.addEventListener('click', e => {
+      if (e.target.matches('.btn')) {
+        const id = parseInt(e.target.dataset.id);
+        const action = e.target.dataset.action;
+        if (action === 'delete') {
+          const idx = matches.findIndex(m=>m.id===id);
+          if (matches[idx].marker) matches[idx].marker.setMap(null);
+          matches.splice(idx,1);
+          // reassign ids
+          matches.forEach((m,i)=>m.id=i+1);
+          draw(); renderMarkers(); renderTable();
+        } else if (action === 'edit-img') {
+          editing = { type:'img', id };
+        } else if (action === 'edit-map') {
+          editing = { type:'map', id };
+        }
+      }
+    });
+
+    // Re-render map markers after deletion/reindex
+    function renderMarkers() {
+      // clear then re-add
+      matches.forEach(m=>{ if(m.marker) m.marker.setMap(null); m.marker=null; });
+      matches.forEach(m=>{
+        if (m.map) {
+          const latlng = new google.maps.LatLng(m.map[0], m.map[1]);
+          const content = document.createElement('div');
+          content.textContent = m.id;
+          content.style.cssText = `
+            background:${colors[(m.id-1)%colors.length]}; color:white;
+            width:24px; height:24px; border-radius:12px;
+            display:flex; align-items:center; justify-content:center;
+          `;
+          m.marker = new google.maps.marker.AdvancedMarkerElement({map,position:latlng,content});
+        }
+      });
+    }
+
+    // Export JSON
+    exportBtn.addEventListener('click',()=>{
+      const data = matches.map(m=>({id:m.id,img:m.img,map:m.map}));
+      const blob = new Blob([JSON.stringify(data, null, 2)],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url;
+      a.download='matches.json'; document.body.appendChild(a);
+      a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap&libraries=marker" async defer></script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap&libraries=marker"></script>
 </body>
 </html>
+
 
