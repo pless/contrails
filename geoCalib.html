@@ -148,7 +148,7 @@
       // Load image
       const img = new Image();
       img.src =
-        "https://f5.aos.wisc.edu/webcam_movies/latest_west_1024x768.jpg";
+        "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/west/latest_orig.jpg";
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
@@ -425,6 +425,29 @@
         });
         const blob = new Blob([csv], { type: "text/csv" });
         downloadFile(blob, "matches.csv");
+      });
+
+      // save to localStorage
+      // save everty 5 seconds
+      setInterval(() => {
+        console.log("Saving matches to localStorage...", matches);
+        // clone matches
+        const matchesToSave = matches.map((m) => ({
+          id: m.id,
+          img: m.img ? [...m.img] : null,
+          map: m.map ? [...m.map] : null,
+        }));
+        localStorage.setItem("geoCalibMatches", JSON.stringify(matchesToSave));
+      }, 5000);
+      // load from localStorage
+      window.addEventListener("load", () => {
+        const saved = localStorage.getItem("geoCalibMatches");
+        if (saved) {
+          matches = JSON.parse(saved);
+          renderMarkers();
+          draw();
+          renderTable();
+        }
       });
     </script>
     <script
