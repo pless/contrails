@@ -93,14 +93,18 @@
       <div id="map"></div>
     </div>
     <div id="panel">
-      <button id="exportBtn">Export JSON</button>
-      <button id="exportCsvBtn">Export CSV</button>
+      <div id="controls">
+        <button id="calibrateApiBtn">Calibrate with API</button>
+        <button id="exportBtn">Export JSON</button>
+        <button id="exportCsvBtn">Export CSV</button>
+      </div>
       <table id="matches">
         <thead>
           <tr>
             <th>#</th>
             <th>Image Pt</th>
             <th>Map Pt</th>
+            <th>API Reprojected</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -148,7 +152,7 @@
       // Load image
       const img = new Image();
       img.src =
-        "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/northwest/latest_orig.jpg";
+        "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/west/latest_orig.jpg";
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
@@ -322,6 +326,19 @@
             ctx.font = "12px sans-serif";
             ctx.fillText(m.id, x - 4, y + 4);
           }
+          // Draw reprojected point from API
+          if (m.apiReprojected) {
+            const [x, y] = m.apiReprojected;
+            ctx.strokeStyle = colors[(m.id - 1) % colors.length];
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            const l = 20;
+            ctx.moveTo(x - l, y - l);
+            ctx.lineTo(x + l, y + l);
+            ctx.moveTo(x + l, y - l);
+            ctx.lineTo(x - l, y + l);
+            ctx.stroke();
+          }
         });
       }
 
@@ -337,6 +354,13 @@
               ? `(${m.map[0].toFixed(6)},${m.map[1].toFixed(
                   6
                 )},${m.map[2].toFixed(6)})`
+              : ""
+          }</td>
+          <td>${
+            m.apiReprojected
+              ? `(${m.apiReprojected[0].toFixed(
+                  1
+                )},${m.apiReprojected[1].toFixed(1)})`
               : ""
           }</td>
           <td>
@@ -392,6 +416,72 @@
             });
           }
         });
+      }
+
+      // --- API Calibration ---
+      const calibrateApiBtn = document.getElementById("calibrateApiBtn");
+      calibrateApiBtn.addEventListener("click", calibrateWithApi);
+
+      async function calibrateWithApi() {
+        const payload = {
+          imagePoints: matches.map((m) => m.img),
+          worldPoints: matches.map((m) => m.map),
+          imageUrl: img.src,
+        };
+
+        try {
+          const response = await fetch("http://127.0.0.1:5001/calibrate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const err = await response.json();
+            throw new Error(
+              err.detail || `HTTP error! status: ${response.status}`
+            );
+          }
+
+          const results = await response.json();
+
+          // Re-project points using the returned matrices
+          const { k_matrix, r_matrix, t_vector, estimated_image_points } =
+            results;
+          const worldPoints = payload.worldPoints;
+
+          const reprojectedPoints = estimated_image_points;
+
+          // Update matches with reprojected points
+          matches.forEach((m, i) => {
+            m.apiReprojected = reprojectedPoints[i];
+          });
+
+          draw();
+          renderTable();
+        } catch (error) {
+          console.error("API Calibration failed:", error);
+          alert("API Calibration failed: " + error.message);
+        }
+      }
+
+      // --- Matrix Helpers ---
+      function matVecMul(matrix, vector) {
+        const result = [];
+        for (let i = 0; i < matrix.length; i++) {
+          let sum = 0;
+          for (let j = 0; j < matrix[i].length; j++) {
+            sum += matrix[i][j] * vector[j][0];
+          }
+          result.push([sum]);
+        }
+        return result;
+      }
+
+      function transpose(matrix) {
+        return matrix[0].map((_, colIndex) =>
+          matrix.map((row) => row[colIndex])
+        );
       }
 
       function downloadFile(blob, filename) {

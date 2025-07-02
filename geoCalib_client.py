@@ -4,7 +4,7 @@ import re
 client = Client("veichta/GeoCalib")
 
 
-def get_camera_parameters_estimate(image_url, camera_model="pinhole", plot_up=False, plot_up_confidence=False,
+def get_camera_parameters_estimate(image_url, camera_model="simple_radial", plot_up=False, plot_up_confidence=False,
                                    plot_latitude=False, plot_latitude_confidence=False, plot_undistort=True):
     result = client.predict(
         image_path=handle_file(image_url),
@@ -52,7 +52,7 @@ def get_camera_parameters_estimate(image_url, camera_model="pinhole", plot_up=Fa
 
 if __name__ == "__main__":
     # test the function
-    image_url = "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/northwest/latest_orig.jpg"
+    image_url = "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/northwest/latest_orig.jpg?t=1697054400"
     params, result_image_path, result_text = get_camera_parameters_estimate(
         image_url)
     print("Estimated parameters:")

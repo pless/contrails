@@ -6,6 +6,7 @@ import cv2
 from io import BytesIO
 from PIL import Image
 import requests
+from fastapi.middleware.cors import CORSMiddleware
 
 # Local imports
 from geoCalib_client import get_camera_parameters_estimate
@@ -17,8 +18,6 @@ from calibration_utils import estimate_camera_params, gps_to_camxy_vasha_fixed
 class CalibrationRequest(BaseModel):
     imagePoints: List[List[float]] = Field(..., min_items=4)
     worldPoints: List[List[float]] = Field(..., min_items=4)
-    cameraGPS: List[float] = Field(..., min_items=3, max_items=3,
-                                   description="Camera's [latitude, longitude, altitude]")
     imageUrl: str
 
 
@@ -26,7 +25,7 @@ class CalibrationResponse(BaseModel):
     k_matrix: List[List[float]]
     r_matrix: List[List[float]]
     t_vector: List[List[float]]
-    extimated_image_points: List[List[float]]
+    estimated_image_points: List[List[float]]
 
 # --- FastAPI App ---
 
@@ -35,6 +34,14 @@ app = FastAPI(
     title="Camera Calibration API",
     description="An API to calculate camera matrix and distortion coefficients using a combination of initial estimation and refinement.",
     version="1.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or specify domains like ["http://localhost:3000"]
+    allow_credentials=True,
+    allow_methods=["*"],  # Make sure OPTIONS is included
+    allow_headers=["*"],
 )
 
 
@@ -50,7 +57,7 @@ async def calibrate_camera(data: CalibrationRequest):
             initial_params, _, _ = get_camera_parameters_estimate(
                 data.imageUrl)
             # Default to 50 deg if not found
-            vfov_deg = initial_params.get('vFoV', (50, 0))[0]
+            focal_length_deg = initial_params.get('vFoV', (50, 0))[0]
         except Exception as e:
             raise HTTPException(
                 status_code=503, detail=f"GeoCalib service failed: {e}")
@@ -67,14 +74,13 @@ async def calibrate_camera(data: CalibrationRequest):
             raise HTTPException(
                 status_code=400, detail=f"Failed to fetch image from URL: {e}")
 
-        # Convert vFoV to focal length in pixels
-        focal_length_px = (frame_size[0] / 2) / \
-            np.tan(np.deg2rad(vfov_deg) / 2)
+        focal_length = 0.5 * frame_size[0] / \
+            np.tan(0.5 * np.radians(focal_length_deg))
 
         # Create initial K matrix (intrinsics)
         initial_k = np.array([
-            [focal_length_px, 0, frame_size[1] / 2],
-            [0, focal_length_px, frame_size[0] / 2],
+            [focal_length, 0, frame_size[1] / 2],
+            [0, focal_length, frame_size[0] / 2],
             [0, 0, 1]
         ], dtype=np.float32)
 
@@ -88,7 +94,7 @@ async def calibrate_camera(data: CalibrationRequest):
         origin_gps = np.array(data.worldPoints[0])
 
         try:
-            k_matrix, dist_coeffs, r_matrix, t_vector, _ = estimate_camera_params(
+            k_matrix, dist_coeffs, r_matrix, t_vector, cam_ecef_coords = estimate_camera_params(
                 origin_gps,
                 poi_gps,
                 poi_xy,
@@ -102,18 +108,22 @@ async def calibrate_camera(data: CalibrationRequest):
         # --- 4. Calculate Reprojection Error ---
         # use gps_to_camxy_vasha_fixed
         image_x, image_y, cam_distance = gps_to_camxy_vasha_fixed(
-            data.worldPoints[1:, 0],  # lats
-            data.worldPoints[1:, 1],  # lons
-            data.worldPoints[1:, 2],  # alts
-            origin_gps,
-            r_matrix,
-            t_vector,
-            camera_gps=origin_gps
+            poi_gps[:, 0],  # lats
+            poi_gps[:, 1],  # lons
+            poi_gps[:, 2],  # alts
+            cam_k=k_matrix,
+            cam_r=r_matrix,
+            cam_t=t_vector,
+            cam_ecef=cam_ecef_coords,
+            camera_gps=origin_gps,
+            distortion=dist_coeffs
         )
 
-        # append input points to estimated points for response
-        image_x = np.insert(image_x, 0, data.imagePoints[0][0])
-        image_y = np.insert(image_y, 0, data.imagePoints[0][1])
+        # # add input points to estimated points for response
+        # image_x = np.insert(image_x, 0, data.imagePoints[0][0])
+        # image_y = np.insert(image_y, 0, data.imagePoints[0][1])
+        image_x = np.concatenate(([data.imagePoints[0][0]], image_x))
+        image_y = np.concatenate(([data.imagePoints[0][1]], image_y))
 
         return {
             "k_matrix": k_matrix.tolist(),

@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+opencv-python
+numpy
+requests
+Pillow
+gradio_client
+pyproj

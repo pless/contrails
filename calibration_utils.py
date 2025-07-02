@@ -136,3 +136,50 @@ def estimate_camera_params(origin_gps, poi_gps, poi_xy, frame_size, intrinsics_e
     R, _ = cv2.Rodrigues(rvecs[0])
 
     return camera_matrix, dist_coeffs, R, T, cam_ecef
+
+
+def calculate_fov_from_intrinsics(intrinsics, image_width, image_height, distortion=None):
+    """
+    Calculate horizontal and vertical field of view from camera intrinsics matrix.
+
+    *** NOTE: This method assumes no distortion is applied.
+    Without distortion -  ***
+
+    Args:
+        intrinsics: 3x3 camera intrinsics matrix (K matrix)
+        image_width: Width of the image in pixels
+        image_height: Height of the image in pixels
+        distortion: Optional distortion coefficients (not used in this calculation)
+
+    Returns:
+        hfov: Horizontal field of view in radians
+        vfov: Vertical field of view in radians
+        hfov_deg: Horizontal field of view in degrees
+        vfov_deg: Vertical field of view in degrees
+    """
+    # Extract focal lengths and principal point
+    fx = intrinsics[0, 0]  # focal length in x (pixels)
+    fy = intrinsics[1, 1]  # focal length in y (pixels)
+    cx = intrinsics[0, 2]  # principal point x
+    cy = intrinsics[1, 2]  # principal point y
+
+    # Left and right angles from principal point
+    angle_left = np.arctan(cx / fx)
+    angle_right = np.arctan((image_width - cx) / fx)
+    hfov = angle_left + angle_right
+
+    # Top and bottom angles from principal point
+    angle_top = np.arctan(cy / fy)
+    angle_bottom = np.arctan((image_height - cy) / fy)
+    vfov = angle_top + angle_bottom
+
+    # Method 2: Simplified calculation (assumes centered principal point)
+    # hfov_simple = 2 * np.arctan(image_width / (2 * fx))
+    # vfov_simple = 2 * np.arctan(image_height / (2 * fy))
+
+    # Convert to degrees for display
+    hfov_deg = np.degrees(hfov)
+    vfov_deg = np.degrees(vfov)
+
+    # return hfov, vfov, hfov_deg, vfov_deg
+    return (hfov_deg.item(), vfov_deg.item())
