@@ -94,6 +94,8 @@
     </div>
     <div id="panel">
       <div id="controls">
+        <input type="text" id="imageUrlInput" placeholder="Enter Image URL" style="width: 300px;">
+        <button id="loadImageBtn">Load Image</button>
         <button id="calibrateApiBtn">Calibrate with API</button>
         <button id="exportBtn">Export JSON</button>
         <button id="exportCsvBtn">Export CSV</button>
@@ -151,6 +153,7 @@
 
       // Load image
       const img = new Image();
+      img.crossOrigin = "Anonymous"; // This is important for loading external images
       img.src =
         "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/west/latest_orig.jpg";
       img.onload = () => {
@@ -158,6 +161,15 @@
         canvas.height = img.height;
         draw();
       };
+
+      const loadImageBtn = document.getElementById("loadImageBtn");
+      const imageUrlInput = document.getElementById("imageUrlInput");
+      loadImageBtn.addEventListener("click", () => {
+        const newUrl = imageUrlInput.value.trim();
+        if (newUrl) {
+          img.src = newUrl;
+        }
+      });
 
       // Image click
       canvas.addEventListener("click", (e) => {
