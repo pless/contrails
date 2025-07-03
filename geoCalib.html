@@ -167,20 +167,27 @@
 
       // Load image
       const img = new Image();
-      img.src =
-        "https://f5.aos.wisc.edu/webcam_movies/latest_west_1024x768.jpg";
+      const loadImageBtn = document.getElementById("loadImageBtn");
+      const imageUrlInput = document.getElementById("imageUrlInput");
+
+      const savedImageUrl = localStorage.getItem("lastImageUrl");
+      const initialUrl =
+        savedImageUrl ||
+        "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/northwest/latest_orig.jpg";
+      imageUrlInput.value = initialUrl;
+      img.src = initialUrl;
+
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
         draw();
       };
 
-      const loadImageBtn = document.getElementById("loadImageBtn");
-      const imageUrlInput = document.getElementById("imageUrlInput");
       loadImageBtn.addEventListener("click", () => {
         const newUrl = imageUrlInput.value.trim();
         if (newUrl) {
           img.src = newUrl;
+          localStorage.setItem("lastImageUrl", newUrl);
         }
       });
 
