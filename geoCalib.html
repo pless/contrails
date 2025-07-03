@@ -94,11 +94,23 @@
     </div>
     <div id="panel">
       <div id="controls">
-        <input type="text" id="imageUrlInput" placeholder="Enter Image URL" style="width: 300px;">
+        <input
+          type="text"
+          id="imageUrlInput"
+          placeholder="Enter Image URL"
+          style="width: 300px"
+        />
         <button id="loadImageBtn">Load Image</button>
         <button id="calibrateApiBtn">Calibrate with API</button>
         <button id="exportBtn">Export JSON</button>
         <button id="exportCsvBtn">Export CSV</button>
+        <button id="importBtn">Import JSON/CSV</button>
+        <input
+          type="file"
+          id="importFile"
+          style="display: none"
+          accept=".json,.csv"
+        />
       </div>
       <table id="matches">
         <thead>
@@ -128,6 +140,8 @@
       const mapContainer = document.getElementById("map");
       const exportBtn = document.getElementById("exportBtn");
       const exportCsvBtn = document.getElementById("exportCsvBtn");
+      const importBtn = document.getElementById("importBtn");
+      const importFile = document.getElementById("importFile");
       const tbody = document.querySelector("#matches tbody");
 
       let matches = [];
@@ -153,21 +167,27 @@
 
       // Load image
       const img = new Image();
-      img.crossOrigin = "Anonymous"; // This is important for loading external images
-      img.src =
-        "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/west/latest_orig.jpg";
+      const loadImageBtn = document.getElementById("loadImageBtn");
+      const imageUrlInput = document.getElementById("imageUrlInput");
+
+      const savedImageUrl = localStorage.getItem("lastImageUrl");
+      const initialUrl =
+        savedImageUrl ||
+        "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/northwest/latest_orig.jpg";
+      imageUrlInput.value = initialUrl;
+      img.src = initialUrl;
+
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
         draw();
       };
 
-      const loadImageBtn = document.getElementById("loadImageBtn");
-      const imageUrlInput = document.getElementById("imageUrlInput");
       loadImageBtn.addEventListener("click", () => {
         const newUrl = imageUrlInput.value.trim();
         if (newUrl) {
           img.src = newUrl;
+          localStorage.setItem("lastImageUrl", newUrl);
         }
       });
 
@@ -531,6 +551,72 @@
         const blob = new Blob([csv], { type: "text/csv" });
         downloadFile(blob, "matches.csv");
       });
+
+      importBtn.addEventListener("click", () => importFile.click());
+      importFile.addEventListener("change", handleFileImport);
+
+      function handleFileImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target.result;
+          if (file.name.endsWith(".json")) {
+            try {
+              const importedMatches = JSON.parse(content);
+              matches = importedMatches;
+            } catch (err) {
+              alert("Error parsing JSON file: " + err.message);
+              return;
+            }
+          } else if (file.name.endsWith(".csv")) {
+            try {
+              const lines = content
+                .split("\n")
+                .filter((line) => line.trim() !== "");
+              const headers = lines[0].split(",").map((h) => h.trim());
+              const importedMatches = [];
+              for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(",").map((v) => v.trim());
+                const match = {};
+                headers.forEach((header, index) => {
+                  if (values[index]) {
+                    if (header === "id") match.id = parseInt(values[index], 10);
+                    else if (header === "img_x") {
+                      if (!match.img) match.img = [];
+                      match.img[0] = parseFloat(values[index]);
+                    } else if (header === "img_y") {
+                      if (!match.img) match.img = [];
+                      match.img[1] = parseFloat(values[index]);
+                    } else if (header === "map_lat") {
+                      if (!match.map) match.map = [];
+                      match.map[0] = parseFloat(values[index]);
+                    } else if (header === "map_lng") {
+                      if (!match.map) match.map = [];
+                      match.map[1] = parseFloat(values[index]);
+                    } else if (header === "map_altitude") {
+                      if (!match.map) match.map = [];
+                      match.map[2] = parseFloat(values[index]);
+                    }
+                  }
+                });
+                if (Object.keys(match).length > 0) {
+                  importedMatches.push(match);
+                }
+              }
+              matches = importedMatches;
+            } catch (err) {
+              alert("Error parsing CSV file: " + err.message);
+              return;
+            }
+          }
+          renderMarkers();
+          draw();
+          renderTable();
+        };
+        reader.readAsText(file);
+      }
 
       // save to localStorage
       // save everty 5 seconds
