@@ -257,6 +257,9 @@
           center: { lat: 38.9, lng: -77.04 },
           zoom: 4,
           mapId: "2e6d1e173674445b90e0edd1",
+          // Update to make the cursor not be a "hand" in google maps.
+          draggableCursor: 'pointer',   // shows when moving over the map
+          draggingCursor: 'grabbing',     // shows when dragging the map (optional)
         });
         geocoder = new google.maps.Geocoder();
         elevationService = new google.maps.ElevationService();
