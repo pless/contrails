@@ -1,6 +1,7 @@
 from pyproj import Transformer
 import numpy as np
 import cv2
+import pymap3d as pm
 
 
 def ecef_to_enu_vasha(origin_ecef, points_ecef, cam_lat, cam_lon):
@@ -136,6 +137,139 @@ def estimate_camera_params(origin_gps, poi_gps, poi_xy, frame_size, intrinsics_e
     R, _ = cv2.Rodrigues(rvecs[0])
 
     return camera_matrix, dist_coeffs, R, T, cam_ecef
+
+
+def calculate_fov_from_intrinsics(intrinsics, image_width, image_height, distortion=None):
+    """
+    Calculate horizontal and vertical field of view from camera intrinsics matrix.
+
+    *** NOTE: This method assumes no distortion is applied.
+    Without distortion -  ***
+
+    Args:
+        intrinsics: 3x3 camera intrinsics matrix (K matrix)
+        image_width: Width of the image in pixels
+        image_height: Height of the image in pixels
+        distortion: Optional distortion coefficients (not used in this calculation)
+
+    Returns:
+        hfov: Horizontal field of view in radians
+        vfov: Vertical field of view in radians
+        hfov_deg: Horizontal field of view in degrees
+        vfov_deg: Vertical field of view in degrees
+    """
+    # Extract focal lengths and principal point
+    fx = intrinsics[0, 0]  # focal length in x (pixels)
+    fy = intrinsics[1, 1]  # focal length in y (pixels)
+    cx = intrinsics[0, 2]  # principal point x
+    cy = intrinsics[1, 2]  # principal point y
+
+    # Left and right angles from principal point
+    angle_left = np.arctan(cx / fx)
+    angle_right = np.arctan((image_width - cx) / fx)
+    hfov = angle_left + angle_right
+
+    # Top and bottom angles from principal point
+    angle_top = np.arctan(cy / fy)
+    angle_bottom = np.arctan((image_height - cy) / fy)
+    vfov = angle_top + angle_bottom
+
+    # Method 2: Simplified calculation (assumes centered principal point)
+    # hfov_simple = 2 * np.arctan(image_width / (2 * fx))
+    # vfov_simple = 2 * np.arctan(image_height / (2 * fy))
+
+    # Convert to degrees for display
+    hfov_deg = np.degrees(hfov)
+    vfov_deg = np.degrees(vfov)
+
+    # return hfov, vfov, hfov_deg, vfov_deg
+    return (hfov_deg.item(), vfov_deg.item())
+
+
+def calculate_camera_angles(cam_r):
+    """
+    Calculate camera orientation angles from rotation matrix.
+
+    Returns:
+        azimuth: Camera azimuth in degrees (0=North, 90=East, 180=South, 270=West)
+        elevation: Camera elevation/pitch in degrees (positive=up, negative=down)
+        roll: Camera roll in degrees (rotation around forward axis)
+    """
+    # Camera directions
+    # right = cam_r[:, 0]    # Camera right direction in ENU (for Roll)
+    # down = cam_r[:, 1]     # Camera down direction in ENU (for Roll)
+    # The rotation matrix transforms from ENU to camera coordinates
+    # To get camera orientation in ENU, we need the inverse (transpose for orthogonal matrix)
+    R_camera_to_enu = cam_r.T
+
+    # Camera forward direction in ENU coordinates
+    # In camera space, forward is [0, 0, 1], so in ENU it's the 3rd column of R^T
+    forward_enu = R_camera_to_enu[:, 2]
+
+    # Camera up direction in ENU coordinates
+    # In camera space, up is [0, -1, 0] (negative Y), so in ENU it's negative 2nd column of R^T
+    # up_enu = -R_camera_to_enu[:, 1]
+
+    # Azimuth: angle in horizontal plane (from North)
+    # In ENU: North is +Y, East is +X
+    azimuth = np.degrees(np.arctan2(forward_enu[0], forward_enu[1]))
+    if azimuth < 0:
+        azimuth += 360
+
+    # Elevation: angle from horizontal plane
+    horizontal_distance = np.sqrt(forward_enu[0]**2 + forward_enu[1]**2)
+    elevation = np.degrees(np.arctan2(forward_enu[2], horizontal_distance))
+
+    # TODO: Calculate Roll (untested Claude code commented out below)
+    # Expected right direction (perpendicular to forward in horizontal plane)
+    # expected_right = np.array([
+    #     np.sin(np.radians(azimuth + 90)),
+    #     np.cos(np.radians(azimuth + 90)),
+    #     0
+    # ])
+    # # Camera up vector (negative of down)
+    # up = -down
+    # # Calculate roll by checking how much the up vector deviates from vertical
+    # # when projected onto the plane perpendicular to forward
+    # world_up = np.array([0, 0, 1])
+    # # Remove forward component from world_up
+    # world_up_perp = world_up - np.dot(world_up, forward) * forward
+    # world_up_perp = world_up_perp / np.linalg.norm(world_up_perp)
+    # # Remove forward component from camera up
+    # cam_up_perp = up - np.dot(up, forward) * forward
+    # cam_up_perp = cam_up_perp / np.linalg.norm(cam_up_perp)
+    # # Calculate angle between them
+    # cos_roll = np.dot(world_up_perp, cam_up_perp)
+    # cos_roll = np.clip(cos_roll, -1, 1)
+    # # Determine sign of roll using cross product
+    # cross = np.cross(world_up_perp, cam_up_perp)
+    # sign = np.sign(np.dot(cross, forward))
+    # roll = sign * np.degrees(np.arccos(cos_roll))
+
+    return (azimuth.item(), elevation.item())
+
+
+def getCameraPosition(refPoint, K, R, t):
+    """
+    Get camera position in ENU coordinates.
+    refPoint: Reference point in GPS coordinates not same as Cam (lat, lon, alt)
+    K: Camera intrinsic matrix
+    R: Camera rotation matrix
+    t: Camera translation vector
+    """
+    # Convert reference point to ENU coordinates
+
+    # Camera position in ENU is the negative translation vector
+    cam_pos_enu = -t.flatten()  # Ensure it's a 1D array
+
+    # Rotate camera position back to world coordinates
+    cam_pos_world = np.linalg.inv(R) @ cam_pos_enu
+    print('Camera Position in ENU:', cam_pos_enu)
+    # Convert back to GPS coordinates
+    cam_gps = pm.enu2geodetic(
+        cam_pos_world[0], cam_pos_world[1], cam_pos_world[2], refPoint[0], refPoint[1], refPoint[2])
+
+    return cam_gps, cam_pos_world
 
 
 def calculate_fov_from_intrinsics(intrinsics, image_width, image_height, distortion=None):

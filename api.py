@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Local imports
 from geoCalib_client import get_camera_parameters_estimate
-from calibration_utils import estimate_camera_params, gps_to_camxy_vasha_fixed
+from calibration_utils import calculate_camera_angles, calculate_fov_from_intrinsics, estimate_camera_params, getCameraPosition, gps_to_camxy_vasha_fixed
 
 # --- Pydantic Models ---
 
@@ -26,6 +26,9 @@ class CalibrationResponse(BaseModel):
     r_matrix: List[List[float]]
     t_vector: List[List[float]]
     estimated_image_points: List[List[float]]
+    camera_gps: list
+    camera_hfov: float
+    camera_azimuth: float
 
 # --- FastAPI App ---
 
@@ -107,6 +110,7 @@ async def calibrate_camera(data: CalibrationRequest):
 
         # --- 4. Calculate Reprojection Error ---
         # use gps_to_camxy_vasha_fixed
+
         image_x, image_y, cam_distance = gps_to_camxy_vasha_fixed(
             poi_gps[:, 0],  # lats
             poi_gps[:, 1],  # lons
@@ -114,7 +118,6 @@ async def calibrate_camera(data: CalibrationRequest):
             cam_k=k_matrix,
             cam_r=r_matrix,
             cam_t=t_vector,
-            cam_ecef=cam_ecef_coords,
             camera_gps=origin_gps,
             distortion=dist_coeffs
         )
@@ -125,11 +128,22 @@ async def calibrate_camera(data: CalibrationRequest):
         image_x = np.concatenate(([data.imagePoints[0][0]], image_x))
         image_y = np.concatenate(([data.imagePoints[0][1]], image_y))
 
+        camera_gps, _ = getCameraPosition(
+            origin_gps, k_matrix, r_matrix, t_vector)
+        camera_fovs = calculate_fov_from_intrinsics(
+            k_matrix, frame_size[1], frame_size[0])
+        camera_hfov = camera_fovs[0]
+        camera_vfov = camera_fovs[1]
+        azimuth = calculate_camera_angles(r_matrix)[0]
+
         return {
             "k_matrix": k_matrix.tolist(),
             "r_matrix": r_matrix.tolist(),
             "t_vector": t_vector.tolist(),
             "estimated_image_points": np.vstack((image_x, image_y)).T.tolist(),
+            "camera_gps": camera_gps,
+            "camera_hfov": camera_hfov,
+            "camera_azimuth": azimuth
         }
 
     except HTTPException as e:
