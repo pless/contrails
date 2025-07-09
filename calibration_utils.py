@@ -113,11 +113,11 @@ def estimate_camera_params(origin_gps, poi_gps, poi_xy, frame_size, intrinsics_e
 
     calibrate_flags = (
         cv2.CALIB_USE_INTRINSIC_GUESS |         # Use your good initial guess
-        # cv2.CALIB_USE_LU |         # Use your good initial guess
-        cv2.CALIB_FIX_PRINCIPAL_POINT |        # Keep principal point fixed
-        # cv2.CALIB_FIX_FOCAL_LENGTH |           # Keep focal lengths fixed
-        # cv2.CALIB_FIX_ASPECT_RATIO |            # Keep fx/fy ratio fixed
-        # cv2.CALIB_FIX_K1 | cv2.CALIB_FIX_K2 | cv2.CALIB_FIX_K3
+        # cv2.CALIB_USE_LU |                    # Use your good initial guess
+        cv2.CALIB_FIX_PRINCIPAL_POINT  |        # Keep principal point fixed
+        # cv2.CALIB_FIX_FOCAL_LENGTH |          # Keep focal lengths fixed
+        cv2.CALIB_FIX_ASPECT_RATIO |            # Keep fx/fy ratio fixed
+        cv2.CALIB_FIX_K1 | cv2.CALIB_FIX_K2 | cv2.CALIB_FIX_K3 |      # keep all c
         # CALIB_FIX_P1 | CALIB_FIX_P2 |  #fix tangential distortion
         # fix higher order radial distortions
         cv2.CALIB_FIX_K4 | cv2.CALIB_FIX_K5 | cv2.CALIB_FIX_K6 |
