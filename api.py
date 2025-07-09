@@ -118,6 +118,7 @@ async def calibrate_camera(data: CalibrationRequest):
             cam_k=k_matrix,
             cam_r=r_matrix,
             cam_t=t_vector,
+            cam_ecef=cam_ecef_coords,
             camera_gps=origin_gps,
             distortion=dist_coeffs
         )

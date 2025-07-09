@@ -454,6 +454,8 @@
       const calibrateApiBtn = document.getElementById("calibrateApiBtn");
       calibrateApiBtn.addEventListener("click", calibrateWithApi);
 
+      let viewingCone = null;
+
       async function calibrateWithApi() {
         const payload = {
           imagePoints: matches.map((m) => m.img),
@@ -481,8 +483,15 @@
           const results = await response.json();
 
           // Re-project points using the returned matrices
-          const { k_matrix, r_matrix, t_vector, estimated_image_points } =
-            results;
+          const {
+            k_matrix,
+            r_matrix,
+            t_vector,
+            estimated_image_points,
+            camera_gps,
+            camera_hfov,
+            camera_azimuth,
+          } = results;
           const worldPoints = payload.worldPoints;
 
           const reprojectedPoints = estimated_image_points;
@@ -494,10 +503,77 @@
 
           draw();
           renderTable();
+          drawViewingCone(camera_gps, camera_hfov, camera_azimuth);
         } catch (error) {
           console.error("API Calibration failed:", error);
           alert("API Calibration failed: " + error.message);
         }
+      }
+
+      function drawViewingCone(camera_gps, hfov, azimuth) {
+        if (viewingCone) {
+          viewingCone.setMap(null);
+        }
+
+        const camera_lat = camera_gps[0];
+        const camera_lon = camera_gps[1];
+        const distance = 50; // 50km distance for the cone
+        const left_azimuth = azimuth - hfov / 2;
+        const right_azimuth = azimuth + hfov / 2;
+
+        const left_point = destinationPoint(
+          camera_lat,
+          camera_lon,
+          left_azimuth,
+          distance
+        );
+        const right_point = destinationPoint(
+          camera_lat,
+          camera_lon,
+          right_azimuth,
+          distance
+        );
+
+        const coneCoordinates = [
+          { lat: camera_lat, lng: camera_lon },
+          { lat: left_point.lat, lng: left_point.lon },
+          { lat: right_point.lat, lng: right_point.lon },
+        ];
+
+        viewingCone = new google.maps.Polygon({
+          paths: coneCoordinates,
+          strokeColor: "#FF0000",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: "#FF0000",
+          fillOpacity: 0.35,
+          map: map,
+        });
+      }
+
+      function destinationPoint(lat, lon, bearing, distance) {
+        const R = 6371; // Radius of the Earth in km
+        const brng = (bearing * Math.PI) / 180; // Convert bearing to radians
+        const d = distance;
+
+        const lat1 = (lat * Math.PI) / 180;
+        const lon1 = (lon * Math.PI) / 180;
+
+        const lat2 = Math.asin(
+          Math.sin(lat1) * Math.cos(d / R) +
+            Math.cos(lat1) * Math.sin(d / R) * Math.cos(brng)
+        );
+        let lon2 =
+          lon1 +
+          Math.atan2(
+            Math.sin(brng) * Math.sin(d / R) * Math.cos(lat1),
+            Math.cos(d / R) - Math.sin(lat1) * Math.sin(lat2)
+          );
+
+        return {
+          lat: (lat2 * 180) / Math.PI,
+          lon: (lon2 * 180) / Math.PI,
+        };
       }
 
       // --- Matrix Helpers ---
