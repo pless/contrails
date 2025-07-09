@@ -76,7 +76,7 @@ def gps_to_camxy_vasha_fixed(lats, lons, alts, cam_ecef, cam_k, cam_r, cam_t, ca
     return image_x, image_y, cam_distance
 
 
-def estimate_camera_params(origin_gps, poi_gps, poi_xy, frame_size, intrinsics_estimate=None, distortion_estimate=None):
+def estimate_camera_params(origin_gps, poi_gps, poi_xy, frame_size, intrinsics_estimate=None, distortion_estimate=None, flags=None):
     # Convert camera GPS coordinates to ECEF
     transformer_geodetic_to_ecef = Transformer.from_crs(
         "epsg:4979", "epsg:4978", always_xy=True)
@@ -111,18 +111,21 @@ def estimate_camera_params(origin_gps, poi_gps, poi_xy, frame_size, intrinsics_e
         1e-12     # Extremely tight convergence (vs default 1e-6)
     )
 
-    calibrate_flags = (
-        cv2.CALIB_USE_INTRINSIC_GUESS |         # Use your good initial guess
-        # cv2.CALIB_USE_LU |                    # Use your good initial guess
-        cv2.CALIB_FIX_PRINCIPAL_POINT  |        # Keep principal point fixed
-        # cv2.CALIB_FIX_FOCAL_LENGTH |          # Keep focal lengths fixed
-        cv2.CALIB_FIX_ASPECT_RATIO |            # Keep fx/fy ratio fixed
-        cv2.CALIB_FIX_K1 | cv2.CALIB_FIX_K2 | cv2.CALIB_FIX_K3 |      # keep all c
-        # CALIB_FIX_P1 | CALIB_FIX_P2 |  #fix tangential distortion
-        # fix higher order radial distortions
-        cv2.CALIB_FIX_K4 | cv2.CALIB_FIX_K5 | cv2.CALIB_FIX_K6 |
-        cv2.CALIB_ZERO_TANGENT_DIST           # Only estimate radial distortion
-    )
+    if flags is None:
+        calibrate_flags = (
+            cv2.CALIB_USE_INTRINSIC_GUESS |         # Use your good initial guess
+            # cv2.CALIB_USE_LU |                    # Use your good initial guess
+            cv2.CALIB_FIX_PRINCIPAL_POINT  |        # Keep principal point fixed
+            # cv2.CALIB_FIX_FOCAL_LENGTH |          # Keep focal lengths fixed
+            cv2.CALIB_FIX_ASPECT_RATIO |            # Keep fx/fy ratio fixed
+            cv2.CALIB_FIX_K1 | cv2.CALIB_FIX_K2 | cv2.CALIB_FIX_K3 |      # keep all c
+            # CALIB_FIX_P1 | CALIB_FIX_P2 |  #fix tangential distortion
+            # fix higher order radial distortions
+            cv2.CALIB_FIX_K4 | cv2.CALIB_FIX_K5 | cv2.CALIB_FIX_K6 |
+            cv2.CALIB_ZERO_TANGENT_DIST           # Only estimate radial distortion
+        )
+    else:
+        calibrate_flags = flags
     # Let OpenCV estimate all distortion parameters
     ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(
         [object_points], [image_points], frame_size,

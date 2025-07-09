@@ -19,6 +19,7 @@ class CalibrationRequest(BaseModel):
     imagePoints: List[List[float]] = Field(..., min_items=4)
     worldPoints: List[List[float]] = Field(..., min_items=4)
     imageUrl: str
+    flags: int | None = None
 
 
 class CalibrationResponse(BaseModel):
@@ -99,7 +100,8 @@ async def calibrate_camera(data: CalibrationRequest):
                 poi_gps,
                 poi_xy,
                 frame_size,
-                intrinsics_estimate=initial_k
+                intrinsics_estimate=initial_k,
+                flags=data.flags
             )
         except Exception as e:
             raise HTTPException(
