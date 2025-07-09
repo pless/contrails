@@ -263,7 +263,7 @@ def getCameraPosition(refPoint, K, R, t):
     cam_pos_enu = -t.flatten()  # Ensure it's a 1D array
 
     # Rotate camera position back to world coordinates
-    cam_pos_world = np.linalg.inv(R) @ cam_pos_enu
+    cam_pos_world = R.T @ cam_pos_enu
     print('Camera Position in ENU:', cam_pos_enu)
     # Convert back to GPS coordinates
     cam_gps = pm.enu2geodetic(
