@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Image ↔ Map Calibration Workflow</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      #upper {
+        flex: 1;
+        display: flex;
+      }
+      #imageContainer {
+        flex: 1;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+      #imageContainer canvas {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        cursor: crosshair;
+        display: block;
+      }
+      #map {
+        flex: 1;
+        position: relative;
+        cursor: crosshair;
+      }
+      #magnifierCanvas {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        border: 2px solid #333;
+        border-radius: 50%;
+        pointer-events: none;
+        display: none;
+        z-index: 10;
+        transform: translate(-50%, -50%);
+      }
+      #panel {
+        height: 20vh;
+        overflow-y: auto;
+        border-top: 1px solid #ccc;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+      #workflowControls button {
+        cursor: pointer;
+        padding: 6px 12px;
+        margin: 0 6px 6px 0;
+      }
+      #workflowStatus {
+        margin-top: 8px;
+        font-weight: bold;
+        color: #377eb8;
+      }
+      #correspondenceList {
+        margin-top: 12px;
+      }
+      #correspondenceList li {
+        margin-bottom: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="upper">
+      <div id="imageContainer">
+        <canvas id="imageCanvas"></canvas>
+        <canvas id="magnifierCanvas"></canvas>
+      </div>
+      <div id="map"></div>
+    </div>
+    <div id="panel">
+      <div id="controls">
+        <input
+          type="text"
+          id="imageUrlInput"
+          placeholder="Enter Image URL"
+          style="width: 300px"
+        />
+        <button id="loadImageBtn">Load Image</button>
+      </div>
+      <div id="workflowControls">
+        <button id="drawHorizonBtn">Draw Horizon Line</button>
+        <button id="selectCameraBtn">Select Camera Location</button>
+        <button id="addCorrespondenceBtn">Add Correspondence</button>
+      </div>
+      <div id="workflowStatus"></div>
+      <ul id="correspondenceList"></ul>
+    </div>
+    <script>
+      // Loupe setup
+      if (!document.getElementById("magnifierCanvas")) {
+        const mag = document.createElement("canvas");
+        mag.id = "magnifierCanvas";
+        document.getElementById("imageContainer").appendChild(mag);
+      }
+      const canvas = document.getElementById("imageCanvas");
+      const ctx = canvas.getContext("2d");
+      const magCanvas = document.getElementById("magnifierCanvas");
+      const mgCtx = magCanvas.getContext("2d");
+      const mapContainer = document.getElementById("map");
+      const imageUrlInput = document.getElementById("imageUrlInput");
+      const loadImageBtn = document.getElementById("loadImageBtn");
+      const drawHorizonBtn = document.getElementById("drawHorizonBtn");
+      const selectCameraBtn = document.getElementById("selectCameraBtn");
+      const addCorrespondenceBtn = document.getElementById("addCorrespondenceBtn");
+      const workflowStatus = document.getElementById("workflowStatus");
+      const correspondenceList = document.getElementById("correspondenceList");
+
+      // Colors for overlays
+      const colors = [
+        "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00",
+        "#ffff33", "#a65628", "#f781bf", "#999999", "#66c2a5",
+      ];
+
+      // Loupe settings
+      const magSize = 50, zoom = 3;
+      magCanvas.width = magSize;
+      magCanvas.height = magSize;
+
+      // Load image
+      const img = new Image();
+      const savedImageUrl = localStorage.getItem("lastImageUrl");
+      const initialUrl =
+        savedImageUrl ||
+        "https://metobs.ssec.wisc.edu/pub/cache/aoss/cameras/northwest/latest_orig.jpg";
+      imageUrlInput.value = initialUrl;
+      img.src = initialUrl;
+
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        draw();
+      };
+
+      loadImageBtn.addEventListener("click", () => {
+        const newUrl = imageUrlInput.value.trim();
+        if (newUrl) {
+          img.src = newUrl;
+          localStorage.setItem("lastImageUrl", newUrl);
+        }
+      });
+
+      // Loupe on hover
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) * canvas.width) / rect.width;
+        const y = ((e.clientY - rect.top) * canvas.height) / rect.height;
+        magCanvas.style.display = "block";
+        const sw = magSize / zoom;
+        const sx = x - sw / 2, sy = y - sw / 2;
+        mgCtx.clearRect(0, 0, magSize, magSize);
+        mgCtx.drawImage(canvas, sx, sy, sw, sw, 0, 0, magSize, magSize);
+        mgCtx.strokeStyle = "rgba(0,0,0,0.8)";
+        mgCtx.lineWidth = 1;
+        mgCtx.beginPath();
+        mgCtx.moveTo(magSize / 2, 0);
+        mgCtx.lineTo(magSize / 2, magSize);
+        mgCtx.moveTo(0, magSize / 2);
+        mgCtx.lineTo(magSize, magSize / 2);
+        mgCtx.stroke();
+        magCanvas.style.left = e.clientX - rect.left + "px";
+        magCanvas.style.top = e.clientY - rect.top + "px";
+      });
+      canvas.addEventListener("mouseleave", () => (magCanvas.style.display = "none"));
+
+      // --- Workflow State ---
+      let workflowStep = null;
+      let horizonLine = [];
+      let cameraLocation = null;
+      let cameraMarker = null;
+      let correspondences = [];
+      let tempCorrespondence = null;
+
+      drawHorizonBtn.onclick = () => {
+        workflowStep = "drawHorizon";
+        workflowStatus.textContent = "Click two points on the image to define the horizon line.";
+        horizonLine = [];
+        draw();
+      };
+
+      selectCameraBtn.onclick = () => {
+        workflowStep = "selectCamera";
+        workflowStatus.textContent = "Click the camera location on the map.";
+      };
+
+      addCorrespondenceBtn.onclick = () => {
+        workflowStep = "addCorrespondence_img";
+        workflowStatus.textContent = "Click a point on the image, then its correspondence on the map.";
+        tempCorrespondence = { img: null, map: null };
+      };
+
+      canvas.onclick = (e) => {
+        if (workflowStep === "drawHorizon") {
+          const rect = canvas.getBoundingClientRect();
+          const x = Math.round(((e.clientX - rect.left) * canvas.width) / rect.width);
+          const y = Math.round(((e.clientY - rect.top) * canvas.height) / rect.height);
+          horizonLine.push([x, y]);
+          if (horizonLine.length === 2) {
+            workflowStep = null;
+            workflowStatus.textContent = "Horizon line set.";
+            draw();
+          }
+        } else if (workflowStep === "addCorrespondence_img") {
+          const rect = canvas.getBoundingClientRect();
+          const x = Math.round(((e.clientX - rect.left) * canvas.width) / rect.width);
+          const y = Math.round(((e.clientY - rect.top) * canvas.height) / rect.height);
+          tempCorrespondence.img = [x, y];
+          workflowStep = "addCorrespondence_map";
+          workflowStatus.textContent = "Now click the corresponding point on the map.";
+        }
+      };
+
+      // --- Google Map ---
+      let map;
+      function initMap() {
+        map = new google.maps.Map(mapContainer, {
+          center: { lat: 38.9, lng: -77.04 },
+          zoom: 4,
+          mapId: "2e6d1e173674445b90e0edd1",
+          draggableCursor: 'pointer',
+          draggingCursor: 'grabbing',
+        });
+
+        // Search control
+        const searchDiv = document.createElement("div");
+        searchDiv.style.cssText =
+          "background:#fff;padding:6px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,0.3);margin:10px;";
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Search map...";
+        input.style.width = "180px";
+        const btn = document.createElement("button");
+        btn.textContent = "Go";
+        btn.style.marginLeft = "4px";
+        searchDiv.append(input, btn);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchDiv);
+
+        btn.addEventListener("click", () => {
+          const address = input.value.trim();
+          if (!address) return;
+          const geocoder = new google.maps.Geocoder();
+          geocoder.geocode({ address }, (results, status) => {
+            if (status === "OK" && results[0]) {
+              map.setCenter(results[0].geometry.location);
+              map.setZoom(15);
+            } else {
+              alert("Geocode failed: " + status);
+            }
+          });
+        });
+        input.addEventListener("keyup", (e) => {
+          if (e.key === "Enter") btn.click();
+        });
+
+        map.addListener("click", (e) => {
+          if (workflowStep === "selectCamera") {
+            cameraLocation = [e.latLng.lat(), e.latLng.lng()];
+            workflowStep = null;
+            workflowStatus.textContent = "Camera location set.";
+            if (cameraMarker) cameraMarker.setMap(null);
+            cameraMarker = new google.maps.Marker({
+              position: e.latLng,
+              map: map,
+              label: "C",
+              icon: {
+                url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+              }
+            });
+          } else if (workflowStep === "addCorrespondence_map") {
+            tempCorrespondence.map = [e.latLng.lat(), e.latLng.lng()];
+            correspondences.push({ ...tempCorrespondence });
+            tempCorrespondence = null;
+            workflowStep = null;
+            workflowStatus.textContent = "Correspondence added.";
+            draw();
+            renderCorrespondenceList();
+          }
+        });
+      }
+
+      // --- Drawing overlays ---
+      function draw() {
+        if (!img.width) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+
+        // Draw horizon line
+        if (horizonLine.length === 2) {
+          ctx.strokeStyle = "#377eb8";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(horizonLine[0][0], horizonLine[0][1]);
+          ctx.lineTo(horizonLine[1][0], horizonLine[1][1]);
+          ctx.stroke();
+        }
+
+        // Draw correspondences
+        correspondences.forEach((c, i) => {
+          if (c.img) {
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.beginPath();
+            ctx.arc(c.img[0], c.img[1], 6, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = "#fff";
+            ctx.font = "12px sans-serif";
+            ctx.fillText(i + 1, c.img[0] - 4, c.img[1] + 4);
+          }
+        });
+      }
+
+      function renderCorrespondenceList() {
+        correspondenceList.innerHTML = "";
+        correspondences.forEach((c, i) => {
+          const li = document.createElement("li");
+          li.textContent =
+            `#${i + 1}: Image (${c.img ? c.img.join(", ") : "?"}) ↔ Map (${c.map ? c.map.join(", ") : "?"})`;
+          correspondenceList.appendChild(li);
+        });
+      }
+
+      // Save to localStorage every 5 seconds
+      setInterval(() => {
+        const stateToSave = {
+          horizonLine,
+          cameraLocation,
+          correspondences,
+          imageUrl: img.src
+        };
+        localStorage.setItem("geoCalibWorkflow", JSON.stringify(stateToSave));
+      }, 5000);
+
+      // Load from localStorage
+      window.addEventListener("load", () => {
+        const saved = localStorage.getItem("geoCalibWorkflow");
+        if (saved) {
+          try {
+            const state = JSON.parse(saved);
+            horizonLine = state.horizonLine || [];
+            cameraLocation = state.cameraLocation || null;
+            correspondences = state.correspondences || [];
+            if (state.imageUrl) {
+              img.src = state.imageUrl;
+              imageUrlInput.value = state.imageUrl;
+            }
+            draw();
+            renderCorrespondenceList();
+          } catch (err) {
+            // ignore
+          }
+        }
+      });
+
+      // Initial render
+      draw();
+      renderCorrespondenceList();
+    </script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnEMLjV3IsEgU7gO-8q3I5psuRv8EaXxA&callback=initMap&libraries=marker"
+    ></script>
+  </body>
+</html>
