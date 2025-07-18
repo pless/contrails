@@ -94,6 +94,7 @@
         <button id="drawHorizonBtn">Draw Horizon Line</button>
         <button id="selectCameraBtn">Select Camera Location</button>
         <button id="addCorrespondenceBtn">Add Correspondence</button>
+        <button id="saveCalibrationBtn">Save Calibration</button>
       </div>
       <div id="workflowStatus"></div>
       <ul id="correspondenceList"></ul>
@@ -152,6 +153,22 @@
         }
       });
 
+      // Save the calibration data to json
+      const saveCalibrationBtn = document.getElementById("saveCalibrationBtn");
+      saveCalibrationBtn.onclick = () => {
+      const calibrationData = {
+      horizonLine,
+      cameraLocation,
+      correspondences,
+      imageUrl: img.src  };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(calibrationData, null, 2));
+      const dlAnchor = document.createElement('a');
+      dlAnchor.setAttribute("href", dataStr);
+      dlAnchor.setAttribute("download", "calibration.json");
+      document.body.appendChild(dlAnchor);
+      dlAnchor.click();
+      dlAnchor.remove();
+      }
       // Loupe on hover
       canvas.addEventListener("mousemove", (e) => {
         const rect = canvas.getBoundingClientRect();
