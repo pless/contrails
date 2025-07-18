@@ -316,10 +316,20 @@
             workflowStep = null;
             workflowStatus.textContent = "Correspondence added.";
             draw();
-            //renderCorrespondenceList();
             renderCorrespondenceTable();
           }
         });
+        if (cameraLocation) {
+          if (cameraMarker) cameraMarker.setMap(null);
+            cameraMarker = new google.maps.Marker({
+            position: {lat: cameraLocation[0], lng: cameraLocation[1]},
+            map: map,
+            label: "C",
+            icon: {
+              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+           }
+          });
+        }
       }
 
       // --- Drawing overlays ---
@@ -424,15 +434,6 @@
     tbody.appendChild(row);
     });
     }
-      function renderCorrespondenceList() {
-        correspondenceList.innerHTML = "";
-        correspondences.forEach((c, i) => {
-          const li = document.createElement("li");
-          li.textContent =
-            `#${i + 1}: Image (${c.img ? c.img.join(", ") : "?"}) ↔ Map (${c.map ? c.map.join(", ") : "?"})`;
-          correspondenceList.appendChild(li);
-        });
-      }
 
       // Save to localStorage every 5 seconds
       setInterval(() => {
@@ -459,16 +460,38 @@
               imageUrlInput.value = state.imageUrl;
             }
             draw();
-            renderCorrespondenceList();
+            renderCorrespondenceTable();
           } catch (err) {
             // ignore
           }
         }
       });
 
+      let correspondenceMarkers = [];
+
+      function renderCorrespondenceMarkers() {
+        // Remove old markers
+        correspondenceMarkers.forEach(m => m.setMap(null));
+        correspondenceMarkers = [];
+        correspondences.forEach((c, i) => {
+        if (c.map) {
+            const marker = new google.maps.Marker({
+            position: { lat: c.map[0], lng: c.map[1] },
+            map: map,
+            label: String(i + 1),
+            icon: {
+              url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+            }
+        });
+      correspondenceMarkers.push(marker);
+      }
+      });
+      }
+
+      
       // Initial render
       draw();
-      renderCorrespondenceList();
+      renderCorrespondenceTable();
     </script>
     <script
       async
