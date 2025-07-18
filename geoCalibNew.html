@@ -98,6 +98,20 @@
       </div>
       <div id="workflowStatus"></div>
       <ul id="correspondenceList"></ul>
+      <table id="correspondenceTable" style="width:100%; margin-top:12px; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Image X,Y</th>
+            <th>Map Lat,Long</th>
+            <th>Update</th>
+            <th>Delete</th>
+          </tr>
+      </thead>
+  <tbody>
+    <!-- Rows will be inserted by JS -->
+  </tbody>
+</table>
     </div>
     <script>
       // Loupe setup
@@ -302,7 +316,8 @@
             workflowStep = null;
             workflowStatus.textContent = "Correspondence added.";
             draw();
-            renderCorrespondenceList();
+            //renderCorrespondenceList();
+            renderCorrespondenceTable();
           }
         });
       }
@@ -337,6 +352,78 @@
         });
       }
 
+  function renderCorrespondenceTable() {
+    const tbody = document.getElementById('correspondenceTable').getElementsByTagName('tbody')[0];
+    tbody.innerHTML = "";
+
+    correspondences.forEach((c, i) => {
+    const row = document.createElement("tr");
+
+    // Index
+    const idxCell = document.createElement("td");
+    idxCell.textContent = i + 1;
+    row.appendChild(idxCell);
+
+    // Image X,Y editable
+    const imgCell = document.createElement("td");
+    const imgX = document.createElement("input");
+    imgX.type = "number";
+    imgX.value = c.img ? c.img[0] : "";
+    imgX.style.width = "60px";
+    const imgY = document.createElement("input");
+    imgY.type = "number";
+    imgY.value = c.img ? c.img[1] : "";
+    imgY.style.width = "60px";
+    imgCell.appendChild(imgX);
+    imgCell.appendChild(document.createTextNode(", "));
+    imgCell.appendChild(imgY);
+    row.appendChild(imgCell);
+
+    // Map Lat,Long editable
+    const mapCell = document.createElement("td");
+    const mapLat = document.createElement("input");
+    mapLat.type = "number";
+    mapLat.value = c.map ? c.map[0] : "";
+    mapLat.style.width = "90px";
+    mapLat.step = "any";
+    const mapLng = document.createElement("input");
+    mapLng.type = "number";
+    mapLng.value = c.map ? c.map[1] : "";
+    mapLng.style.width = "90px";
+    mapLng.step = "any";
+    mapCell.appendChild(mapLat);
+    mapCell.appendChild(document.createTextNode(", "));
+    mapCell.appendChild(mapLng);
+    row.appendChild(mapCell);
+
+    // Update button
+    const updateCell = document.createElement("td");
+    const updateBtn = document.createElement("button");
+    updateBtn.textContent = "Update";
+    updateBtn.onclick = () => {
+      correspondences[i].img = [Number(imgX.value), Number(imgY.value)];
+      correspondences[i].map = [Number(mapLat.value), Number(mapLng.value)];
+      draw(); // Redraw points on image
+      renderCorrespondenceTable();
+    };
+    updateCell.appendChild(updateBtn);
+    row.appendChild(updateCell);
+
+    // Delete button
+    const deleteCell = document.createElement("td");
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.onclick = () => {
+      correspondences.splice(i, 1);
+      draw();
+      renderCorrespondenceTable();
+    };
+    deleteCell.appendChild(deleteBtn);
+    row.appendChild(deleteCell);
+
+    tbody.appendChild(row);
+    });
+    }
       function renderCorrespondenceList() {
         correspondenceList.innerHTML = "";
         correspondences.forEach((c, i) => {
