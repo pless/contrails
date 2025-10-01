@@ -2,33 +2,60 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Simple Map</title>
+  <title>Map with Pins from Google Sheet</title>
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    #map {
-      height: 100vh;
-      width: 100vw;
-      display: block;
-      margin: 0;
-      padding: 0;
-    }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    #map { height: 100vh; width: 100vw; }
   </style>
 </head>
 <body>
   <div id="map"></div>
   <script>
-    // Minimal global initMap function for Google Maps API callback
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_CFcEzFxbXYxz3VmavAAbDn4Mp3SYgW_OWwRbMtKhINKvW_Y-bd-n2MKeVCMMk4YkaKTmVXA0jah2/pub?gid=0&single=true&output=csv";
+
+    function parseCSV(text) {
+      const rows = text.trim().split('\n');
+      const headers = rows[0].split(',');
+      return rows.slice(1).map(row => {
+        const values = row.split(',');
+        const obj = {};
+        headers.forEach((header, i) => {
+          obj[header.trim()] = values[i] ? values[i].trim() : "";
+        });
+        return obj;
+      });
+    }
+
     window.initMap = function() {
-      new google.maps.Map(document.getElementById('map'), {
+      const map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 38.9, lng: -77.04 },
         zoom: 4,
         mapId: '2e6d1e173674445b90e0edd1'
       });
-    };
+
+      // Load pins from CSV
+      fetch(CSV_URL)
+        .then(response => response.text())
+        .then(csvText => {
+          const pins = parseCSV(csvText);
+          pins.forEach(pin => {
+            // Adjust these keys to match your column names
+            const lat = parseFloat(pin.latitude || pin.lat);
+            const lng = parseFloat(pin.longitude || pin.lng || pin.lon);
+            const name = pin.name || pin.title || "";
+            if (!isNaN(lat) && !isNaN(lng)) {
+              new google.maps.Marker({
+                position: { lat: lat, lng: lng },
+                map: map,
+                title: name
+              });
+            }
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load pins:", err);
+        });
+    }
   </script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap" loading="async"></script>
 </body>
