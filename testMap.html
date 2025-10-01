@@ -6,6 +6,7 @@
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     #map { height: 100vh; width: 100vw; }
+    .popup-img { max-width: 150px; max-height: 100px; display: block; margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -49,22 +50,42 @@
           console.log("Loaded rows from CSV:", pins.length);
 
           let markerCount = 0;
+          const infoWindow = new google.maps.InfoWindow();
+
           pins.forEach(pin => {
             const lat = parseFloat(pin.Latitude || pin.latitude || pin.lat);
             const lng = parseFloat(pin.Longitude || pin.longitude || pin.lng || pin.lon);
             const name = pin.Name || pin.name || pin.title || "";
             const tags = pin.tags || pin.Tags || "";
+            const imageUrl = pin.imageURL || pin.ImageURL || pin.image || "";
+
             // Filter by label if provided
             if (label && (!tags || !tags.toLowerCase().includes(label.toLowerCase()))) {
               return;
             }
             if (!isNaN(lat) && !isNaN(lng)) {
               console.log(`Adding pin: ${name} at (${lat}, ${lng})`);
-              new google.maps.Marker({
+              const marker = new google.maps.Marker({
                 position: { lat: lat, lng: lng },
                 map: map,
                 title: name
               });
+
+              let popupContent = `<div><strong>${name}</strong>`;
+              if (imageUrl) {
+                popupContent += `<br>
+                  <a href="${imageUrl}" target="_blank">
+                    <img src="${imageUrl}" class="popup-img" alt="${name}"/>
+                  </a>`;
+              }
+              popupContent += `</div>`;
+
+              marker.addListener('click', () => {
+                infoWindow.setContent(popupContent);
+                infoWindow.open(map, marker);
+                console.log("click")
+              });
+
               markerCount++;
             } else {
               console.log("Skipping invalid row:", pin);
