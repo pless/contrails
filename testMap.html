@@ -26,14 +26,22 @@
       });
     }
 
+    function getLabelQuery() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('label');
+    }
+
     window.initMap = function() {
+      const label = getLabelQuery();
+      if (label) {
+        console.log("Filtering by label:", label);
+      }
       const map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 38.9, lng: -77.04 },
         zoom: 4,
         mapId: '2e6d1e173674445b90e0edd1'
       });
 
-      // Load pins from CSV
       fetch(CSV_URL)
         .then(response => response.text())
         .then(csvText => {
@@ -42,10 +50,14 @@
 
           let markerCount = 0;
           pins.forEach(pin => {
-            // Match your actual CSV column names: Latitude, Longitude, Name
             const lat = parseFloat(pin.Latitude || pin.latitude || pin.lat);
             const lng = parseFloat(pin.Longitude || pin.longitude || pin.lng || pin.lon);
             const name = pin.Name || pin.name || pin.title || "";
+            const tags = pin.tags || pin.Tags || "";
+            // Filter by label if provided
+            if (label && (!tags || !tags.toLowerCase().includes(label.toLowerCase()))) {
+              return;
+            }
             if (!isNaN(lat) && !isNaN(lng)) {
               console.log(`Adding pin: ${name} at (${lat}, ${lng})`);
               new google.maps.Marker({
@@ -67,4 +79,4 @@
   </script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap" loading="async"></script>
 </body>
-</html>.
+</html>
