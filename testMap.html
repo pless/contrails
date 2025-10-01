@@ -2,295 +2,34 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Image ↔ Map Point Matcher (Final)</title>
+  <title>Simple Map</title>
   <style>
-    body {
-      margin: 0; font-family: sans-serif;
-      display: flex; flex-direction: column; height: 100vh;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
-    #upper {
-      flex: 1; display: flex;
-    }
-    /* Image pane: keep aspect ratio centered */
-    #imageContainer {
-      flex: 1; position: relative;
-      display: flex; justify-content: center; align-items: center;
-      overflow: hidden;
-    }
-    #imageContainer canvas {
-      max-width: 100%; max-height: 100%;
-      width: auto; height: auto;
-      cursor: crosshair; display: block;
-    }
-    /* Map pane: full flex */
     #map {
-      flex: 1; position: relative;
-      cursor: crosshair;
-    }
-    /* Loupe */
-    #magnifierCanvas {
-      position: absolute; width: 50px; height: 50px;
-      border: 2px solid #333; border-radius: 50%;
-      pointer-events: none; display: none; z-index: 10;
-    }
-    /* Bottom panel */
-    #panel {
-      height: 20vh; overflow-y: auto;
-      border-top: 1px solid #ccc; padding: 8px;
-      box-sizing: border-box;
-    }
-    #matches {
-      width: 100%; border-collapse: collapse; margin-top: 8px;
-    }
-    #matches th, #matches td {
-      border: 1px solid #ddd; padding: 4px; text-align: center;
-    }
-    #matches th { background: #f0f0f0; }
-    .btn {
-      cursor: pointer; padding: 2px 6px; margin: 0 2px;
+      height: 100vh;
+      width: 100vw;
+      display: block;
+      margin: 0;
+      padding: 0;
     }
   </style>
 </head>
 <body>
-  <div id="upper">
-    <div id="imageContainer">
-      <canvas id="imageCanvas"></canvas>
-      <canvas id="magnifierCanvas"></canvas>
-    </div>
-    <div id="map"></div>
-  </div>
-  <div id="panel">
-    <button id="exportBtn">Export JSON</button>
-    <button id="exportCsvBtn">Export CSV</button>
-    <table id="matches">
-      <thead>
-        <tr><th>#</th><th>Image Pt</th><th>Map Pt</th><th>Actions</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
+  <div id="map"></div>
   <script>
-    // Ensure loupe canvas exists
-    if (!document.getElementById('magnifierCanvas')) {
-      const mag = document.createElement('canvas');
-      mag.id = 'magnifierCanvas';
-      document.getElementById('imageContainer').appendChild(mag);
-    }
-    const canvas = document.getElementById('imageCanvas');
-    const ctx = canvas.getContext('2d');
-    const magCanvas = document.getElementById('magnifierCanvas');
-    const mgCtx = magCanvas.getContext('2d');
-    const mapContainer = document.getElementById('map');
-    const exportBtn = document.getElementById('exportBtn');
-    const exportCsvBtn = document.getElementById('exportCsvBtn');
-    const tbody = document.querySelector('#matches tbody');
-
-    let matches = [];
-    let editing = null;
-    const colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999','#66c2a5'];
-
-    // Loupe settings
-    const magSize = 50, zoom = 3;
-    magCanvas.width = magSize;
-    magCanvas.height = magSize;
-
-    // Load image
-    const img = new Image();
-    img.src = 'https://f5.aos.wisc.edu/webcam_movies/latest_west_1024x768.jpg';
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      draw();
-    };
-
-    // Image click
-    canvas.addEventListener('click', e => {
-      const rect = canvas.getBoundingClientRect();
-      const x = Math.round((e.clientX - rect.left) * canvas.width / rect.width);
-      const y = Math.round((e.clientY - rect.top)  * canvas.height/ rect.height);
-      handleImgClick([x,y]);
-    });
-
-    // Loupe on hover
-    canvas.addEventListener('mousemove', e => {
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) * canvas.width / rect.width;
-      const y = (e.clientY - rect.top)  * canvas.height/ rect.height;
-      magCanvas.style.display = 'block';
-      const sw = magSize / zoom;
-      const sx = x - sw/2, sy = y - sw/2;
-      mgCtx.clearRect(0, 0, magSize, magSize);
-      mgCtx.drawImage(canvas, sx, sy, sw, sw, 0, 0, magSize, magSize);
-      mgCtx.strokeStyle = 'rgba(0,0,0,0.8)'; mgCtx.lineWidth = 1;
-      mgCtx.beginPath();
-      mgCtx.moveTo(magSize/2, 0); mgCtx.lineTo(magSize/2, magSize);
-      mgCtx.moveTo(0, magSize/2); mgCtx.lineTo(magSize, magSize/2);
-      mgCtx.stroke();
-      // center loupe
-      magCanvas.style.left = (e.clientX - rect.left - magSize/2) + 'px';
-      magCanvas.style.top  = (e.clientY - rect.top  - magSize/2) + 'px';
-    });
-    canvas.addEventListener('mouseleave', () => magCanvas.style.display = 'none');
-
-    function handleImgClick(pt) {
-      let match;
-      if (editing && editing.type === 'img') {
-        match = matches.find(m => m.id === editing.id);
-        editing = null;
-      } else if (!matches.length || (matches[matches.length-1].img && matches[matches.length-1].map)) {
-        match = { id: matches.length + 1 };
-        matches.push(match);
-      } else match = matches[matches.length-1];
-      match.img = pt;
-      draw(); renderTable();
-    }
-
-    // Initialize map & search
-    let map, geocoder;
-    function initMap() {
-      map = new google.maps.Map(mapContainer, {
-        center: { lat: 38.9, lng: -77.04 }, zoom: 4,
+    // Minimal global initMap function for Google Maps API callback
+    window.initMap = function() {
+      new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 38.9, lng: -77.04 },
+        zoom: 4,
         mapId: '2e6d1e173674445b90e0edd1'
       });
-      geocoder = new google.maps.Geocoder();
-
-      // Search control
-      const searchDiv = document.createElement('div');
-      searchDiv.style.cssText =
-        'background:#fff;padding:6px;border-radius:4px;box-shadow:0 2px 6px rgba(0,0,0,0.3);margin:10px;';
-      const input = document.createElement('input');
-      input.type = 'text'; input.placeholder = 'Search map...';
-      input.style.width = '180px';
-      const btn = document.createElement('button'); btn.textContent = 'Go';
-      btn.style.marginLeft = '4px';
-      searchDiv.append(input, btn);
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchDiv);
-
-      btn.addEventListener('click', () => {
-        const address = input.value.trim();
-        if (!address) return;
-        geocoder.geocode({ address }, (results, status) => {
-          if (status === 'OK' && results[0]) {
-            map.setCenter(results[0].geometry.location);
-            map.setZoom(15);
-          } else {
-            alert('Geocode failed: ' + status);
-          }
-        });
-      });
-      input.addEventListener('keyup', e => { if (e.key === 'Enter') btn.click(); });
-
-      map.addListener('click', e =>
-        handleMapClick([e.latLng.lat(), e.latLng.lng()], e.latLng)
-      );
-    }
-
-    function handleMapClick(latlngArr, latlngObj) {
-      let match;
-      if (editing && editing.type === 'map') {
-        match = matches.find(m => m.id === editing.id);
-        editing = null;
-      } else if (!matches.length || (matches[matches.length-1].img && matches[matches.length-1].map)) {
-        match = { id: matches.length + 1 };
-        matches.push(match);
-      } else match = matches[matches.length-1];
-      match.map = latlngArr;
-      if (match.marker) match.marker.setMap(null);
-      const content = document.createElement('div');
-      content.textContent = match.id;
-      content.style.cssText =
-        `background:${colors[(match.id-1)%colors.length]};color:white;` +
-        `width:24px;height:24px;border-radius:12px;` +
-        `display:flex;align-items:center;justify-content:center;`;
-      match.marker = new google.maps.marker.AdvancedMarkerElement({
-        map, position: latlngObj, content
-      });
-      draw(); renderTable();
-    }
-
-    function draw() {
-      if (!img.width) return;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(img,0,0);
-      matches.forEach(m => {
-        if (m.img) {
-          const [x,y] = m.img;
-          ctx.fillStyle = colors[(m.id-1)%colors.length];
-          ctx.beginPath(); ctx.arc(x,y,6,0,2*Math.PI); ctx.fill();
-          ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif';
-          ctx.fillText(m.id, x-4, y+4);
-        }
-      });
-    }
-
-    function renderTable() {
-      tbody.innerHTML = '';
-      matches.forEach(m => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${m.id}</td>
-          <td>${m.img ? `(${m.img[0]},${m.img[1]})` : ''}</td>
-          <td>${m.map ? `(${m.map[0].toFixed(6)},${m.map[1].toFixed(6)})` : ''}</td>
-          <td>
-            <button class="btn" data-action="edit-img" data-id="${m.id}">Edit Img</button>
-            <button class="btn" data-action="edit-map" data-id="${m.id}">Edit Map</button>
-            <button class="btn" data-action="delete" data-id="${m.id}">Delete</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    tbody.addEventListener('click', e => {
-      if (!e.target.matches('.btn')) return;
-      const id = +e.target.dataset.id;
-      const action = e.target.dataset.action;
-      if (action === 'delete') {
-        const idx = matches.findIndex(m => m.id === id);
-        if (matches[idx].marker) matches[idx].marker.setMap(null);
-        matches.splice(idx, 1);
-        matches.forEach((m,i) => m.id = i+1);
-        draw(); renderMarkers(); renderTable();
-      } else {
-        editing = { type: action === 'edit-img' ? 'img' : 'map', id };
-      }
-    });
-
-    function renderMarkers() {
-      matches.forEach(m => { if (m.marker) m.marker.setMap(null); m.marker = null; });
-      matches.forEach(m => {
-        if (m.map) {
-          const loc = new google.maps.LatLng(m.map[0], m.map[1]);
-          const content = document.createElement('div');
-          content.textContent = m.id;
-          content.style.cssText =
-            `background:${colors[(m.id-1)%colors.length]};color:white;` +
-            `width:24px;height:24px;border-radius:12px;` +
-            `display:flex;align-items:center;justify-content:center;`;
-          m.marker = new google.maps.marker.AdvancedMarkerElement({
-            map, position: loc, content
-          });
-        }
-      });
-    }
-
-    exportBtn.addEventListener('click', () => {
-      const data = matches.map(m => ({ id: m.id, img: m.img, map: m.map }));
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'matches.json'; document.body.appendChild(a);
-      a.click(); document.body.removeChild(a);
-    });
-
-    exportCsvBtn.addEventListener('click', () => {
-      let csv = 'id,img_x,img_y,map_lat,map_lng\n';
-      matches.forEach(m => { csv += `${m.id},${m.img?m.img[0]:''},${m.img?m.img[1]:''},${m.map?m.map[0]:''},${m.map?m.map[1]:''}\n`; });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-      a.download = 'matches.csv'; document.body.appendChild(a);
-      a.click(); document.body.removeChild(a);
-    });
+    };
   </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap&libraries=marker"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap" loading="async"></script>
 </body>
 </html>
