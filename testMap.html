@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Map with Pins from Google Sheet</title>
+  <title>WorldScope</title>
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
     #map { height: 100vh; width: 100vw; }
@@ -38,19 +38,27 @@
         .then(response => response.text())
         .then(csvText => {
           const pins = parseCSV(csvText);
+          console.log("Loaded rows from CSV:", pins.length);
+
+          let markerCount = 0;
           pins.forEach(pin => {
             // Adjust these keys to match your column names
             const lat = parseFloat(pin.latitude || pin.lat);
             const lng = parseFloat(pin.longitude || pin.lng || pin.lon);
             const name = pin.name || pin.title || "";
             if (!isNaN(lat) && !isNaN(lng)) {
+              console.log(`Adding pin: ${name} at (${lat}, ${lng})`);
               new google.maps.Marker({
                 position: { lat: lat, lng: lng },
                 map: map,
                 title: name
               });
+              markerCount++;
+            } else {
+              console.log("Skipping invalid row:", pin);
             }
           });
+          console.log("Markers actually added to map:", markerCount);
         })
         .catch(err => {
           console.error("Failed to load pins:", err);
