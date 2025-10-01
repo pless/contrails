@@ -42,10 +42,10 @@
 
           let markerCount = 0;
           pins.forEach(pin => {
-            // Adjust these keys to match your column names
-            const lat = parseFloat(pin.latitude || pin.lat);
-            const lng = parseFloat(pin.longitude || pin.lng || pin.lon);
-            const name = pin.name || pin.title || "";
+            // Match your actual CSV column names: Latitude, Longitude, Name
+            const lat = parseFloat(pin.Latitude || pin.latitude || pin.lat);
+            const lng = parseFloat(pin.Longitude || pin.longitude || pin.lng || pin.lon);
+            const name = pin.Name || pin.name || pin.title || "";
             if (!isNaN(lat) && !isNaN(lng)) {
               console.log(`Adding pin: ${name} at (${lat}, ${lng})`);
               new google.maps.Marker({
@@ -67,4 +67,4 @@
   </script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap" loading="async"></script>
 </body>
-</html>
+</html>.
