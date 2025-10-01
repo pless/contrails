@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>10K Points from Google Sheets</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html,body,#map { height:100%; margin:0; }
+    .ctrl { position:absolute; z-index:2; top:8px; left:8px; background:#fff; padding:6px 8px; border-radius:8px; box-shadow:0 1px 4px rgba(0,0,0,.3); }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLGA1rjtMfRoIqPmpcqT8Pw_S_oCttw3g&callback=initMap&libraries=marker" defer></script>
+</head>
+<body>
+  <div class="ctrl">
+    <button id="reload">Reload data</button>
+    <span id="count"></span>
+  </div>
+  <div id="map"></div>
+  <script>
+  // --- CONFIG ---
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR_CFcEzFxbXYxz3VmavAAbDn4Mp3SYgW_OWwRbMtKhINKvW_Y-bd-n2MKeVCMMk4YkaKTmVXA0jah2/pub?gid=0&single=true&output=csv"; // e.g., https://docs.google.com/spreadsheets/d/ID/export?format=csv&gid=GID
+  const HAS_HEADER = true;              // first row: name,lat,lng
+  const COLS = { name: "name", lat: "lat", lng: "lng" }; // customize if needed
+
+  // --- UTIL: CSV -> rows ---
+  async function fetchCSV(url) {
+    const res = await fetch(url + "&_=" + Date.now()); // cache-bust
+    if (!res.ok) throw new Error("CSV fetch failed: " + res.status);
+    const text = await res.text();
+    return text.trim().split(/\r?\n/).map(line => line.split(","));
+  }
+
+  // --- UTIL: rows -> GeoJSON ---
+  function toGeoJSON(rows) {
+    let headerIdx = {};
+    let dataRows = rows;
+    if (HAS_HEADER) {
+      const header = rows[0].map(s => s.trim());
+      header.forEach((h,i)=> headerIdx[h]=i);
+      dataRows = rows.slice(1);
+    } else {
+      headerIdx[COLS.name]=0; headerIdx[COLS.lat]=1; headerIdx[COLS.lng]=2;
+    }
+    const feats = [];
+    for (const r of dataRows) {
+      const lat = parseFloat(r[headerIdx[COLS.lat]]);
+      const lng = parseFloat(r[headerIdx[COLS.lng]]);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+      feats.push({
+        type:"Feature",
+        properties:{ name: r[headerIdx[COLS.name]] || "" },
+        geometry:{ type:"Point", coordinates:[lng, lat] }
+      });
+    }
+    return { type:"FeatureCollection", features:feats };
+  }
+
+  // --- Map init ---
+  let map, info, currentFeatures = 0;
+  async function loadAndRender() {
+    const rows = await fetchCSV(CSV_URL);
+    const gj = toGeoJSON(rows);
+    map.data.forEach(f => map.data.remove(f)); // clear
+    map.data.addGeoJson(gj);
+    currentFeatures = gj.features.length;
+    document.getElementById("count").textContent = `${currentFeatures} points`;
+    // Fit bounds (cheap)
+    const b = new google.maps.LatLngBounds();
+    gj.features.forEach(ft => b.extend({lat:ft.geometry.coordinates[1], lng:ft.geometry.coordinates[0]}));
+    if (!b.isEmpty()) map.fitBounds(b);
+  }
+
+  window.addEventListener("load", async () => {
+    map = new google.maps.Map(document.getElementById("map"), { center:{lat:39,lng:-95}, zoom:4 });
+    info = new google.maps.InfoWindow();
+    map.data.addListener("click", (e)=>{
+      const name = e.feature.getProperty("name") || "(no name)";
+      info.setContent(name);
+      info.setPosition(e.latLng);
+      info.open(map);
+    });
+    document.getElementById("reload").onclick = loadAndRender;
+    loadAndRender().catch(err => alert(err.message));
+  });
+  </script>
+</body>
+</html>
