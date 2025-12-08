@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Horizon Picker</title>
+  <style>
+    body { font-family: sans-serif; margin: 10px; }
+    #controls { margin-bottom: 8px; }
+    #coords { margin-top: 8px; white-space: pre; }
+    canvas { border: 1px solid #ccc; cursor: crosshair; display: block; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    Image URL:
+    <input id="imgUrl" type="text" size="80" placeholder="https://example.com/image.jpg">
+    <button id="loadBtn">Load image</button>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div id="coords">Load an image, then click twice on the horizon to set the line.</div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const loadBtn = document.getElementById('loadBtn');
+    const imgUrlInput = document.getElementById('imgUrl');
+    const coordsDiv = document.getElementById('coords');
+
+    let img = null;
+    let points = [];          // [{x, y}, {x, y}]
+    let draggingIndex = -1;   // 0 or 1 when dragging, -1 otherwise
+    const handleRadius = 6;
+
+    loadBtn.addEventListener('click', () => {
+      const url = imgUrlInput.value.trim();
+      if (!url) return;
+
+      img = new Image();
+      img.crossOrigin = "anonymous"; // safe default
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        points = [];
+        draggingIndex = -1;
+        draw();
+        coordsDiv.textContent = 'Click twice on the horizon to set the line.';
+      };
+      img.onerror = () => {
+        coordsDiv.textContent = 'Could not load image. Check the URL.';
+      };
+      img.src = url;
+    });
+
+    function getMousePos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+
+    function distance(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    canvas.addEventListener('mousedown', (evt) => {
+      if (!img || !img.complete) return;
+      const pos = getMousePos(evt);
+
+      // If we already have two points, check for grabbing a handle
+      if (points.length === 2) {
+        for (let i = 0; i < 2; i++) {
+          if (distance(pos, points[i]) <= handleRadius * 2) {
+            draggingIndex = i;
+            return;
+          }
+        }
+        // Click not near an existing handle: do nothing (simplest behavior)
+        return;
+      }
+
+      // Otherwise, collect up to 2 clicks as points
+      points.push(pos);
+      if (points.length > 2) points = points.slice(0, 2);
+
+      draw();
+      updateCoords();
+    });
+
+    canvas.addEventListener('mousemove', (evt) => {
+      if (draggingIndex === -1) return;
+      const pos = getMousePos(evt);
+      points[draggingIndex] = pos;
+      draw();
+      updateCoords();
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      draggingIndex = -1;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      draggingIndex = -1;
+    });
+
+    function draw() {
+      if (!img || !img.complete) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+
+      if (points.length >= 1) {
+        // Draw points
+        ctx.lineWidth = 2;
+        ctx.fillStyle = 'red';
+        ctx.strokeStyle = 'red';
+
+        points.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, handleRadius, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Draw line if we have 2 points
+        if (points.length === 2) {
+          ctx.beginPath();
+          ctx.moveTo(points[0].x, points[0].y);
+          ctx.lineTo(points[1].x, points[1].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function updateCoords() {
+      if (points.length < 2) {
+        coordsDiv.textContent = 'Click twice on the horizon to set the line.';
+        return;
+      }
+      const p1 = points[0];
+      const p2 = points[1];
+
+      // Raw canvas coordinates
+      const text =
+        'Horizon endpoints (canvas pixels):\n' +
+        `P1: (${p1.x.toFixed(1)}, ${p1.y.toFixed(1)})\n` +
+        `P2: (${p2.x.toFixed(1)}, ${p2.y.toFixed(1)})\n\n` +
+        'Drag the red dots to adjust the line.';
+      coordsDiv.textContent = text;
+    }
+  </script>
+</body>
+</html>
