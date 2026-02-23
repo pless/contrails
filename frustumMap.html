@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WorldScope Camera Frustums</title>
+
+  <!-- CesiumJS from CDN -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet"/>
+
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%; height: 100%;
+      margin: 0; padding: 0;
+      overflow: hidden;
+      background: #000;
+      font-family: sans-serif;
+    }
+    #loadingOverlay {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 1.2em;
+      z-index: 10;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <div id="loadingOverlay">Loading frustums...</div>
+
+  <script>
+    // ── Replace with your Cesium Ion token ──────────────────────────────────
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2MTQ4YzNkZC1mNzkzLTQyMWUtYWM3NS05NTNmMjhkMWY0ZmUiLCJpZCI6MzU1NzMxLCJpYXQiOjE3NjE4ODgwMjJ9.7-GbwS9vE6N-pPZjhVd1MElMsJKNyWCqU0-wMyVmSvA';
+    // ────────────────────────────────────────────────────────────────────────
+
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+      terrain: Cesium.Terrain.fromWorldTerrain(),
+      animation: false,
+      baseLayerPicker: true,
+      fullscreenButton: true,
+      geocoder: false,
+      homeButton: true,
+      infoBox: true,
+      sceneModePicker: true,
+      selectionIndicator: true,
+      timeline: false,
+      navigationHelpButton: true,
+    });
+
+    // Enable underground and better 3D rendering
+    viewer.scene.globe.depthTestAgainstTerrain = false;
+
+    const KML_URL = './frustums-all-large.kml';
+
+    const dataSource = Cesium.KmlDataSource.load(KML_URL, {
+      camera: viewer.scene.camera,
+      canvas: viewer.scene.canvas,
+      clampToGround: false,   // keep 3D altitude
+    });
+
+    viewer.dataSources.add(dataSource).then(function (ds) {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      // Fly camera to fit all frustums in view
+      viewer.flyTo(ds);
+    }).catch(function (err) {
+      document.getElementById('loadingOverlay').textContent =
+        'Error loading KML: ' + err.message;
+      console.error(err);
+    });
+  </script>
+</body>
+</html>
