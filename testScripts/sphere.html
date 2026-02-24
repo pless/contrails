@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Constrained Cartesian Sliders on Sphere</title>
+<style>
+  body { font-family: sans-serif; }
+  canvas { border: 1px solid #ccc; }
+  .slider-container { margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<h2>Point Constrained to Sphere</h2>
+
+<canvas id="canvas" width="400" height="400"></canvas>
+
+<div class="slider-container">
+  X: <input type="range" id="xSlider" min="-1" max="1" step="0.001" value="1">
+  <span id="xVal"></span>
+</div>
+
+<div class="slider-container">
+  Y: <input type="range" id="ySlider" min="-1" max="1" step="0.001" value="0">
+  <span id="yVal"></span>
+</div>
+
+<div class="slider-container">
+  Z: <input type="range" id="zSlider" min="-1" max="1" step="0.001" value="0">
+  <span id="zVal"></span>
+</div>
+
+<script>
+const R = 1; // sphere radius
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const sliders = {
+  x: document.getElementById("xSlider"),
+  y: document.getElementById("ySlider"),
+  z: document.getElementById("zSlider")
+};
+
+const labels = {
+  x: document.getElementById("xVal"),
+  y: document.getElementById("yVal"),
+  z: document.getElementById("zVal")
+};
+
+// Normalize vector to sphere radius
+function normalize(x, y, z) {
+  const length = Math.sqrt(x*x + y*y + z*z);
+  if (length === 0) return {x: R, y: 0, z: 0};
+  return {
+    x: R * x / length,
+    y: R * y / length,
+    z: R * z / length
+  };
+}
+
+// Update sliders and redraw
+function updateFrom(changedAxis) {
+  let x = parseFloat(sliders.x.value);
+  let y = parseFloat(sliders.y.value);
+  let z = parseFloat(sliders.z.value);
+
+  // Renormalize entire vector
+  const n = normalize(x, y, z);
+
+  sliders.x.value = n.x;
+  sliders.y.value = n.y;
+  sliders.z.value = n.z;
+
+  labels.x.textContent = n.x.toFixed(3);
+  labels.y.textContent = n.y.toFixed(3);
+  labels.z.textContent = n.z.toFixed(3);
+
+  draw(n.x, n.y, n.z);
+}
+
+// Simple 3D projection
+function project(x, y, z) {
+  const scale = 150;
+  const perspective = 1 / (2 - z); // simple perspective
+  return {
+    x: 200 + scale * x * perspective,
+    y: 200 - scale * y * perspective
+  };
+}
+
+function draw(x, y, z) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw sphere outline
+  ctx.beginPath();
+  ctx.arc(200, 200, 150, 0, 2*Math.PI);
+  ctx.strokeStyle = "#888";
+  ctx.stroke();
+
+  // Draw point
+  const p = project(x, y, z);
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 6, 0, 2*Math.PI);
+  ctx.fillStyle = "red";
+  ctx.fill();
+}
+
+// Attach events
+Object.keys(sliders).forEach(axis => {
+  sliders[axis].addEventListener("input", () => updateFrom(axis));
+});
+
+// Initialize
+updateFrom("x");
+</script>
+
+</body>
+</html>
