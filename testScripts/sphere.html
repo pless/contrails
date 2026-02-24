@@ -2,18 +2,19 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Constrained Cartesian Sliders on Sphere</title>
+<title>Sphere with Lat/Long + Constrained Sliders</title>
 <style>
   body { font-family: sans-serif; }
-  canvas { border: 1px solid #ccc; }
+  canvas { border: 1px solid #ccc; cursor: grab; }
+  canvas:active { cursor: grabbing; }
   .slider-container { margin: 8px 0; }
 </style>
 </head>
 <body>
 
-<h2>Point Constrained to Sphere</h2>
+<h2>Constrained Cartesian Sliders on Rotatable Sphere</h2>
 
-<canvas id="canvas" width="400" height="400"></canvas>
+<canvas id="canvas" width="500" height="500"></canvas>
 
 <div class="slider-container">
   X: <input type="range" id="xSlider" min="-1" max="1" step="0.001" value="1">
@@ -31,7 +32,7 @@
 </div>
 
 <script>
-const R = 1; // sphere radius
+const R = 1;
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -47,25 +48,117 @@ const labels = {
   z: document.getElementById("zVal")
 };
 
-// Normalize vector to sphere radius
+// Rotation state
+let rotX = 0.6;
+let rotY = 0.6;
+let dragging = false;
+let lastX, lastY;
+
+// Normalize vector
 function normalize(x, y, z) {
-  const length = Math.sqrt(x*x + y*y + z*z);
-  if (length === 0) return {x: R, y: 0, z: 0};
+  const len = Math.sqrt(x*x + y*y + z*z);
+  if (len === 0) return {x: R, y: 0, z: 0};
+  return { x: R*x/len, y: R*y/len, z: R*z/len };
+}
+
+// Rotation transforms
+function rotate(point) {
+  let {x,y,z} = point;
+
+  // Rotate around Y
+  let cosY = Math.cos(rotY);
+  let sinY = Math.sin(rotY);
+  let x1 = cosY*x + sinY*z;
+  let z1 = -sinY*x + cosY*z;
+
+  // Rotate around X
+  let cosX = Math.cos(rotX);
+  let sinX = Math.sin(rotX);
+  let y1 = cosX*y - sinX*z1;
+  let z2 = sinX*y + cosX*z1;
+
+  return {x:x1, y:y1, z:z2};
+}
+
+// Perspective projection
+function project(p) {
+  const scale = 200;
+  const perspective = 1 / (3 - p.z);
   return {
-    x: R * x / length,
-    y: R * y / length,
-    z: R * z / length
+    x: 250 + scale * p.x * perspective,
+    y: 250 - scale * p.y * perspective,
+    depth: p.z
   };
 }
 
-// Update sliders and redraw
-function updateFrom(changedAxis) {
+// Draw latitude/longitude lines
+function drawGrid() {
+  ctx.strokeStyle = "#bbb";
+  ctx.lineWidth = 1;
+
+  const latSteps = 10;
+  const lonSteps = 12;
+
+  // Latitude lines
+  for (let i = 1; i < latSteps; i++) {
+    const phi = -Math.PI/2 + i*(Math.PI/latSteps);
+    ctx.beginPath();
+    for (let t = 0; t <= 2*Math.PI; t += 0.05) {
+      const x = R * Math.cos(phi) * Math.cos(t);
+      const y = R * Math.cos(phi) * Math.sin(t);
+      const z = R * Math.sin(phi);
+      const p = project(rotate({x,y,z}));
+      if (t === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+  }
+
+  // Longitude lines
+  for (let i = 0; i < lonSteps; i++) {
+    const theta = i*(2*Math.PI/lonSteps);
+    ctx.beginPath();
+    for (let t = -Math.PI/2; t <= Math.PI/2; t += 0.05) {
+      const x = R * Math.cos(t) * Math.cos(theta);
+      const y = R * Math.cos(t) * Math.sin(theta);
+      const z = R * Math.sin(t);
+      const p = project(rotate({x,y,z}));
+      if (t === -Math.PI/2) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawPoint(x,y,z) {
+  const p = project(rotate({x,y,z}));
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 7, 0, 2*Math.PI);
+  ctx.fillStyle = "red";
+  ctx.fill();
+}
+
+function draw(x,y,z) {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Sphere outline
+  ctx.beginPath();
+  ctx.arc(250,250,200,0,2*Math.PI);
+  ctx.strokeStyle = "#888";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  drawGrid();
+  drawPoint(x,y,z);
+}
+
+// Update sliders
+function update() {
   let x = parseFloat(sliders.x.value);
   let y = parseFloat(sliders.y.value);
   let z = parseFloat(sliders.z.value);
 
-  // Renormalize entire vector
-  const n = normalize(x, y, z);
+  const n = normalize(x,y,z);
 
   sliders.x.value = n.x;
   sliders.y.value = n.y;
@@ -75,43 +168,31 @@ function updateFrom(changedAxis) {
   labels.y.textContent = n.y.toFixed(3);
   labels.z.textContent = n.z.toFixed(3);
 
-  draw(n.x, n.y, n.z);
+  draw(n.x,n.y,n.z);
 }
 
-// Simple 3D projection
-function project(x, y, z) {
-  const scale = 150;
-  const perspective = 1 / (2 - z); // simple perspective
-  return {
-    x: 200 + scale * x * perspective,
-    y: 200 - scale * y * perspective
-  };
-}
-
-function draw(x, y, z) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Draw sphere outline
-  ctx.beginPath();
-  ctx.arc(200, 200, 150, 0, 2*Math.PI);
-  ctx.strokeStyle = "#888";
-  ctx.stroke();
-
-  // Draw point
-  const p = project(x, y, z);
-  ctx.beginPath();
-  ctx.arc(p.x, p.y, 6, 0, 2*Math.PI);
-  ctx.fillStyle = "red";
-  ctx.fill();
-}
-
-// Attach events
+// Slider listeners
 Object.keys(sliders).forEach(axis => {
-  sliders[axis].addEventListener("input", () => updateFrom(axis));
+  sliders[axis].addEventListener("input", update);
 });
 
-// Initialize
-updateFrom("x");
+// Mouse rotation
+canvas.addEventListener("mousedown", e => {
+  dragging = true;
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+window.addEventListener("mouseup", () => dragging = false);
+window.addEventListener("mousemove", e => {
+  if (!dragging) return;
+  rotY += (e.clientX - lastX) * 0.01;
+  rotX += (e.clientY - lastY) * 0.01;
+  lastX = e.clientX;
+  lastY = e.clientY;
+  update();
+});
+
+update();
 </script>
 
 </body>
