@@ -86,12 +86,6 @@
   }
   const isYouTube = (r) => /youtube\.com|youtu\.be/i.test(r.image_url || "");
   const hasCoords = (r) => !isNaN(parseFloat(r.lat)) && !isNaN(parseFloat(r.lon));
-  function distKm(a, b) {
-    const R = 6371, toR = Math.PI / 180;
-    const dLat = (b.lat - a.lat) * toR, dLon = (b.lon - a.lon) * toR;
-    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * toR) * Math.cos(b.lat * toR) * Math.sin(dLon / 2) ** 2;
-    return 2 * R * Math.asin(Math.sqrt(h));
-  }
   const badge = (r) => `<span class="badge ${esc(statusClass(r))}" title="${esc(r.status)}">${esc((r.status || "?").split(" (")[0])}</span>`;
 
   // current-image URL with cache-buster; http sources go through a fetch proxy
@@ -251,7 +245,6 @@
             ${row("folder", driveFolder, true)}${row("constraints.json", r._constraints ? (r._constraints_file_id ? link(`https://drive.google.com/file/d/${r._constraints_file_id}/view`, "seeded (open)") : "seeded") : "not yet", true)}
             ${row("calibration.json", r._calibration ? "present" : "not yet")}${row("tier", r._calibration ? "" : "T0 (metadata only)")}</dl></div>
           ${r.notes ? `<div class="card"><h3>Notes</h3><div class="notes">${esc(r.notes)}</div></div>` : ""}
-          <div class="card"><h3>Nearby cameras (within ${CFG.nearbyKm || 60} km)</h3><ul class="nearby" id="nearby"></ul></div>
         </div>
       </div>`;
 
@@ -277,7 +270,7 @@
     $("#auto").addEventListener("change", schedule);
     showImage(); schedule();
 
-    // minimap + nearby
+    // minimap
     if (hasCoords(r)) {
       const ll = [parseFloat(r.lat), parseFloat(r.lon)];
       const m = L.map("minimap", { zoomControl: false, attributionControl: false }).setView(ll, 9);
@@ -287,14 +280,8 @@
         const az = parseFloat(r.heading_deg) * Math.PI / 180, dl = 0.12;
         L.polyline([ll, [ll[0] + dl * Math.cos(az), ll[1] + dl * Math.sin(az) / Math.cos(ll[0] * Math.PI / 180)]], { color: "#d62828", weight: 2, dashArray: "4 4" }).addTo(m);
       }
-      const here = { lat: ll[0], lon: ll[1] };
-      const near = rows.filter((o) => o !== r && hasCoords(o)).map((o) => ({ o, d: distKm(here, { lat: parseFloat(o.lat), lon: parseFloat(o.lon) }) }))
-        .filter((x) => x.d <= (CFG.nearbyKm || 60)).sort((a, b) => a.d - b.d).slice(0, 12);
-      $("#nearby").innerHTML = near.length ? near.map((x) => `<li><a href="camera.html?id=${esc(x.o.camera_id)}">${esc(x.o.name)}</a> <span class="muted">${x.d.toFixed(1)} km</span> ${badge(x.o)}</li>`).join("") : `<li class="muted">none</li>`;
-      for (const x of near) L.circleMarker([parseFloat(x.o.lat), parseFloat(x.o.lon)], { radius: 4, color: "#1f5fbf", fillColor: "#1f5fbf", fillOpacity: 0.7, weight: 1 }).bindTooltip(x.o.name).addTo(m);
     } else {
       $("#minimap").innerHTML = `<p class="muted">No coordinates yet (status: ${esc(r.status)}).</p>`;
-      $("#nearby").innerHTML = `<li class="muted">needs coordinates</li>`;
     }
   }
 

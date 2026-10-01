@@ -8,5 +8,4 @@ window.CC_CONFIG = {
   driveRootUrl: "https://drive.google.com/drive/folders/1_LHW5Ua-BH-G7-WmF7Hh-Z9TFC0BLOju",
   liveSheet: true,          // set false to always use the snapshot
   refreshSeconds: 60,       // current-image auto refresh on the camera page
-  nearbyKm: 60,             // radius for the "nearby cameras" list
 };

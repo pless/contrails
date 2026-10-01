@@ -66,7 +66,6 @@ table.cams td.num { text-align: right; white-space: nowrap; }
 .montage figure { margin: 0; }
 .montage img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; background: #000; display: block; }
 .montage figcaption { font-size: 12px; color: var(--muted); margin-top: 3px; }
-ul.nearby { margin: 0; padding-left: 18px; }
 .notes { white-space: pre-wrap; }
 .about { max-width: 860px; margin: 0 auto; padding: 16px; }
 .about h2 { margin-top: 28px; }

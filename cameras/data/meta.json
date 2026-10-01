@@ -1,9 +1,9 @@
 {
- "built_utc": "2026-09-30T21:38:47Z",
+ "built_utc": "2026-10-01T00:57:37Z",
  "n_cameras": 1596,
- "n_with_images": 1551,
- "n_images": 1831,
- "n_stored_total": 1882,
- "n_captured_cameras": 1551,
+ "n_with_images": 1559,
+ "n_images": 2358,
+ "n_stored_total": 5654,
+ "n_captured_cameras": 1559,
  "snapshot_label": "contrailCameras sheet, exported 2026-09-30"
 }
