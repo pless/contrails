@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>contrailCameras</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</head>
+<body data-page="index">
+<header class="top">
+  <h1>contrailCameras</h1>
+  <span class="sub">sky cameras being calibrated for the contrail project</span>
+  <span id="srcbadge" class="src-badge">loading…</span>
+  <nav style="margin-left:auto"><a href="about.html">about</a><a href="https://docs.google.com/spreadsheets/d/1Wn2NxC56LbhtVOmohMansWGv1uCzy9HBOPA4eqncCGk/edit" target="_blank" rel="noopener">sheet</a><a href="https://drive.google.com/drive/folders/1_LHW5Ua-BH-G7-WmF7Hh-Z9TFC0BLOju" target="_blank" rel="noopener">Drive</a></nav>
+</header>
+<div class="filters">
+  <input id="f-q" type="search" placeholder="search name, id, country, notes…">
+  <select id="f-status"><option value="">any status</option></select>
+  <select id="f-region"><option value="">any region</option></select>
+  <select id="f-net"><option value="">any network</option></select>
+  <label><input id="f-fast" type="checkbox"> fast only (≥ 1 image/min)</label>
+  <button id="f-fit" type="button">fit map</button>
+  <span id="count" class="count">loading…</span>
+</div>
+<div class="split">
+  <div id="map"></div>
+  <div class="listwrap">
+    <table class="cams" id="cams">
+      <thead><tr><th data-sort="name">camera</th><th data-sort="net">network</th><th data-sort="region">region</th><th data-sort="status">status</th><th data-sort="interval">interval s</th><th data-sort="size">frame</th><th data-sort="captured" title="last frame saved by the hourly capture job (UTC)">captured</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

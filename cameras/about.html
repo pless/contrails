@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>about · contrailCameras</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="about">
+<header class="top">
+  <h1><a href="index.html">contrailCameras</a></h1>
+  <nav style="margin-left:auto"><a href="index.html">list</a></nav>
+</header>
+<div class="about">
+<h2>What this is</h2>
+<p>A per-camera view of the <b>contrailCameras</b> registry: public sky cameras that update at least about once a minute and that we are calibrating (position, pointing, field of view, lens distortion) so that contrails and clouds seen in them can be placed in the sky.</p>
+
+<h2>Where the data comes from</h2>
+<table>
+<tr><th>registry</th><td>The <a href="https://docs.google.com/spreadsheets/d/1Wn2NxC56LbhtVOmohMansWGv1uCzy9HBOPA4eqncCGk/edit" target="_blank" rel="noopener">contrailCameras Google Sheet</a>, tab <code>cameras</code>, one row per camera. The page reads the sheet directly when it is shared as “anyone with the link can view”; otherwise it falls back to the snapshot built into the site (the badge in the header says which one you are looking at).</td></tr>
+<tr><th>camera_id</th><td><code>ws-</code> + the first 8 hex characters of SHA-1 of the normalized image URL. Minted once and never renumbered; it is also column A of the WorldScope sheet and the name of the camera's Drive folder.</td></tr>
+<tr><th>current image</th><td>Fetched from the camera's own image URL each time the page loads (and every 60 s while auto-refresh is on). Cameras that only serve plain <code>http://</code> are loaded through the images.weserv.nl proxy because this site is served over https. YouTube feeds are embedded.</td></tr>
+<tr><th>stored images</th><td>Frames saved for calibration in Google Drive under <code>Worldscope/cameras/&lt;camera_id&gt;/images/</code>. An hourly job (<code>tools/capture_hourly.py</code>, run by launchd on Robert's Mac) saves one validated frame per live camera there, in shuffled order and with per-host rate limits; YouTube streams get one frame through yt-dlp + ffmpeg. The montage shows thumbnails made at build time by <code>tools/build_dashboard.py</code> (the newest 6 per curated camera, the newest 1 for Pool A rows); each links to the file in Drive when its id is known. The “captured” column in the list is the time of the last saved frame.</td></tr>
+<tr><th>constraints / calibration</th><td><code>constraints.json</code> (priors and hand-clicked evidence) and <code>calibration.json</code> (solver output) live next to <code>images/</code> in the camera's Drive folder.</td></tr>
+</table>
+
+<h2>Status vocabulary</h2>
+<table>
+<tr><td><span class="badge candidate">candidate</span></td><td>live and fast (≥ 1 image/min), nobody has started on it yet</td></tr>
+<tr><td><span class="badge slow">slow</span></td><td>live but updates less than once a minute: fine for calibration, not for cloud tracking</td></tr>
+<tr><td><span class="badge dead">dead</span></td><td>the image URL fails (date in parentheses)</td></tr>
+<tr><td><span class="badge stale">stale</span></td><td>the URL works but the image is old</td></tr>
+<tr><td><span class="badge needs">needs location</span></td><td>no coordinates yet</td></tr>
+<tr><td><span class="badge in">in progress</span></td><td>someone is collecting evidence / solving</td></tr>
+<tr><td><span class="badge calibrated">calibrated (T1–T4)</span></td><td>solved; the tier says how well: T1 coarse (~5°), T2 horizon and landmarks (~0.5°), T3 celestial (a few pixels), T4 independently validated</td></tr>
+<tr><td><span class="badge skip">skip: reason</span></td><td>not worth pursuing</td></tr>
+</table>
+<p>The first word is the machine-readable part; anything after it is evidence. Cadence is a fixed property of a camera, measured once with a two-look check (two requests about 62 s apart), not monitored.</p>
+
+<h2>Rebuilding the site</h2>
+<pre><code>python tools/build_dashboard.py data/contrailCameras/contrailCameras.csv \
+    --out ~/githubCloneContrails/contrails/cameras \
+    --images data/contrailCameras/seeds \
+    --images "$HOME/Library/CloudStorage/GoogleDrive-…/My Drive/Worldscope/cameras" \
+    --images ~/contrailCapture/spool --captures ~/contrailCapture \
+    --drive-uploads data/contrailCameras/drive_uploads.csv \
+    --max-per-camera 6 --max-pool-a 1 \
+    --snapshot-label "contrailCameras sheet, exported YYYY-MM-DD"</code></pre>
+<p>Then commit and push the <code>cameras/</code> directory of the contrails repository.</p>
+</div>
+</body>
+</html>
