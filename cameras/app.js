@@ -61,7 +61,7 @@
   const NETWORKS = [
     [/alertcalifornia\.org/, "ALERTCalifornia"], [/infoclimat\.fr/, "Infoclimat"], [/almeso\.net/, "almeso"],
     [/meteoalentejo\.pt/, "MeteoAlentejo"], [/weatherstem\.com/, "WeatherSTEM"], [/youtube\.com|youtu\.be/, "YouTube"],
-    [/nps\.gov/, "NPS"], [/alertwest|alertwildfire/, "AlertWest"], [/fripon/, "FRIPON"],
+    [/nps\.gov/, "NPS"], [/alertwest|alertwildfire/, "AlertWest"], [/fripon/, "FRIPON"], [/allsky\.tv|allsky7\.net/, "AllSky7"], [/idokep\.hu/, "Időkép"],
   ];
   function network(r) {
     const u = (r.image_url || "").toLowerCase();
@@ -85,6 +85,9 @@
     return "unknown";
   }
   const isYouTube = (r) => /youtube\.com|youtu\.be/i.test(r.image_url || "");
+  // sources whose terms do not allow showing their images on other sites: link to them instead
+  const NO_EMBED = /(^|\.)idokep\.hu$/i;
+  const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
   const hasCoords = (r) => !isNaN(parseFloat(r.lat)) && !isNaN(parseFloat(r.lon));
   const badge = (r) => `<span class="badge ${esc(statusClass(r))}" title="${esc(r.status)}">${esc((r.status || "?").split(" (")[0])}</span>`;
 
@@ -234,7 +237,7 @@
         const c = col[r._sc] || "#8a8f98";
         L.circleMarker(ll, { radius: 6, color: c, fillColor: c, fillOpacity: 0.85, weight: 1 })
           .bindPopup(() => `<b>${esc(r.name)}</b><br><code>${esc(r.camera_id)}</code> ${badge(r)}<br>${esc(r._net)} · ${esc(r.frame_interval_s || "?")} s · ${esc(r.region)}<br>
-            <a href="camera.html?id=${esc(r.camera_id)}">open camera page</a>` + (r._sc !== "dead" && !isYouTube(r) ? `<br><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy">` : ""), { maxWidth: 320 })
+            <a href="camera.html?id=${esc(r.camera_id)}">open camera page</a>` + (r._sc !== "dead" && !isYouTube(r) && !noEmbed(r) ? `<br><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy">` : ""), { maxWidth: 320 })
           .addTo(layer);
       }
       writeHash();
@@ -284,7 +287,7 @@
             <div id="imgbox"></div>
             <div class="toolbar"><button id="btn-refresh">refresh</button>
               <label><input type="checkbox" id="auto" checked> auto-refresh every ${CFG.refreshSeconds || 60} s</label>
-              <span id="loaded"></span> ${link(r.image_url, "open source URL")} ${link(r.page_url, "camera page")}</div>
+              <span id="loaded"></span> ${noEmbed(r) ? "" : link(r.image_url, "open source URL")} ${link(r.page_url, "camera page")}</div>
           </div>
           ${v ? `<div class="card verify"><h3>Verification</h3><p class="vkey">${VKEY}<a href="verify.html">all cameras</a></p>
             ${v.skyline ? `<div class="vblock">${vpic(v.skyline, 960, 270, "skyline fit")}<div>Skyline fit: ${skyText(v.skyline)}</div></div>` : ""}
@@ -299,7 +302,7 @@
           <div class="card"><h3>Identity</h3><dl>
             ${row("camera_id", `<code>${esc(r.camera_id)}</code> ${sheetRowLink}`, true)}${row("network", net)}${row("source", r.source_tab)}
             ${row("status", `${badge(r)}${(r.status || "").includes(" (") ? " " + esc(r.status) : ""}`, true)}${row("last verified", r.last_verified)}
-            ${row("image URL", link(r.image_url), true)}${row("page", link(r.page_url), true)}</dl></div>
+            ${row("image URL", noEmbed(r) ? "on the camera page" : link(r.image_url), true)}${row("page", link(r.page_url), true)}</dl></div>
           <div class="card"><h3>Where</h3><div id="minimap"></div><dl style="margin-top:8px">
             ${row("lat, lon", hasCoords(r) ? `${esc(r.lat)}, ${esc(r.lon)} <a href="https://www.google.com/maps?q=${esc(r.lat)},${esc(r.lon)}" target="_blank" rel="noopener">map</a>` : "", true)}
             ${row("altitude", r.alt_m ? r.alt_m + " m" : "")}${row("accuracy", r.location_accuracy)}${row("location source", r.location_source)}</dl></div>
@@ -324,6 +327,7 @@
     function showImage() {
       if (yt) { box.innerHTML = `<iframe src="${esc(embedUrl(r.image_url))}" allowfullscreen></iframe>`; return; }
       if (!r.image_url) { box.innerHTML = `<div class="err">No image URL in the registry.</div>`; return; }
+      if (noEmbed(r)) { box.innerHTML = `<div class="err">This source does not allow its images to be shown on other sites.<br>${link(r.page_url || r.image_url, "See the current image on the camera's own page")}</div>`; return; }
       const img = new Image();
       img.referrerPolicy = "no-referrer";
       img.alt = r.name || r.camera_id;
@@ -335,7 +339,7 @@
       };
       img.src = liveUrl(r.image_url, useProxy);
     }
-    function schedule() { clearInterval(timer); if ($("#auto").checked && !yt && sc !== "dead") timer = setInterval(showImage, 1000 * (CFG.refreshSeconds || 60)); }
+    function schedule() { clearInterval(timer); if ($("#auto").checked && !yt && !noEmbed(r) && sc !== "dead") timer = setInterval(showImage, 1000 * (CFG.refreshSeconds || 60)); }
     $("#btn-refresh").addEventListener("click", showImage);
     $("#auto").addEventListener("change", schedule);
     showImage(); schedule();
