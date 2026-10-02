@@ -113,6 +113,71 @@
     el.title = reg.source === "live" ? "Read directly from the Google Sheet" : "Live sheet not readable from here; showing the snapshot built into the site";
   }
 
+  // ---------- verification evidence (data/verify.json, written by tools/build_verify_page.py) ----------
+  const loadVerify = () => fetch("data/verify.json").then((r) => r.json()).catch(() => ({ summary: {}, cameras: [] }));
+  const sg = (v, d) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(v).toFixed(d == null ? 2 : d);
+  const frameTime = (s) => String(s || "").replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3 $4:$5 UTC");
+  const VKEY = [["#eb2828", "published pointing"], ["#46d246", "after the skyline fit"], ["#ffeb00", "what the image shows"]].map(([c, t]) => `<span class="key"><i style="background:${c}"></i>${t}</span>`).join("");
+  const vpic = (o, w, h, alt) => o.img ? `<a href="${esc(o.img)}" target="_blank" rel="noopener"><img src="${esc(o.img)}" width="${w}" height="${h}" loading="lazy" alt="${esc(alt)}"></a>` : "";
+  function skyText(s) {
+    const fix = s.d_pan == null ? `flat horizon, so tilt and roll only: tilt ${sg(s.d_tilt)}°, roll ${sg(s.roll)}°`
+      : `pan ${sg(s.d_pan)}°, tilt ${sg(s.d_tilt)}°, roll ${sg(s.roll)}°, focal ×${s.focal.toFixed(3)}`;
+    return `<b>${fix}</b><br><span class="muted">skyline misfit ${s.misfit_published_px} → ${s.misfit_fitted_px} px · ${s.frames} frames · relief ${s.relief_deg}° · skyline ${s.skyline_km} km away<br>published pan ${s.pan}°, tilt ${sg(s.tilt)}°, field of view ${s.hfov}° · ${esc(frameTime(s.frame))}</span>`;
+  }
+  function sunText(s) {
+    return `<b class="sun-${esc(s.verdict)}">${esc(s.verdict)}</b>: sun found ${sg(s.d_az)}° in azimuth, ${sg(s.d_el)}° in elevation from the published pointing <span class="muted">(median of ${s.frames} frame${s.frames === 1 ? "" : "s"})</span>`
+      + (s.fit_frames ? `<br>after the skyline fit: ${sg(s.fit_d_az)}°, ${sg(s.fit_d_el)}° <span class="muted">(${s.fit_frames} frame${s.fit_frames === 1 ? "" : "s"} at that pointing, published there: ${sg(s.pub_d_az)}°, ${sg(s.pub_d_el)}°)</span>` : "")
+      + `<br><span class="muted">${esc(frameTime(s.frame))}</span>`;
+  }
+
+  async function initVerify() {
+    const [reg, ver] = await Promise.all([loadRegistry(), loadVerify()]);
+    setSourceBadge(reg);
+    const byId = new Map(reg.rows.map((r) => [r.camera_id, r]));
+    const cams = ver.cameras.map((c) => {
+      const r = byId.get(c.camera_id) || { status: c.status };
+      return Object.assign(c, { _r: r, _sc: statusClass(r), _ev: c.skyline && c.sun ? "both" : c.skyline ? "skyline" : "sun" });
+    });
+    const s = ver.summary, n = (f) => cams.filter(f).length;
+    $("#vsummary").innerHTML = `
+      <p><b>${n((c) => c._sc === "calibrated")} ALERTCalifornia cameras are marked calibrated on the evidence below</b>, ${n((c) => c._sc === "in")} are held as in progress and ${n((c) => c._sc !== "calibrated" && c._sc !== "in")} have evidence that does not settle it.
+        ${s.skyline_good} cameras have a clean terrain-skyline fit (of ${s.skyline_cameras_tried} tried) and ${s.sun.consistent} pass the sun check (${s.sun.offset} fail it, ${s.sun.unclear} are unclear).</p>
+      <p>What it says about the published pointing: pan is good (within 1° of the skyline fit for ${s.pan_within_1deg_pct}% of the ${s.skyline_pan_pinned} cameras whose skyline pins it), tilt is not (within 1° for ${s.tilt_within_1deg_pct}%, largest ${s.tilt_abs_max.toFixed(1)}°), roll is not published (typically ${s.roll_abs_median.toFixed(1)}°) and the focal length is about ${Math.round((s.focal_median - 1) * 100)}% longer than the published field of view implies.
+        The two checks are independent and agree: on the ${s.sun_and_skyline} cameras with both, the skyline fit moves the predicted sun closer to the sun in the picture (typical miss ${s.sun_el_abs_median_published}° → ${s.sun_el_abs_median_fitted}° in elevation, ${s.sun_az_abs_median_published}° → ${s.sun_az_abs_median_fitted}° in azimuth).</p>
+      <p class="vkey">${VKEY}</p>
+      <p class="muted"><b>Skyline picture</b>: a band of one stored frame. The lines are the terrain skyline computed from an elevation model at the camera's position, drawn with the published pointing and with the fitted one; the dots are the skyline found in the stored frames. Green on the dots means the fit explains the picture, and the gap from red to green is the correction.
+        <b>Sun picture</b>: part of a frame with the sun in it. The crosses are where each pointing puts the sun at the time the frame was taken; the ring is the centre of the saturated sun.
+        Click a picture for the full size. Numbers: <a href="data/verify.csv">verify.csv</a> · skyline run ${esc((s.skyline_run_utc || "").slice(0, 16).replace("T", " "))} UTC · ${s.sun_frames_checked} sun frames checked, the last at ${esc(frameTime(s.sun_last_frame))} · <a href="about.html#verification">how it works</a></p>`;
+
+    const sel = $("#v-status");
+    for (const v of [...new Set(cams.map((c) => c._sc))].sort()) { const o = document.createElement("option"); o.value = v; o.textContent = v === "in" ? "in progress" : v; sel.appendChild(o); }
+    const state = { q: "", ev: "", sun: "", status: "", sort: "name" };
+    const ctl = { q: "#v-q", ev: "#v-ev", sun: "#v-sun", status: "#v-status", sort: "#v-sort" };
+    const readHash = () => { const p = new URLSearchParams(location.hash.slice(1)); for (const k of Object.keys(state)) { state[k] = p.get(k) || (k === "sort" ? "name" : ""); $(ctl[k]).value = state[k]; } };
+    readHash();
+    const abs = (v) => (v == null ? -1 : Math.abs(v));
+    const key = {
+      name: (c) => 0, tilt: (c) => -abs(c.skyline && c.skyline.d_tilt), pan: (c) => -abs(c.skyline && c.skyline.d_pan), roll: (c) => -abs(c.skyline && c.skyline.roll),
+      misfit: (c) => -(c.skyline ? c.skyline.misfit_fitted_px : -1), sun: (c) => -(c.sun ? Math.hypot(c.sun.d_az, c.sun.d_el) : -1),
+    };
+    function render() {
+      const q = state.q.trim().toLowerCase(), k = key[state.sort] || key.name;
+      const list = cams.filter((c) => (!state.ev || c._ev === state.ev) && (!state.sun || (c.sun && c.sun.verdict === state.sun)) && (!state.status || c._sc === state.status)
+        && (!q || c.name.toLowerCase().includes(q) || c.camera_id.includes(q))).sort((a, b) => k(a) - k(b));   // the list arrives sorted by name; the sort is stable
+      $("#v-count").textContent = `${list.length} of ${cams.length} cameras`;
+      $("#vtable tbody").innerHTML = list.map((c) => `<tr>
+        <td class="vcam"><a href="camera.html?id=${esc(c.camera_id)}">${esc(c.name)}</a><br><span class="muted"><code>${esc(c.camera_id)}</code></span><br>${badge(c._r)}<div class="muted vstatus">${esc(c._r.status || "")}</div></td>
+        <td class="vsky">${c.skyline ? vpic(c.skyline, 960, 270, "skyline fit, " + c.name) + `<div>${skyText(c.skyline)}</div>` : `<span class="muted">no clean skyline fit</span>`}</td>
+        <td class="vsun">${c.sun ? vpic(c.sun, 480, 270, "sun check, " + c.name) + `<div>${sunText(c.sun)}</div>` : `<span class="muted">sun not measured yet</span>`}</td></tr>`).join("");
+      const p = new URLSearchParams();
+      for (const k2 of Object.keys(state)) if (state[k2] && !(k2 === "sort" && state[k2] === "name")) p.set(k2, state[k2]);
+      history.replaceState(null, "", "#" + p.toString());
+    }
+    for (const k of Object.keys(state)) $(ctl[k]).addEventListener(k === "q" ? "input" : "change", (e) => { state[k] = e.target.value; render(); });
+    window.addEventListener("hashchange", () => { readHash(); render(); });
+    render();
+  }
+
   // ---------- index page ----------
   async function initIndex() {
     const reg = await loadRegistry();
@@ -191,9 +256,10 @@
   // ---------- camera page ----------
   async function initCamera() {
     const id = new URLSearchParams(location.search).get("id");
-    const [reg, images] = await Promise.all([loadRegistry(), fetch("data/images.json").then((r) => r.json()).catch(() => ({}))]);
+    const [reg, images, ver] = await Promise.all([loadRegistry(), fetch("data/images.json").then((r) => r.json()).catch(() => ({})), loadVerify()]);
     setSourceBadge(reg);
     const rows = reg.rows;
+    const v = ver.cameras.find((c) => c.camera_id === id);
     const i = rows.findIndex((r) => r.camera_id === id);
     if (i < 0) { $("#page").innerHTML = `<p>No camera with id <code>${esc(id)}</code> in the registry. <a href="index.html">Back to the list</a>.</p>`; return; }
     const r = rows[i];
@@ -220,6 +286,9 @@
               <label><input type="checkbox" id="auto" checked> auto-refresh every ${CFG.refreshSeconds || 60} s</label>
               <span id="loaded"></span> ${link(r.image_url, "open source URL")} ${link(r.page_url, "camera page")}</div>
           </div>
+          ${v ? `<div class="card verify"><h3>Verification</h3><p class="vkey">${VKEY}<a href="verify.html">all cameras</a></p>
+            ${v.skyline ? `<div class="vblock">${vpic(v.skyline, 960, 270, "skyline fit")}<div>Skyline fit: ${skyText(v.skyline)}</div></div>` : ""}
+            ${v.sun ? `<div class="vblock vsunblock">${vpic(v.sun, 480, 270, "sun check")}<div>Sun check: ${sunText(v.sun)}</div></div>` : ""}</div>` : ""}
           <div class="card"><h3>Stored images (${esc(r._n_stored || stored.length)}${r._n_stored && +r._n_stored > stored.length ? `, newest ${stored.length} shown` : ""})</h3>
             <p class="muted">Frames saved for calibration in <code>Worldscope/cameras/${esc(r.camera_id)}/images/</code> ${driveFolder}${reg.meta && reg.meta.built_utc ? ` · site built ${esc(reg.meta.built_utc.slice(0, 16).replace("T", " "))} UTC` : ""}</p>
             ${stored.length ? `<div class="montage">${stored.map((im) => `<figure><a href="${im.drive_file_id ? `https://drive.google.com/file/d/${esc(im.drive_file_id)}/view` : esc(im.thumb)}" target="_blank" rel="noopener"><img src="${esc(im.thumb)}" loading="lazy" alt="${esc(im.file)}"></a>
@@ -243,7 +312,8 @@
             ${row("last hourly capture", r._last_capture ? r._last_capture.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3 $4:$5 UTC") : "")}</dl></div>
           <div class="card"><h3>Calibration</h3><dl>
             ${row("folder", driveFolder, true)}${row("constraints.json", r._constraints ? (r._constraints_file_id ? link(`https://drive.google.com/file/d/${r._constraints_file_id}/view`, "seeded (open)") : "seeded") : "not yet", true)}
-            ${row("calibration.json", r._calibration ? "present" : "not yet")}${row("tier", r._calibration ? "" : "T0 (metadata only)")}</dl></div>
+            ${row("calibration.json", r._calibration ? "present" : "not yet")}${row("tier", ((r.status || "").match(/^calibrated \((T\d)/) || [])[1] || (r._calibration ? "" : "T0 (metadata only)"))}
+            ${row("evidence", v ? "skyline and sun pictures in the Verification card" : "")}</dl></div>
           ${r.notes ? `<div class="card"><h3>Notes</h3><div class="notes">${esc(r.notes)}</div></div>` : ""}
         </div>
       </div>`;
@@ -287,7 +357,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     const page = document.body.dataset.page;
-    const run = page === "index" ? initIndex : page === "camera" ? initCamera : null;
+    const run = page === "index" ? initIndex : page === "camera" ? initCamera : page === "verify" ? initVerify : null;
     if (run) run().catch((e) => { console.error(e); const el = $("#page") || $("#count"); if (el) el.textContent = "Failed to load the registry: " + e.message; });
   });
 })();

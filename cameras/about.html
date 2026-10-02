@@ -9,7 +9,7 @@
 <body data-page="about">
 <header class="top">
   <h1><a href="index.html">contrailCameras</a></h1>
-  <nav style="margin-left:auto"><a href="index.html">list</a></nav>
+  <nav style="margin-left:auto"><a href="index.html">list</a><a href="verify.html">verification</a></nav>
 </header>
 <div class="about">
 <h2>What this is</h2>
@@ -36,6 +36,15 @@
 <tr><td><span class="badge skip">skip: reason</span></td><td>not worth pursuing</td></tr>
 </table>
 <p>The first word is the machine-readable part; anything after it is evidence. Cadence is a fixed property of a camera, measured once with a two-look check (two requests about 62 s apart), not monitored.</p>
+
+<h2 id="verification">Verification</h2>
+<p>The <a href="verify.html">verification page</a> shows the evidence behind each ALERTCalifornia camera marked calibrated. These cameras turn, so what is checked is the pointing the network publishes (pan, tilt, field of view) for the frame in hand. Two checks, independent of each other:</p>
+<table>
+<tr><th>terrain skyline</th><td>The camera position is known, so the skyline it should see can be computed from an elevation model (AWS Terrain Tiles, out to 150 km, with earth curvature and refraction). The skyline is also found in up to eight stored frames. Pan, tilt, roll and focal length are then fitted so the computed skyline lands on the found one. A fit counts when the median miss is at most 3 pixels and at least 85% of the columns agree. A flat horizon cannot pin pan or focal length, so there only tilt and roll are fitted. <code>tools/verify_skyline.py</code></td></tr>
+<tr><th>sun</th><td>For every stored frame where the published pointing puts the sun inside the picture, the saturated sun is found and compared with where it should be. <i>consistent</i> means within 2° in azimuth and 4° in elevation; <i>offset</i> means farther than that in at least two frames that agree; <i>unclear</i> means farther but only once or inconsistently. <code>tools/verify_sun.py</code></td></tr>
+<tr><th>status</th><td>A camera is marked calibrated when it has a clean skyline fit or a consistent sun; the status text in the sheet says which, with the numbers. It is held as in progress when the skyline fit asks for a pan change above 1.5° that nothing else confirms, or when the two checks disagree.</td></tr>
+</table>
+<p>The pictures and numbers on that page are made by <code>python tools/build_verify_page.py --out ~/githubCloneContrails/contrails/cameras</code>, run after either check has new results.</p>
 
 <h2>Rebuilding the site</h2>
 <pre><code>python tools/build_dashboard.py data/contrailCameras/contrailCameras.csv \

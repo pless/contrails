@@ -71,6 +71,25 @@ table.cams td.num { text-align: right; white-space: nowrap; }
 .about h2 { margin-top: 28px; }
 .about table { border-collapse: collapse; }
 .about td, .about th { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+
+/* verification */
+.key { margin-right: 16px; white-space: nowrap; }
+.key i { display: inline-block; width: 22px; height: 4px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.verify img { display: block; width: 100%; height: auto; border-radius: 6px; background: #000; margin-bottom: 5px; }
+.vfilters { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; }
+table.verify { background: var(--panel); border: 1px solid var(--line); }
+table.verify th { position: static; cursor: default; }
+table.verify td.vcam { width: 17%; } table.verify td.vsky { width: 55%; } table.verify td.vsun { width: 28%; }
+table.verify tr:hover td { background: none; }
+.vstatus { font-size: 12px; margin-top: 4px; }
+.sun-consistent { color: var(--candidate); } .sun-offset { color: var(--dead); } .sun-unclear { color: var(--stale); }
+.card.verify .vblock + .vblock { margin-top: 12px; }
+.card.verify .vsunblock img { max-width: 480px; }
+@media (max-width: 900px) {
+  table.verify thead { display: none; }
+  table.verify td.vcam, table.verify td.vsky, table.verify td.vsun { display: block; width: auto; border-bottom: 0; }
+  table.verify tr { display: block; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+}
 @media (max-width: 900px) {
   .split { grid-template-columns: 1fr; height: auto; }
   #map { height: 50vh; }

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>verification · contrailCameras</title>
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+<script src="app.js"></script>
+</head>
+<body data-page="verify">
+<header class="top">
+  <h1><a href="index.html">contrailCameras</a></h1>
+  <span class="sub">verification of the ALERTCalifornia pointing</span>
+  <span id="srcbadge" class="src-badge">loading…</span>
+  <nav style="margin-left:auto"><a href="index.html">list</a><a href="about.html">about</a><a href="https://docs.google.com/spreadsheets/d/1Wn2NxC56LbhtVOmohMansWGv1uCzy9HBOPA4eqncCGk/edit" target="_blank" rel="noopener">sheet</a></nav>
+</header>
+<div class="page" id="page">
+  <div class="card" id="vsummary"><p class="muted">loading…</p></div>
+  <div class="filters vfilters">
+    <input id="v-q" type="search" placeholder="search name or id…">
+    <select id="v-ev"><option value="">any evidence</option><option value="both">skyline and sun</option><option value="skyline">skyline only</option><option value="sun">sun only</option></select>
+    <select id="v-sun"><option value="">any sun verdict</option><option>consistent</option><option>offset</option><option>unclear</option></select>
+    <select id="v-status"><option value="">any status</option></select>
+    <label>sort <select id="v-sort">
+      <option value="name">name</option>
+      <option value="tilt">largest tilt correction</option>
+      <option value="pan">largest pan correction</option>
+      <option value="roll">largest roll</option>
+      <option value="misfit">worst skyline fit</option>
+      <option value="sun">largest sun offset</option>
+    </select></label>
+    <span id="v-count" class="count"></span>
+  </div>
+  <table class="cams verify" id="vtable">
+    <thead><tr><th>camera</th><th>skyline fit</th><th>sun check</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+</body>
+</html>
