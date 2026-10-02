@@ -86,7 +86,7 @@
   }
   const isYouTube = (r) => /youtube\.com|youtu\.be/i.test(r.image_url || "");
   // sources whose terms do not allow showing their images on other sites: link to them instead
-  const NO_EMBED = /(^|\.)idokep\.hu$/i;
+  const NO_EMBED = /(^|\.)(idokep\.hu|viaero\.com)$/i;
   const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
   const hasCoords = (r) => !isNaN(parseFloat(r.lat)) && !isNaN(parseFloat(r.lon));
   const badge = (r) => `<span class="badge ${esc(statusClass(r))}" title="${esc(r.status)}">${esc((r.status || "?").split(" (")[0])}</span>`;
