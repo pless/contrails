@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<!-- Calibration cues by hand. Two ways to run it:
+     - local: tools/cue_server.py (http://localhost:8770); saves into data/contrailCameras/seeds/<id>/constraints.json;
+     - published (tools/build_cue_site.py, window.CUES_STATIC): camera list and one stored frame per camera from
+       queue.json and frames/; cues are kept in the browser and downloaded as one JSON file
+       (merged with tools/cue_import.py). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calibration cues</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root { color-scheme: dark; --bg:#111; --panel:#1b1b1f; --line:#333; --text:#ddd; --muted:#8a8a92;
+          --accent:#4cc9f0; --ok:#80ed99; --wait:#ffb703; --bad:#ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin:0; height:100vh; min-width:1100px; display:grid; grid-template-columns:250px minmax(0,1fr) 430px;
+         font:13px/1.4 -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--text); }
+  input, select, button, textarea { background:#26262c; color:#eee; border:1px solid #444; border-radius:4px;
+         padding:4px 6px; font:inherit; }
+  button { cursor:pointer; } button:hover { background:#33333b; }
+  button.on { background:#0e2a3d; border-color:var(--accent); }
+  textarea { width:100%; resize:vertical; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  h3 { margin:12px 0 4px; font-size:12px; color:#9ad; text-transform:uppercase; letter-spacing:.05em; }
+  .muted { color:var(--muted); } .row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:4px 0; }
+
+  #queue { display:flex; flex-direction:column; border-right:1px solid var(--line); background:var(--panel); min-height:0; }
+  #queue .top { padding:8px; border-bottom:1px solid var(--line); }
+  #queue .top input, #queue .top select { width:100%; margin-top:4px; }
+  #list { overflow-y:auto; flex:1; }
+  .cam { padding:5px 8px; border-bottom:1px solid #26262a; cursor:pointer; }
+  .cam:hover { background:#222228; } .cam.cur { background:#123; }
+  .cam .n { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cam .s { font-size:11px; color:var(--muted); }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; background:#555; }
+  .dot.cues { background:var(--wait); } .dot.ready { background:var(--ok); } .dot.no { background:var(--bad); }
+
+  #mid { display:flex; flex-direction:column; min-width:0; min-height:0; }
+  #head { padding:6px 10px; border-bottom:1px solid var(--line); background:var(--panel); }
+  #title { font-size:15px; font-weight:600; }
+  #desc { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #canvasWrap { flex:1; position:relative; overflow:hidden; background:#191919; min-height:0; }
+  #cv { position:absolute; inset:0; width:100%; height:100%; cursor:crosshair; }
+  #hud { position:absolute; left:8px; bottom:8px; background:#000b; padding:4px 8px; border-radius:6px;
+         font-size:12px; pointer-events:none; max-width:80%; }
+  #banner { position:absolute; left:8px; top:8px; background:#5a1e1eee; padding:4px 8px; border-radius:6px; display:none; }
+
+  #right { display:flex; flex-direction:column; border-left:1px solid var(--line); background:var(--panel); min-height:0; }
+  #map { flex:0 0 46%; min-height:200px; }
+  #panel { flex:1; overflow-y:auto; padding:8px 10px; min-height:0; }
+  .item { padding:3px 6px; border-bottom:1px solid #2a2a2a; cursor:pointer; display:flex; gap:6px; }
+  .item.sel { background:#123; } .item .t { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .item .del { color:#e66; padding:0 4px; }
+  .need { margin:2px 0; } .need.ok::before { content:"✓ "; color:var(--ok); }
+  .need.part::before { content:"~ "; color:var(--wait); } .need.miss::before { content:"✗ "; color:var(--bad); }
+  .num { background:#fff; color:#000; border-radius:50%; width:18px; height:18px; line-height:18px; text-align:center;
+         font-size:11px; font-weight:700; border:2px solid var(--ok); }
+  .num.sel { border-color:#fff; background:var(--ok); }
+  #saveState { margin-left:auto; }
+  body:not(.static) .static-only { display:none; }
+</style>
+</head>
+<body>
+
+<div id="queue">
+  <div class="top">
+    <input id="who" placeholder="your name (saved with each cue)">
+    <select id="filter"><option value="todo">to do</option><option value="cues">has cues</option><option value="all">all cameras</option></select>
+    <input id="search" placeholder="search name, country, id">
+    <div class="muted" id="count" style="margin-top:4px"></div>
+    <button id="export" style="width:100%;margin-top:6px;display:none" title="all the cues made in this browser, as one file to send to Robert">download my cues</button>
+  </div>
+  <div id="list"></div>
+</div>
+
+<div id="mid">
+  <div id="head">
+    <div class="row">
+      <span id="title">Pick a camera</span><span id="sub" class="muted"></span>
+      <span id="links"></span>
+      <span id="saveState" class="muted"></span>
+    </div>
+    <div id="desc" class="muted"></div>
+    <div class="row">
+      <button id="t_landmark" title="L">Landmark</button>
+      <button id="t_vertical" title="V">Vertical edge</button>
+      <button id="t_horizon" title="H">Horizon</button>
+      <span class="muted">|</span>
+      <button id="prevF" title="[">◀</button><span id="frameLabel" class="muted">no frame</span><button id="nextF" title="]">▶</button>
+      <button id="grab" title="fetch the camera's picture now and add it to the stored frames (useful when the stored ones are dark or cloudy)">live frame</button>
+      <label title="the horizon, compass and field of view that the cues imply so far"><input type="checkbox" id="showSolve" checked> rough pose</label>
+      <button id="nextCam" style="margin-left:auto" title="N">next camera ▶</button>
+    </div>
+  </div>
+  <div id="canvasWrap">
+    <canvas id="cv"></canvas>
+    <div id="banner"></div>
+    <div id="hud">Pick a camera on the left.</div>
+  </div>
+</div>
+
+<div id="right">
+  <div id="map"></div>
+  <div id="panel">
+    <div class="row">
+      <input id="paste" style="flex:1" placeholder="paste coordinates or a Google Maps link (selected landmark, or the camera)">
+    </div>
+
+    <h3>Camera position</h3>
+    <div id="camPos" class="muted"></div>
+    <div class="row">
+      <button id="moveCam" title="then click the map where you think the camera is">set the camera's position on the map</button>
+      <select id="camSure" title="how sure you are of the spot you click">
+        <option value="10">exact spot (±10 m)</option>
+        <option value="30" selected>this building (±30 m)</option>
+        <option value="150">around here (±150 m)</option>
+      </select>
+    </div>
+
+    <div id="selBox" style="display:none">
+      <h3 id="selTitle">Landmark</h3>
+      <textarea id="mText" rows="2" placeholder="What is this point? e.g. 'top of the church spire, Saint-Pierre' or 'NE corner of the town hall roof'"></textarea>
+      <div class="row">
+        <span id="mPos" class="muted"></span>
+      </div>
+      <div class="row">
+        <label title="Fill this only if the image point is at a known altitude. Leave it blank for the tops of buildings and towers.">altitude
+          <input id="mAlt" type="number" step="any" style="width:80px" placeholder="unknown"> m</label>
+        <button id="mGround" title="use this when the point is on the ground: a summit, a shoreline, a road">point is at ground level</button>
+      </div>
+    </div>
+
+    <h3>Cues for this camera</h3>
+    <div id="items"></div>
+    <div class="row" id="horRow" style="display:none">
+      <label>the horizon is <select id="horKind"><option value="terrain">far, flat land</option><option value="sea">sea or a large lake</option></select></label>
+    </div>
+    <div id="vp" class="muted"></div>
+
+    <h3>What the calibration still needs</h3>
+    <div id="needs"></div>
+    <div id="solveText" class="muted" style="margin-top:4px"></div>
+
+    <h3>Verdict and notes</h3>
+    <select id="rState">
+      <option value="todo">to do</option>
+      <option value="ready">cues added: try to calibrate</option>
+      <option value="no_landmarks">nothing to click in this view</option>
+      <option value="unusable">camera unusable (moves, blocked, broken)</option>
+    </select>
+    <textarea id="rNote" rows="2" style="margin-top:4px" placeholder="Anything else that helps: what the camera looks at, where it is mounted, which way it faces…"></textarea>
+
+    <h3>How</h3>
+    <div class="muted">
+      <b>Camera position first:</b> the red dot on the map is where the camera is thought to be. If you can tell
+      where it really is (the building or mast it looks from), press <b>set the camera's position</b> and click it.
+      Everything else depends on it.<br>
+      <b>Landmark:</b> click a point in the picture, then the same place on the map, and say what it is.
+      If you cannot find it on the map, the description alone is still saved.
+      Two landmarks far apart left and right give the heading and the field of view.<br>
+      <b>Vertical edge:</b> click the top and the bottom of a building edge, mast or pole. Two or more give tilt and roll.<br>
+      <b>Horizon:</b> click along a sea horizon or far, flat land. Not mountains.<br>
+      Drag to pan, scroll to zoom. Click a cue in the list (or in the picture, with its tool active) to select it; Delete removes it; Shift-click moves the selected landmark.
+      Everything saves by itself<span class="static-only">, in this browser: when you are done, press
+      <b>download my cues</b> (top left) and send the file to Robert</span>.
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>window.CUES_STATIC = true;</script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const human = it => !it.source || /^(human|manual)/.test(it.source);
+const STATIC = !!window.CUES_STATIC;        // published copy: no server; cues are kept in this browser
+const store = {
+  get(id){ try { return JSON.parse(localStorage.getItem("cues:"+id)||"null"); } catch { return null; } },
+  put(id, c){ localStorage.setItem("cues:"+id, JSON.stringify(c)); },
+  ids(){ try { return Object.keys(localStorage).filter(k=>k.startsWith("cues:")).map(k=>k.slice(5)); } catch { return []; } },
+};
+function cueSummary(c){
+  const n=k=>(c[k]||[]).filter(human).length;
+  return {landmarks:n("correspondences_3d")+n("correspondences_2d"), described:n("described_points"),
+          verticals:n("vertical_lines"), horizon:n("horizon_points"), review:(c.review&&c.review.state)||"todo"};
+}
+async function elevation(lat, lon){          // ground height (m) from the AWS Terrarium elevation tiles
+  if (!STATIC) return (await api(`/api/elevation?lat=${lat}&lon=${lon}`)).elevation_m;
+  const z=12, n=2**z, x=(lon+180)/360*n, y=(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*n;
+  const im=new Image(); im.crossOrigin="anonymous";
+  await new Promise((ok,bad)=>{ im.onload=ok; im.onerror=bad;
+    im.src=`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${Math.floor(x)}/${Math.floor(y)}.png`; });
+  const c=document.createElement("canvas"); c.width=c.height=256; const g=c.getContext("2d"); g.drawImage(im,0,0);
+  const [r,gg,b]=g.getImageData(Math.min(255,Math.floor((x%1)*256)), Math.min(255,Math.floor((y%1)*256)), 1, 1).data;
+  return r*256+gg+b/256-32768;
+}
+async function api(path, opts) {
+  const r = await fetch(path, opts), j = await r.json();
+  if (!r.ok) throw new Error(j.error + (j.details ? "\n" + j.details.join("\n") : ""));
+  return j;
+}
+
+/* ============================ state ============================ */
+let cams = [];                       // the queue
+let row = null, C = null, base = null;   // open camera: registry row, constraints, updated_utc it was loaded with
+let frames = [], fi = 0, img = null, W = 0, H = 0;
+let marks = [], verts = [], hors = [], kept = {};   // editable cues; kept = automated items, written back untouched
+let tool = "landmark", sel = null, pending = null, moveCam = false;
+let calib = null, solveInfo = null;
+let view = {s:1, ox:0, oy:0};
+const who = () => "human:" + ($("who").value.trim() || "anonymous");
+
+/* ============================ geometry (mirror of webcam_calib; from tools/annotator.html) ============================ */
+const D2R = Math.PI/180, WGS_A = 6378137.0, WGS_E2 = 0.00669437999014;
+function llaToEcef(lat,lon,alt){
+  const sl=Math.sin(lat*D2R), cl=Math.cos(lat*D2R), so=Math.sin(lon*D2R), co=Math.cos(lon*D2R);
+  const n = WGS_A/Math.sqrt(1-WGS_E2*sl*sl);
+  return [(n+alt)*cl*co,(n+alt)*cl*so,(n*(1-WGS_E2)+alt)*sl];
+}
+function llaToEnu(lat,lon,alt,ref){
+  const p=llaToEcef(lat,lon,alt), r=llaToEcef(ref[0],ref[1],ref[2]);
+  const d=[p[0]-r[0],p[1]-r[1],p[2]-r[2]];
+  const sl=Math.sin(ref[0]*D2R), cl=Math.cos(ref[0]*D2R), so=Math.sin(ref[1]*D2R), co=Math.cos(ref[1]*D2R);
+  return [-so*d[0]+co*d[1], -sl*co*d[0]-sl*so*d[1]+cl*d[2], cl*co*d[0]+cl*so*d[1]+sl*d[2]];
+}
+function azelToEnu(az,el){ const ce=Math.cos(el*D2R); return [ce*Math.sin(az*D2R), ce*Math.cos(az*D2R), Math.sin(el*D2R)]; }
+function project(p, cal){            // ENU point or direction -> [u,v] or null
+  const R=cal.R, z=R[2][0]*p[0]+R[2][1]*p[1]+R[2][2]*p[2];
+  if (z<=1e-9) return null;
+  const x=(R[0][0]*p[0]+R[0][1]*p[1]+R[0][2]*p[2])/z, y=(R[1][0]*p[0]+R[1][1]*p[1]+R[1][2]*p[2])/z;
+  const r2=x*x+y*y, d=1+r2*(cal.k1+r2*(cal.k2+r2*cal.k3));
+  if (Math.sqrt(r2) > 1.3*Math.hypot(cal.W,cal.H)/(2*cal.fx)) return null;   // outside the lens domain
+  return [cal.cx+cal.fx*d*x, cal.cy+cal.fy*d*y];
+}
+function unproject(u, v, cal){       // pixel -> [az, el] in degrees
+  const xd=(u-cal.cx)/cal.fx, yd=(v-cal.cy)/cal.fy; let x=xd, y=yd;
+  for (let i=0;i<12;i++){ const r2=x*x+y*y, d=1+r2*(cal.k1+r2*(cal.k2+r2*cal.k3)); x=xd/d; y=yd/d; }
+  const R=cal.R, e=R[0][0]*x+R[1][0]*y+R[2][0], n=R[0][1]*x+R[1][1]*y+R[2][1], up=R[0][2]*x+R[1][2]*y+R[2][2];
+  return [(Math.atan2(e,n)/D2R+360)%360, Math.atan2(up,Math.hypot(e,n))/D2R];
+}
+function horizonDip(hm){ return 1.76*Math.sqrt(Math.max(hm,0))/60; }
+function sunEl(iso, lat, lon){       // NOAA algorithm, elevation in degrees
+  const t = new Date(iso); if (isNaN(t)) return null;
+  const jd = t.getTime()/86400000 + 2440587.5, T=(jd-2451545)/36525;
+  const L0=(280.46646+T*(36000.76983+0.0003032*T))%360, M=(357.52911+T*(35999.05029-0.0001537*T))*D2R;
+  const Ceq=(1.914602-T*(0.004817+0.000014*T))*Math.sin(M)+(0.019993-0.000101*T)*Math.sin(2*M)+0.000289*Math.sin(3*M);
+  const om=(125.04-1934.136*T)*D2R, lam=(L0+Ceq-0.00569-0.00478*Math.sin(om))*D2R;
+  const eps=(23.439291-0.0130042*T+0.00256*Math.cos(om))*D2R;
+  const dec=Math.asin(Math.sin(eps)*Math.sin(lam)), ra=Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam))/D2R;
+  const gmst=(280.46061837+360.98564736629*(jd-2451545))%360, Hh=((gmst+lon-ra)%360+360)%360*D2R, phi=lat*D2R;
+  return Math.asin(Math.sin(phi)*Math.sin(dec)+Math.cos(phi)*Math.cos(dec)*Math.cos(Hh))/D2R;
+}
+function destination(lat, lon, az, dist){   // point at a bearing and distance (m) on the sphere
+  const d=dist/6371008.8, b=az*D2R, la1=lat*D2R;
+  const la2=Math.asin(Math.sin(la1)*Math.cos(d)+Math.cos(la1)*Math.sin(d)*Math.cos(b));
+  return [la2/D2R, lon+Math.atan2(Math.sin(b)*Math.sin(d)*Math.cos(la1), Math.cos(d)-Math.sin(la1)*Math.sin(la2))/D2R];
+}
+const compass = az => ["N","NE","E","SE","S","SW","W","NW"][Math.round(az/45)%8];
+const wrap180 = a => ((a+540)%360)-180;
+
+/* pasted text -> [lat, lon] or null: KML, Google Maps links, degrees-minutes-seconds, plain pairs */
+function parseCoords(s){
+  let m;
+  if ((m=s.match(/<coordinates>\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)/))) return [+m[2], +m[1]];      // KML is lon,lat
+  if ((m=s.match(/!3d(-?[\d.]+)!4d(-?[\d.]+)/))) return [+m[1], +m[2]];                          // Maps place link
+  const dms=[...s.matchAll(/(\d+(?:\.\d+)?)\s*°\s*(?:(\d+(?:\.\d+)?)\s*['′]\s*)?(?:(\d+(?:\.\d+)?)\s*["″]\s*)?([NSEW])/gi)];
+  if (dms.length>=2){
+    const val=d=>(+d[1]+(+d[2]||0)/60+(+d[3]||0)/3600)*(/[SW]/i.test(d[4])?-1:1);
+    const ns=dms.find(d=>/[NS]/i.test(d[4])), ew=dms.find(d=>/[EW]/i.test(d[4]));
+    if (ns&&ew) return [val(ns), val(ew)];
+  }
+  if ((m=s.match(/[?&](?:q|ll|query|center)=(-?[\d.]+)(?:,|%2C)(-?[\d.]+)/i))) return [+m[1], +m[2]];
+  if ((m=s.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/))) return [+m[1], +m[2]];                         // Maps / Earth view centre
+  if ((m=s.match(/(-?\d+(?:\.\d+)?)\s*[,;\s]\s*(-?\d+(?:\.\d+)?)/))) return [+m[1], +m[2]];
+  return null;
+}
+
+/* ============================ queue ============================ */
+function camState(c){ const q=c.cues;
+  if (!q) return "todo";
+  if (q.review==="ready") return "ready";
+  if (q.review==="no_landmarks"||q.review==="unusable") return "no";
+  return (q.landmarks+q.described+q.verticals+q.horizon)>0 ? "cues" : "todo"; }
+function cueText(q){ if(!q) return "";
+  const p=[]; if(q.landmarks) p.push(q.landmarks+" landmark"+(q.landmarks>1?"s":""));
+  if(q.described) p.push(q.described+" described"); if(q.verticals) p.push(q.verticals+" vertical");
+  if(q.horizon) p.push("horizon"); return p.join(", "); }
+function visibleCams(){
+  const f=$("filter").value, s=$("search").value.trim().toLowerCase();
+  return cams.filter(c=>{ const st=camState(c);
+    if (f==="todo" && st!=="todo" && !(row&&c.camera_id===row.camera_id)) return false;
+    if (f==="cues" && st==="todo") return false;
+    return !s || (c.name+" "+c.country+" "+c.camera_id).toLowerCase().includes(s); });
+}
+function drawQueue(){
+  const vis=visibleCams(), list=$("list"), top=list.scrollTop; list.innerHTML="";
+  vis.forEach(c=>{ const d=document.createElement("div");
+    d.className="cam"+(row&&c.camera_id===row.camera_id?" cur":"");
+    const kind=c.camera_type.startsWith("youtube")?"YouTube":/^slow/.test(c.status)?"slow":"fast";
+    d.innerHTML=`<div class="n"><span class="dot ${camState(c)}"></span></div><div class="s"></div>`;
+    d.firstChild.append(c.name||c.camera_id);
+    d.lastChild.textContent=[c.country, kind, cueText(c.cues)].filter(Boolean).join(" · ");
+    d.onclick=()=>openCamera(c.camera_id); list.appendChild(d); });
+  list.scrollTop=top;
+  const done=cams.filter(c=>camState(c)!=="todo").length;
+  $("count").textContent=`${vis.length} shown · ${done} of ${cams.length} touched`;
+}
+let published = {};                 // static: camera_id -> {row, seed, frames}
+async function loadQueue(){
+  if (STATIC){
+    const q=await (await fetch("queue.json", {cache:"no-cache"})).json();
+    cams=q.cameras.map(c=>{ published[c.camera_id]=c; const mine=store.get(c.camera_id);
+      return {camera_id:c.camera_id, name:c.row.name, country:c.row.country, camera_type:c.row.camera_type, status:c.row.status,
+              cues: mine?cueSummary(mine):c.cues}; });
+    $("export").style.display=""; refreshExport();
+  } else cams=await api("/api/cameras");
+  const iberia=c=>/^(Spain|Portugal)$/.test(c.country)?0:1, fast=c=>/^candidate/.test(c.status)?0:1;
+  cams.sort((a,b)=>iberia(a)-iberia(b)||fast(a)-fast(b)||a.country.localeCompare(b.country)||a.name.localeCompare(b.name));
+  drawQueue();
+}
+
+/* ============================ open / save a camera ============================ */
+function splitCues(){
+  kept={}; marks=[];
+  for (const key of ["correspondences_3d","correspondences_2d","described_points"]){
+    const arr=C[key]||[], mine=key==="described_points"?arr:arr.filter(human);
+    kept[key]=arr.filter(it=>!mine.includes(it));
+    mine.forEach(it=>marks.push({pixel:it.pixel, text:it.description||it.label||"", lat:it.lat_deg??null, lon:it.lon_deg??null,
+      alt:key==="correspondences_3d"?it.alt_m:null, ground:it.height_hint_m??null, image_id:it.image_id||null, source:it.source||null}));
+  }
+  for (const key of ["vertical_lines","horizon_points"]){ const arr=C[key]||[]; kept[key]=arr.filter(it=>!human(it)); }
+  verts=(C.vertical_lines||[]).filter(human); hors=(C.horizon_points||[]).filter(human);
+  $("horKind").value=hors.length&&hors[0].kind==="sea"?"sea":"terrain";
+}
+function mergeCues(){
+  const c3=[], c2=[], dp=[];
+  marks.forEach((m,i)=>{
+    const text=m.text.trim(), src=m.source||(m.source=who());
+    const common={pixel:m.pixel, sigma_px:3, label:text.slice(0,40)||("landmark "+(i+1)), description:text||null, image_id:m.image_id, source:src};
+    if (m.lat!=null && m.alt!=null) c3.push({...common, lat_deg:m.lat, lon_deg:m.lon, alt_m:m.alt, alt_datum:"msl", sigma_m:30});
+    else if (m.lat!=null) c2.push({...common, lat_deg:m.lat, lon_deg:m.lon, height_hint_m:m.ground});
+    else dp.push({pixel:m.pixel, description:text, image_id:m.image_id, source:src});
+  });
+  C.correspondences_3d=kept.correspondences_3d.concat(c3);
+  C.correspondences_2d=kept.correspondences_2d.concat(c2);
+  C.described_points=kept.described_points.concat(dp);
+  hors.forEach(h=>h.kind=$("horKind").value);
+  C.vertical_lines=kept.vertical_lines.concat(verts);
+  C.horizon_points=kept.horizon_points.concat(hors);
+  const state=$("rState").value, note=$("rNote").value.trim(), old=C.review||{};
+  if (state!==(old.state||"todo") || note!==(old.note||""))
+    C.review={state, note:note||null, by:who(), utc:new Date().toISOString().slice(0,19)+"Z"};
+  C.annotator="tools/cues.html: "+who();
+  const used=new Set([...marks,...verts,...hors].map(x=>x.image_id).filter(Boolean)), have=new Set((C.images||[]).map(x=>x.image_id));
+  C.images=C.images||[];
+  frames.forEach(f=>{ const id=f.name.replace(/\.\w+$/,"");
+    if (used.has(id) && !have.has(id)) C.images.push({image_id:id, uri:f.uri, timestamp_utc:f.time,
+      timestamp_source:"fetch time (file name), not the camera clock", sigma_time_s:60}); });
+}
+let saveTimer=null, saving=Promise.resolve();
+function dirty(){ refresh(); $("saveState").textContent="saving…"; clearTimeout(saveTimer); saveTimer=setTimeout(save, 500); }
+function save(){
+  clearTimeout(saveTimer); saveTimer=null;
+  if (!C) return saving;
+  const id=C.camera_id;
+  saving=saving.then(()=>{ if (!C||C.camera_id!==id) return;
+      mergeCues();
+      const done=r=>{ base=r.updated_utc; C.updated_utc=r.updated_utc;
+          const q=cams.find(c=>c.camera_id===id); if (q) q.cues=r.summary;
+          setPose(); $("saveState").textContent=(STATIC?"kept in this browser ":"saved ")+new Date().toTimeString().slice(0,8);
+          showBanner(""); drawQueue(); refreshExport(); };
+      if (STATIC){ C.updated_utc=new Date().toISOString().slice(0,19)+"Z"; store.put(id, C); return done({updated_utc:C.updated_utc, summary:cueSummary(C)}); }
+      return api("/api/camera/"+id, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({constraints:C, base})}).then(done); })
+    .catch(e=>{ $("saveState").textContent="NOT SAVED"; showBanner("Not saved: "+e.message); });
+  return saving;
+}
+async function flush(){ if (saveTimer) save(); await saving; }
+
+async function openCamera(id){
+  await flush();
+  let d;
+  if (STATIC){
+    const p=published[id];
+    if (!p) return showBanner("No such camera in this list: "+id);
+    d={row:p.row, constraints:store.get(id)||JSON.parse(JSON.stringify(p.seed)), base:null, frames:p.frames.map(f=>({...f}))};
+  } else {
+    try { d=await api("/api/camera/"+id); } catch(e){ showBanner(e.message); return; }
+  }
+  row=d.row; C=d.constraints; base=d.base; frames=d.frames; sel=null; pending=null; img=null; calib=null; setMoveCam(false);
+  marks=[]; verts=[]; hors=[]; kept={}; $("saveState").textContent="";
+  location.hash=id; showBanner("");
+  $("title").textContent=row.name||id;
+  $("sub").textContent=[id, row.country, row.camera_type, row.status].filter(Boolean).join(" · ");
+  $("desc").textContent=row.view_description||""; $("desc").title=row.view_description||"";
+  if (!C){ $("hud").textContent="No stored frame for this camera yet: try 'live frame'."; $("frameLabel").textContent="no frame"; $("links").innerHTML=""; drawQueue(); refresh(); draw(); return; }
+  W=C.image_size.width; H=C.image_size.height;
+  splitCues();
+  $("rState").value=(C.review&&C.review.state)||"todo"; $("rNote").value=(C.review&&C.review.note)||"";
+  const g=C.gps_prior;
+  markDay();
+  if (g){
+    map.setView([g.lat_deg, g.lon_deg], 15);
+    if (g.alt_m==null) elevation(g.lat_deg, g.lon_deg).then(e=>{   // saved with the first cue
+      if (C&&C.camera_id===id&&C.gps_prior.alt_m==null){ C.gps_prior.alt_m=Math.round(e+10);
+        C.gps_prior.alt_datum="msl"; C.gps_prior.sigma_vertical_m=20;
+        C.gps_prior.source=(C.gps_prior.source||"")+"; altitude = terrain model + 10 m (cue page)"; } }).catch(()=>{});
+  }
+  const dayIdx=frames.map((f,i)=>f.day?i:-1).filter(i=>i>=0);
+  fi=dayIdx.length?dayIdx[dayIdx.length-1]:frames.length-1;
+  setPose(); links(); drawQueue(); loadFrame(true);
+}
+function markDay(){               // frames taken with the sun well up at the camera
+  const g=C&&C.gps_prior;
+  frames.forEach(f=>{ const el=g&&f.time?sunEl(f.time, g.lat_deg, g.lon_deg):null; f.day=el!==null&&el>8; });
+}
+function liveUrl(r){                // static: the camera's current picture, straight from its host (YouTube: the stream's thumbnail)
+  const u=(r.image_url||"").trim(), yt=u.match(/(?:v=|youtu\.be\/|\/live\/)([\w-]{11})/);
+  if (yt) return `https://i.ytimg.com/vi/${yt[1]}/maxresdefault_live.jpg?t=${Date.now()}`;
+  if (/^https:/i.test(u)) return u+(u.includes("?")?"&":"?")+"cuepage="+Date.now();
+  return null;
+}
+async function grabLive(){
+  if (!row) return;
+  if (STATIC){
+    const u=liveUrl(row);
+    if (!u) return showBanner("This camera's picture is not served over https, so the page cannot show it live.");
+    if (!C) return showBanner("No stored frame for this camera, so there is no cue file to start from.");
+    const t=new Date().toISOString().slice(0,19)+"Z";
+    frames.push({name:"live_"+t.replace(/[-:]/g,"")+".jpg", src:u, uri:u, time:t});
+    markDay(); fi=frames.length-1; showBanner(""); loadFrame(!img); return;
+  }
+  const id=row.camera_id; $("grab").disabled=true; $("grab").textContent="fetching…";
+  try { const r=await api("/api/grab/"+id, {method:"POST"});
+    if (row.camera_id!==id) return;
+    if (!r.name) return showBanner("No live frame: "+r.result);
+    if (!C) return openCamera(id);              // the camera had no frame at all: start over with this one
+    frames=r.frames; markDay(); fi=Math.max(0, frames.findIndex(f=>f.name===r.name)); showBanner(""); loadFrame(!img);
+  } catch(e){ showBanner("No live frame: "+e.message); }
+  finally { $("grab").disabled=false; $("grab").textContent="live frame"; }
+}
+function links(){
+  const g=C&&C.gps_prior, a=[];
+  if (row.page_url) a.push(`<a href="${encodeURI(row.page_url)}" target="_blank" rel="noopener">camera page</a>`);
+  if (g){
+    const h=calib?calib.az.toFixed(0):0;
+    a.push(`<a href="https://earth.google.com/web/@${g.lat_deg},${g.lon_deg},${g.alt_m||0}a,1500d,35y,${h}h,65t,0r" target="_blank" rel="noopener">Google Earth</a>`);
+    a.push(`<a href="https://www.google.com/maps/@${g.lat_deg},${g.lon_deg},600m/data=!3m1!1e3" target="_blank" rel="noopener">Google Maps</a>`);
+  }
+  $("links").innerHTML=a.join(" · ");
+}
+function loadFrame(fit){
+  const f=frames[fi];
+  if (!f){ $("frameLabel").textContent="no frame"; $("hud").textContent="No stored frame for this camera yet."; draw(); return; }
+  const im=new Image(), id=C.camera_id;
+  im.onload=()=>{ if (!C||C.camera_id!==id) return;
+    img=im;
+    const cues=marks.length+verts.length+hors.length+Object.values(kept).reduce((n,a)=>n+a.length,0)+(C.correspondences_astro||[]).length;
+    if (Math.abs(im.naturalWidth/im.naturalHeight-W/H)>0.01){       // same shape: drawn at the cue file's size
+      if (!cues){ W=im.naturalWidth; H=im.naturalHeight; C.image_size={width:W,height:H}; }
+      else showBanner(`This frame is ${im.naturalWidth}×${im.naturalHeight} but the cues were made on ${W}×${H}: pick another frame.`);
+    }
+    if (fit) fitImage(); draw(); $("hud").textContent="Click a landmark in the picture, then the same place on the map."; };
+  im.onerror=()=>showBanner("This frame did not load: "+f.name);
+  im.src=f.src||`/api/frame/${id}/${encodeURIComponent(f.name)}`;
+  const shown=frames.filter(x=>x.day===f.day), k=shown.indexOf(f)+1;
+  $("frameLabel").textContent=(f.time?f.time.replace("T"," ").slice(0,16)+" UTC":f.name)+` (${k}/${shown.length}${f.day?"":" night"})`;
+}
+function stepFrame(d){            // stays within day frames when there are any
+  if (!frames.length) return;
+  const anyDay=frames.some(f=>f.day); let i=fi;
+  do { i=(i+d+frames.length)%frames.length; } while (anyDay && !frames[i].day && i!==fi);
+  fi=i; loadFrame(false);
+}
+function showBanner(t){ $("banner").textContent=t; $("banner").style.display=t?"block":"none"; }
+
+/* rough pose from the cues (heading, tilt, roll, field of view; no distortion): port of tools/cue_solve.py */
+const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+function rotFromView(az, el, roll){
+  const A=az*D2R, E=el*D2R, Rl=roll*D2R, fwd=[Math.cos(E)*Math.sin(A), Math.cos(E)*Math.cos(A), Math.sin(E)];
+  let right=[fwd[1], -fwd[0], 0]; const nr=Math.hypot(right[0], right[1]);
+  right = nr<1e-9 ? [1,0,0] : [right[0]/nr, right[1]/nr, 0];
+  const down=cross3(fwd, right), cr=Math.cos(Rl), sr=Math.sin(Rl);
+  return [[0,1,2].map(i=>cr*right[i]+sr*down[i]), [0,1,2].map(i=>-sr*right[i]+cr*down[i]), fwd];
+}
+function pin(p, R, f, Wc, Hc){        // pinhole without distortion
+  const z=R[2][0]*p[0]+R[2][1]*p[1]+R[2][2]*p[2]; if (z<=1e-9) return null;
+  return [Wc/2+f*(R[0][0]*p[0]+R[0][1]*p[1]+R[0][2]*p[2])/z, Hc/2+f*(R[1][0]*p[0]+R[1][1]*p[1]+R[1][2]*p[2])/z];
+}
+function verticalFit(lines, Wc, Hc){   // slope of each edge against where it crosses the middle row: slope = alpha + beta * x
+  const L=lines.map(l=>{ const p=l.pixels[0], q=l.pixels[l.pixels.length-1]; if (Math.abs(q[1]-p[1])<2) return null;
+    const b=(q[0]-p[0])/(q[1]-p[1]); return [p[0]+b*(Hc/2-p[1])-Wc/2, b]; }).filter(Boolean);
+  if (L.length<2) return null;
+  const n=L.length, ma=L.reduce((s,l)=>s+l[0],0)/n, mb=L.reduce((s,l)=>s+l[1],0)/n;
+  const saa=L.reduce((s,l)=>s+(l[0]-ma)**2,0); if (Math.sqrt(saa/n)<0.1*Wc) return null;
+  const beta=L.reduce((s,l)=>s+(l[0]-ma)*(l[1]-mb),0)/saa; return [mb-beta*ma, beta];
+}
+function horizonFit(pts, Wc, Hc){     // how far below the centre the horizon passes (px) and its slope (or null)
+  if (!pts.length) return null;
+  const xs=pts.map(p=>p.pixel[0]), ys=pts.map(p=>p.pixel[1]), n=xs.length, mx=xs.reduce((a,b)=>a+b)/n, my=ys.reduce((a,b)=>a+b)/n;
+  let slope=null;
+  if (n>=2 && Math.max(...xs)-Math.min(...xs)>=0.15*Wc){
+    slope=xs.reduce((s,x,i)=>s+(x-mx)*(ys[i]-my),0)/xs.reduce((s,x)=>s+(x-mx)**2,0); }
+  const sl=slope||0; return {off:(my+sl*(Wc/2-mx)-Hc/2)/Math.hypot(1,sl), slope};
+}
+function nelderMead(fn, x0, step, iters=400){
+  const n=x0.length; let S=[x0.slice()];
+  for (let i=0;i<n;i++){ const x=x0.slice(); x[i]+=step[i]; S.push(x); }
+  let F=S.map(fn);
+  for (let it=0; it<iters; it++){
+    const o=F.map((f,i)=>[f,i]).sort((a,b)=>a[0]-b[0]); S=o.map(x=>S[x[1]]); F=o.map(x=>x[0]);
+    const c=x0.map((_,j)=>S.slice(0,n).reduce((s,x)=>s+x[j],0)/n), w=S[n];
+    const at=t=>c.map((v,j)=>v+t*(w[j]-v)), r=at(-1), fr=fn(r);
+    if (fr<F[0]){ const e=at(-2), fe=fn(e); if (fe<fr){ S[n]=e; F[n]=fe; } else { S[n]=r; F[n]=fr; } }
+    else if (fr<F[n-1]){ S[n]=r; F[n]=fr; }
+    else { const k=at(0.5), fk=fn(k);
+      if (fk<F[n]){ S[n]=k; F[n]=fk; }
+      else { for (let i=1;i<=n;i++){ S[i]=S[i].map((v,j)=>S[0][j]+0.5*(v-S[0][j])); F[i]=fn(S[i]); } } }
+  }
+  return S[F.indexOf(Math.min(...F))];
+}
+function roughPose(c){
+  const g=c.gps_prior; if (!g) return null;
+  const Wc=c.image_size.width, Hc=c.image_size.height, ref=[g.lat_deg, g.lon_deg, g.alt_m||0];
+  const hfov0=(c.hfov_prior&&c.hfov_prior.deg)||60, assumed=[], mk=[];
+  (c.correspondences_3d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.alt_m, known:true}));
+  (c.correspondences_2d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.height_hint_m!=null?p.height_hint_m+15:null, known:false}));
+  if (!mk.length) return null;
+  mk.forEach(m=>{ const e=llaToEnu(m.lat,m.lon,ref[2],ref); m.d=Math.hypot(e[0],e[1]);
+    m.lo=llaToEnu(m.lat,m.lon,ref[2]-0.2*m.d,ref); m.hi=llaToEnu(m.lat,m.lon,ref[2]+0.5*m.d,ref);
+    if (m.alt!=null && g.alt_m!=null) m.p3=llaToEnu(m.lat,m.lon,m.alt,ref); });
+  let roll=0, tiltOf=null, tiltFrom=null;
+  const vf=verticalFit(c.vertical_lines||[], Wc, Hc), hz=horizonFit(c.horizon_points||[], Wc, Hc);
+  if (vf){ roll=Math.atan(vf[0])/D2R; tiltFrom="vertical edges"; tiltOf=f=>Math.atan(vf[1]*f)/D2R; }
+  if (hz){ const sea=(c.horizon_points||[]).filter(p=>p.kind==="sea").length*2>(c.horizon_points||[]).length;
+    const dip=sea?horizonDip(ref[2]):0; if (hz.slope!=null) roll=-Math.atan(hz.slope)/D2R;
+    tiltFrom="horizon"; tiltOf=f=>Math.atan(hz.off/f)/D2R-dip; }
+  const withAlt=mk.filter(m=>m.p3), freeEl=!tiltOf && withAlt.length>0;
+  if (freeEl) tiltFrom=withAlt.some(m=>m.known)?"landmarks of known altitude":"ground elevation under the landmarks (rough)";
+  else if (!tiltOf) assumed.push("level camera");
+  if (!vf && !(hz&&hz.slope!=null)) assumed.push("no roll");
+  const xs=mk.map(m=>m.px[0]), freeF=mk.length>=2 && Math.max(...xs)-Math.min(...xs)>=0.15*Wc;
+  if (!freeF) assumed.push(hfov0.toFixed(0)+" deg field of view");
+  const fOf=h=>Wc/(2*Math.tan(h*D2R/2));
+  const side=(az,f,el)=>{ const R=rotFromView(az,el,roll); return mk.map(m=>{ const a=pin(m.lo,R,f,Wc,Hc), b=pin(m.hi,R,f,Wc,Hc);
+    if (!a||!b) return 1e4; const nx=-(b[1]-a[1]), ny=b[0]-a[0], nn=Math.hypot(nx,ny)||1e-9;
+    return Math.max(-1e4, Math.min(1e4, ((m.px[0]-a[0])*nx+(m.px[1]-a[1])*ny)/nn)); }); };
+  const cap=(0.25*Wc)**2; let best=[Infinity, 0, hfov0];
+  for (let hf=(freeF?20:hfov0); hf<=(freeF?130:hfov0); hf+=5){
+    const f=fOf(hf), el=tiltOf?tiltOf(f):0;
+    for (let az=0; az<360; az+=2){ const cst=side(az,f,el).reduce((s,v)=>s+Math.min(v*v,cap),0)+((hf-hfov0)/60)**2; if (cst<best[0]) best=[cst,az,hf]; }
+  }
+  const unpack=x=>{ const f=freeF?Math.exp(x[1]):fOf(hfov0); return [x[0], f, freeEl?x[x.length-1]:(tiltOf?tiltOf(f):0)]; };
+  const soft=r=>2*(Math.sqrt(1+(r/5)**2)-1);
+  const cost=x=>{ const [az,f,el]=unpack(x); let s=side(az,f,el).reduce((t,v)=>t+soft(v),0);
+    if (freeEl){ const R=rotFromView(az,el,roll); withAlt.forEach(m=>{ const p=pin(m.p3,R,f,Wc,Hc); s+=soft(p?Math.min(1e4,Math.abs(p[1]-m.px[1])):1e4); }); }
+    const hf=2*Math.atan(Wc/(2*f))/D2R; if (hf<15||hf>140) s+=1e6;
+    if (freeEl && (el<-30||el>80)) s+=1e6; return s; };
+  const x0=[best[1]], st=[2]; if (freeF){ x0.push(Math.log(fOf(best[2]))); st.push(0.1); } if (freeEl){ x0.push(0); st.push(5); }
+  const [az,f,el]=unpack(nelderMead(cost,x0,st));
+  return {az:((az%360)+360)%360, el, roll, f, R:rotFromView(az,el,roll), tilt_from:tiltFrom, assumed};
+}
+function setPose(){
+  calib=null; solveInfo=null;
+  if (C){ try { mergeCues(); const p=roughPose(C);
+      if (p){ const g=C.gps_prior; solveInfo={tilt_from:p.tilt_from, assumed:p.assumed};
+        calib={lat:g.lat_deg, lon:g.lon_deg, alt:g.alt_m||0, R:p.R, fx:p.f, fy:p.f, cx:W/2, cy:H/2, k1:0, k2:0, k3:0, W, H,
+               az:p.az, el:p.el, roll:p.roll, hfov:2*Math.atan(W/(2*p.f))/D2R}; } }
+    catch(e){ solveInfo={error:e.message}; } }
+  if (row) links();
+  refresh();
+}
+
+/* ============================ canvas ============================ */
+const cv=$("cv"), ctx=cv.getContext("2d");
+function resize(){ cv.width=cv.clientWidth*devicePixelRatio; cv.height=cv.clientHeight*devicePixelRatio; fitImage(); draw(); }
+window.addEventListener("resize", resize);
+const toImg=(px,py)=>[(px-view.ox)/view.s, (py-view.oy)/view.s], toScr=(x,y)=>[x*view.s+view.ox, y*view.s+view.oy];
+function fitImage(){ if(!W) return; const s=Math.min(cv.clientWidth/W, cv.clientHeight/H)*0.98;
+  view={s, ox:(cv.clientWidth-W*s)/2, oy:(cv.clientHeight-H*s)/2}; }
+function seg(a,b,color,width,dash){ ctx.strokeStyle=color; ctx.lineWidth=width; ctx.setLineDash(dash||[]);
+  ctx.beginPath(); ctx.moveTo(...toScr(...a)); ctx.lineTo(...toScr(...b)); ctx.stroke(); ctx.setLineDash([]); }
+function draw(){
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  ctx.clearRect(0,0,cv.clientWidth,cv.clientHeight);
+  if (!img||!C) return;
+  ctx.imageSmoothingEnabled=view.s<1;
+  ctx.drawImage(img, view.ox, view.oy, W*view.s, H*view.s);
+  if (calib && $("showSolve").checked) drawSolve();
+  // vertical edges, extended across the picture so that their convergence shows
+  verts.forEach((l,i)=>{ const [a,b]=[l.pixels[0], l.pixels[l.pixels.length-1]], on=sel&&sel.t==="vert"&&sel.i===i;
+    if (Math.abs(b[1]-a[1])>1){ const sl=(b[0]-a[0])/(b[1]-a[1]);
+      seg([a[0]+sl*(0-a[1]),0],[a[0]+sl*(H-a[1]),H],"#f7258566",1,[4,4]); }
+    seg(a,b,"#f72585",on?4:2.5); });
+  if (pending) dotAt(pending,"#f72585",4);
+  hors.forEach((h,i)=>dotAt(h.pixel,"#4cc9f0",sel&&sel.t==="hor"&&sel.i===i?7:4));
+  if (hors.length>1){ const s=[...hors].sort((a,b)=>a.pixel[0]-b.pixel[0]);
+    for(let i=1;i<s.length;i++) seg(s[i-1].pixel,s[i].pixel,"#4cc9f0aa",1.5); }
+  marks.forEach((m,i)=>{ const [sx,sy]=toScr(...m.pixel), on=sel&&sel.t==="mark"&&sel.i===i, col=m.lat!=null?"#80ed99":"#ffb703";
+    ctx.strokeStyle=col; ctx.lineWidth=on?3:2; ctx.beginPath(); ctx.arc(sx,sy,on?9:6,0,7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(sx-3,sy); ctx.lineTo(sx+3,sy); ctx.moveTo(sx,sy-3); ctx.lineTo(sx,sy+3); ctx.stroke();
+    ctx.font="bold 13px sans-serif"; ctx.lineWidth=3; ctx.strokeStyle="#000"; ctx.strokeText(i+1, sx+10, sy-8);
+    ctx.fillStyle=col; ctx.fillText(i+1, sx+10, sy-8); });
+}
+function dotAt(p,color,r){ const [sx,sy]=toScr(...p); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(sx,sy,r,0,7); ctx.fill(); }
+function drawSolve(){             // the rough pose: horizon, compass ticks, where each landmark should be
+  const cal=calib, ref=[cal.lat,cal.lon,cal.alt], dip=-horizonDip(cal.alt);
+  ctx.strokeStyle="#ffffffcc"; ctx.lineWidth=1; ctx.beginPath(); let pen=false;
+  for(let az=0; az<=360; az+=0.25){ const uv=project(azelToEnu(az,dip),cal);
+    if (uv && uv[0]>-50 && uv[0]<W+50 && uv[1]>-50 && uv[1]<H+50){ const s=toScr(...uv); pen?ctx.lineTo(...s):ctx.moveTo(...s); pen=true; }
+    else pen=false; }
+  ctx.stroke();
+  const names={0:"N",45:"NE",90:"E",135:"SE",180:"S",225:"SW",270:"W",315:"NW"};
+  for(let az=0; az<360; az+=5){
+    const u1=project(azelToEnu(az,dip),cal); if(!u1||u1[0]<0||u1[0]>W||u1[1]<-20||u1[1]>H+20) continue;
+    const major=az%45===0, u2=project(azelToEnu(az,dip+(major?1.2:0.6)),cal); if(!u2) continue;
+    seg(u1,u2,"#fff",major?2:1);
+    if (major){ const s=toScr(...u2); ctx.fillStyle="#fff"; ctx.font="bold 12px sans-serif"; ctx.fillText(names[az], s[0]-6, s[1]-4); }
+  }
+  marks.forEach(m=>{ if (m.lat==null) return;
+    if (m.alt!=null){ const uv=project(llaToEnu(m.lat,m.lon,m.alt,ref),cal); if (uv) seg(uv,m.pixel,"#90e0ef",1.5); }
+    else { let prev=null;         // unknown height: the vertical line through the map point
+      for(let dz=-200; dz<=400; dz+=10){ const uv=project(llaToEnu(m.lat,m.lon,cal.alt+dz,ref),cal);
+        if (uv&&prev) seg(prev,uv,"#90e0efaa",1,[5,4]); prev=uv; } } });
+}
+
+/* ============================ picture interactions ============================ */
+let drag=null;
+cv.addEventListener("mousedown", e=>{ drag={x:e.offsetX,y:e.offsetY,ox:view.ox,oy:view.oy,moved:false,shift:e.shiftKey}; });
+cv.addEventListener("mousemove", e=>{
+  const [ix,iy]=toImg(e.offsetX,e.offsetY);
+  if (drag){ const dx=e.offsetX-drag.x, dy=e.offsetY-drag.y; if (Math.hypot(dx,dy)>4) drag.moved=true;
+    if (drag.moved){ view.ox=drag.ox+dx; view.oy=drag.oy+dy; draw(); } }
+  if (!img) return;
+  let t=`x ${ix.toFixed(0)}  y ${iy.toFixed(0)}`;
+  if (calib && ix>=0&&iy>=0&&ix<=W&&iy<=H){ const [az,el]=unproject(ix,iy,calib);
+    t+=`   looking ${az.toFixed(1)}° ${compass(az)}, ${el>=0?"+":""}${el.toFixed(1)}° up (rough pose)`; hoverRay(az); }
+  $("hud").textContent=t+"   ·   "+(tool==="landmark"?"click a landmark":tool==="vertical"?(pending?"click the other end of the edge":"click one end of a vertical edge"):"click along the horizon");
+});
+cv.addEventListener("mouseleave", ()=>hoverRay(null));
+window.addEventListener("mouseup", e=>{ if (drag && !drag.moved && e.target===cv) onClick(...toImg(drag.x,drag.y), drag.shift); drag=null; });
+cv.addEventListener("wheel", e=>{ e.preventDefault();
+  const f=Math.exp(-e.deltaY*0.0015), [ix,iy]=toImg(e.offsetX,e.offsetY);
+  view.s*=f; view.ox=e.offsetX-ix*view.s; view.oy=e.offsetY-iy*view.s; draw(); }, {passive:false});
+
+function nearest(x,y){              // the cue of the active tool's kind under the click, if any
+  let best=10/view.s, hit=null;
+  const test=(t,i,p)=>{ const d=Math.hypot(p[0]-x,p[1]-y); if (d<best){ best=d; hit={t,i}; } };
+  if (tool==="landmark") marks.forEach((m,i)=>test("mark",i,m.pixel));
+  if (tool==="horizon") hors.forEach((h,i)=>test("hor",i,h.pixel));
+  if (tool==="vertical") verts.forEach((l,i)=>l.pixels.forEach(p=>test("vert",i,p)));
+  return hit;
+}
+function onClick(x,y,shift){
+  if (!img||!C||x<0||y<0||x>W||y>H) return;
+  const px=[Math.round(x*10)/10, Math.round(y*10)/10], frameId=frames[fi].name.replace(/\.\w+$/,"");
+  if (shift && sel && sel.t==="mark"){ marks[sel.i].pixel=px; marks[sel.i].image_id=frameId; return dirty(); }
+  const hit=pending?null:nearest(x,y);
+  if (hit){ sel=hit; if (hit.t==="mark"&&marks[hit.i].lat!=null) map.panTo([marks[hit.i].lat, marks[hit.i].lon]); return refresh(); }
+  if (tool==="landmark"){ marks.push({pixel:px, text:"", lat:null, lon:null, alt:null, ground:null, image_id:frameId, source:who()});
+    sel={t:"mark", i:marks.length-1}; dirty(); $("mText").focus(); }
+  else if (tool==="vertical"){
+    if (!pending){ pending=px; draw(); }
+    else { const pts=[pending,px].sort((a,b)=>a[1]-b[1]); pending=null;
+      verts.push({pixels:pts, sigma_px:3, label:"edge "+(verts.length+1), image_id:frameId, source:who()});
+      sel={t:"vert", i:verts.length-1}; dirty(); } }
+  else if (tool==="horizon"){ hors.push({pixel:px, sigma_px:4, kind:$("horKind").value, image_id:frameId, source:who()});
+    sel={t:"hor", i:hors.length-1}; dirty(); }
+}
+function removeSel(){
+  if (!sel) return;
+  (sel.t==="mark"?marks:sel.t==="vert"?verts:hors).splice(sel.i,1); sel=null; dirty();
+}
+function setTool(t){ tool=t; pending=null; ["landmark","vertical","horizon"].forEach(k=>$("t_"+k).classList.toggle("on",k===t)); draw(); }
+window.addEventListener("keydown", e=>{
+  if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){ if (e.key==="Escape") e.target.blur(); return; }
+  const k=e.key.toLowerCase();
+  if (k==="l") setTool("landmark"); else if (k==="v") setTool("vertical"); else if (k==="h") setTool("horizon");
+  else if (k==="escape"){ pending=null; sel=null; setMoveCam(false); refresh(); }
+  else if (k==="delete"||k==="backspace") removeSel();
+  else if (k==="[") stepFrame(-1); else if (k==="]") stepFrame(1);
+  else if (k==="n") nextCamera();
+});
+
+/* ============================ map ============================ */
+const map=L.map("map").setView([46,8],5);
+const layers={
+  "Satellite":L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19, attribution:"Esri World Imagery"}),
+  "Terrain (peak names)":L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17, attribution:"OpenTopoMap, OpenStreetMap"}),
+  "Streets":L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19, attribution:"OpenStreetMap"}) };
+layers["Satellite"].addTo(map); L.control.layers(layers).addTo(map); L.control.scale({imperial:false}).addTo(map);
+const overlay=L.layerGroup().addTo(map); let hoverLine=null;
+function drawMap(){
+  overlay.clearLayers();
+  const g=C&&C.gps_prior; if (!g) return;
+  const cam=[g.lat_deg,g.lon_deg];
+  if (calib){ const mid=calib.H/2;            // field of view of the rough pose
+    [[0,mid],[calib.W,mid]].forEach(p=>L.polyline([cam, destination(cam[0],cam[1],unproject(p[0],p[1],calib)[0],60000)],
+      {color:"#fff", weight:1, opacity:.8, interactive:false}).addTo(overlay));
+    if (sel&&sel.t==="mark"&&marks[sel.i].lat==null)   // where to look for the selected landmark
+      L.polyline([cam, destination(cam[0],cam[1],unproject(...marks[sel.i].pixel,calib)[0],60000)],
+        {color:"#ffb703", weight:2, dashArray:"6 5", interactive:false}).addTo(overlay); }
+  L.circleMarker(cam,{radius:7, color:"#fff", weight:2, fillColor:"#e63946", fillOpacity:1, bubblingMouseEvents:false}).bindTooltip("camera").addTo(overlay);
+  marks.forEach((m,i)=>{ if (m.lat==null) return;
+    const on=sel&&sel.t==="mark"&&sel.i===i;
+    L.marker([m.lat,m.lon],{icon:L.divIcon({className:"", html:`<div class="num${on?" sel":""}">${i+1}</div>`, iconSize:[18,18], iconAnchor:[9,9]})})
+      .on("click", ()=>{ sel={t:"mark",i}; refresh(); }).addTo(overlay); });
+}
+function hoverRay(az){            // the direction under the mouse, drawn on the map
+  const g=C&&C.gps_prior;
+  if (az==null||!g){ if (hoverLine){ hoverLine.remove(); hoverLine=null; } return; }
+  const pts=[[g.lat_deg,g.lon_deg], destination(g.lat_deg,g.lon_deg,az,60000)];
+  if (hoverLine) hoverLine.setLatLngs(pts);
+  else hoverLine=L.polyline(pts,{color:"#ffd166", weight:1.5, interactive:false}).addTo(map);
+}
+function setMoveCam(on){
+  moveCam=on; $("moveCam").classList.toggle("on",on);
+  $("map").style.cursor=on?"crosshair":"";
+  $("moveCam").textContent=on?"now click the map where the camera is (Esc cancels)":"set the camera's position on the map";
+}
+function setPoint(lat, lon){      // map position for the selected landmark, or for the camera
+  lat=+lat.toFixed(7); lon=+lon.toFixed(7);
+  if (!C) return;
+  if (moveCam){
+    const g=C.gps_prior, sig=+$("camSure").value;
+    Object.assign(g,{lat_deg:lat, lon_deg:lon, sigma_horizontal_m:sig,
+      source:`map click by ${who()} (cue page, ±${sig} m); the registry had ${row.lat}, ${row.lon}`});
+    setMoveCam(false); links();
+    elevation(lat, lon).then(e=>{ if (C&&C.gps_prior===g&&g.lat_deg===lat&&g.lon_deg===lon){   // camera height: ground + 10 m
+      g.alt_m=Math.round(e+10); g.alt_datum="msl"; g.sigma_vertical_m=20; dirty(); } }).catch(()=>{});
+    return dirty(); }
+  if (!(sel&&sel.t==="mark")){ $("hud").textContent="Click a landmark in the picture first, then its place on the map."; return; }
+  const m=marks[sel.i]; m.lat=lat; m.lon=lon; m.ground=null; dirty();
+  elevation(lat, lon).then(e=>{ if (m.lat===lat&&m.lon===lon){ m.ground=e; dirty(); } }).catch(()=>{});
+}
+map.on("click", e=>setPoint(e.latlng.lat, e.latlng.lng));
+function usePaste(){ const p=parseCoords($("paste").value);
+  if (!p || Math.abs(p[0])>90 || Math.abs(p[1])>180) return;
+  map.setView(p, Math.max(map.getZoom(),16));
+  if ((sel&&sel.t==="mark")||moveCam){ setPoint(p[0],p[1]); $("paste").value=""; } }
+$("paste").addEventListener("paste", ()=>setTimeout(usePaste,0)); $("paste").addEventListener("change", usePaste);
+$("moveCam").onclick=()=>setMoveCam(!moveCam);
+
+/* ============================ side panel ============================ */
+function verticalReadout(){        // slope of each edge against where it crosses the middle row: b = alpha + beta * a
+  const L2=verts.map(l=>{ const p=l.pixels[0], q=l.pixels[l.pixels.length-1]; if (Math.abs(q[1]-p[1])<2) return null;
+    const b=(q[0]-p[0])/(q[1]-p[1]); return {a:p[0]+b*(H/2-p[1])-W/2, b}; }).filter(Boolean);
+  if (!L2.length) return "";
+  const n=L2.length, ma=L2.reduce((s,l)=>s+l.a,0)/n, mb=L2.reduce((s,l)=>s+l.b,0)/n;
+  const saa=L2.reduce((s,l)=>s+(l.a-ma)**2,0), sab=L2.reduce((s,l)=>s+(l.a-ma)*(l.b-mb),0);
+  if (n<2 || Math.sqrt(saa/n)<0.1*W) return "Vertical edges: mark at least two, far apart left and right, to get tilt and roll.";
+  const beta=sab/saa, alpha=mb-beta*ma, f=calib?calib.fx:W/(2*Math.tan((C.hfov_prior?C.hfov_prior.deg:60)*D2R/2));
+  const tilt=Math.atan(beta*f)/D2R, roll=Math.atan(alpha)/D2R;
+  return `Vertical edges say: camera tilted ${Math.abs(tilt).toFixed(1)}° ${tilt>=0?"up":"down"}, leaning ${Math.abs(roll).toFixed(1)}°`+
+    ` (${calib?"with the rough pose's lens":"if the field of view is "+(C.hfov_prior?C.hfov_prior.deg:60)+"°"}).`;
+}
+function landmarkMiss(m){          // degrees between the clicked pixel's bearing and the bearing of its map point
+  if (!calib||m.lat==null) return null;
+  const e=llaToEnu(m.lat,m.lon,m.alt??calib.alt,[calib.lat,calib.lon,calib.alt]);
+  return wrap180(unproject(...m.pixel,calib)[0]-Math.atan2(e[0],e[1])/D2R);
+}
+function refresh(){
+  // selected landmark
+  const m=sel&&sel.t==="mark"?marks[sel.i]:null;
+  $("selBox").style.display=m?"block":"none";
+  if (m){ $("selTitle").textContent="Landmark "+(sel.i+1);
+    if (document.activeElement!==$("mText")) $("mText").value=m.text;
+    if (document.activeElement!==$("mAlt")) $("mAlt").value=m.alt??"";
+    $("mPos").textContent=m.lat==null?"No map position yet: click the map, or paste coordinates above."
+      :`${m.lat.toFixed(6)}, ${m.lon.toFixed(6)}`+(m.ground!=null?` · ground ${Math.round(m.ground)} m`:"");
+    $("mGround").disabled=m.ground==null; }
+  // list
+  const items=$("items"); items.innerHTML="";
+  const add=(t,i,text,extra)=>{ const d=document.createElement("div"); d.className="item"+(sel&&sel.t===t&&sel.i===i?" sel":"");
+    const s=document.createElement("span"); s.className="t"; s.textContent=text; d.appendChild(s);
+    if (extra){ const x=document.createElement("span"); x.textContent=extra.text; x.style.color=extra.color; d.appendChild(x); }
+    const del=document.createElement("span"); del.className="del"; del.textContent="✕"; d.appendChild(del);
+    d.onclick=e=>{ sel={t,i}; if (e.target!==del) return refresh();
+      if (t==="hor"){ hors.length=0; sel=null; dirty(); } else removeSel(); }; items.appendChild(d); };
+  marks.forEach((k,i)=>{ const miss=landmarkMiss(k);
+    add("mark",i,`${i+1}. ${k.text||"(no description)"}`, k.lat==null?{text:"needs map point", color:"var(--wait)"}
+      :miss!=null?{text:Math.abs(miss).toFixed(1)+"° off", color:Math.abs(miss)>2?"var(--bad)":"var(--ok)"}:{text:k.alt!=null?"3D":"on map", color:"var(--ok)"}); });
+  verts.forEach((l,i)=>add("vert",i,"vertical edge "+(i+1)));
+  if (hors.length) add("hor",sel&&sel.t==="hor"?sel.i:0,`horizon: ${hors.length} point${hors.length>1?"s":""}`);
+  if (!marks.length&&!verts.length&&!hors.length) items.innerHTML='<div class="muted">none yet</div>';
+  $("horRow").style.display=hors.length?"flex":"none";
+  const gp=C&&C.gps_prior;
+  $("camPos").textContent=!gp?"":`${(+gp.lat_deg).toFixed(6)}, ${(+gp.lon_deg).toFixed(6)}`+(gp.alt_m!=null?`, ${Math.round(gp.alt_m)} m above sea level`:"")+
+    " · "+(/map click/.test(gp.source||"")?`set by hand (±${gp.sigma_horizontal_m} m)`:`from the registry (±${gp.sigma_horizontal_m??"?"} m): the red dot on the map`);
+  $("vp").textContent=C?verticalReadout():"";
+  // what is missing
+  const onMap=marks.filter(k=>k.lat!=null), n3=onMap.filter(k=>k.alt!=null).length, needs=[];
+  const spread=onMap.length>1?(Math.max(...onMap.map(k=>k.pixel[0]))-Math.min(...onMap.map(k=>k.pixel[0])))/W:0;
+  if (!onMap.length) needs.push(["miss","Heading: needs one landmark with a map position."]);
+  else needs.push(["ok","Heading: "+onMap.length+" landmark"+(onMap.length>1?"s":"")+" on the map."]);
+  if (onMap.length<2) needs.push(["miss","Field of view: needs two landmarks far apart left and right."]);
+  else if (spread<0.3) needs.push(["part","Field of view: the landmarks are close together; add one on the other side of the picture."]);
+  else needs.push(["ok","Field of view: landmarks span "+Math.round(spread*100)+"% of the picture."]);
+  if (verts.length>=2||hors.length>=2||n3>=2) needs.push(["ok","Tilt and roll: "+[verts.length>=2?"vertical edges":"", hors.length>=2?"horizon":"", n3>=2?"points of known altitude":""].filter(Boolean).join(", ")+"."]);
+  else needs.push(["miss","Tilt and roll: needs two vertical edges, or the horizon, or two points at ground level."]);
+  const wait=marks.length-onMap.length;
+  if (wait) needs.push(["part",wait+" described point"+(wait>1?"s":"")+" without a map position (someone can find "+(wait>1?"them":"it")+" later)."]);
+  $("needs").innerHTML=""; needs.forEach(([cls,t])=>{ const d=document.createElement("div"); d.className="need "+cls; d.textContent=t; $("needs").appendChild(d); });
+  $("solveText").textContent=!C?"":calib?`Rough pose from these cues: looking ${calib.az.toFixed(0)}° (${compass(calib.az)}), tilt ${calib.el>=0?"+":""}${calib.el.toFixed(1)}°, roll ${calib.roll.toFixed(1)}°, field of view ${calib.hfov.toFixed(0)}°.`+
+      (solveInfo.tilt_from?" Tilt from the "+solveInfo.tilt_from+".":"")+
+      (solveInfo.assumed&&solveInfo.assumed.length?" Assumed: "+solveInfo.assumed.join(", ")+".":"")
+    :solveInfo&&solveInfo.error?"No rough pose: "+solveInfo.error:"";
+  drawMap(); draw();
+}
+$("mText").addEventListener("input", ()=>{ if (sel&&sel.t==="mark"){ marks[sel.i].text=$("mText").value; dirty(); } });
+$("mAlt").addEventListener("input", ()=>{ if (sel&&sel.t==="mark"){ const v=parseFloat($("mAlt").value); marks[sel.i].alt=isNaN(v)?null:v; dirty(); } });
+$("mGround").onclick=()=>{ if (sel&&sel.t==="mark"&&marks[sel.i].ground!=null){ marks[sel.i].alt=Math.round(marks[sel.i].ground); dirty(); } };
+$("horKind").onchange=dirty; $("rState").onchange=dirty; $("rNote").addEventListener("input", dirty);
+$("showSolve").onchange=draw;
+["landmark","vertical","horizon"].forEach(t=>$("t_"+t).onclick=()=>setTool(t));
+$("prevF").onclick=()=>stepFrame(-1); $("nextF").onclick=()=>stepFrame(1); $("grab").onclick=grabLive;
+function refreshExport(){ if (STATIC) $("export").textContent=`download my cues (${store.ids().length} camera${store.ids().length===1?"":"s"})`; }
+$("export").onclick=()=>{
+  const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{}};
+  store.ids().forEach(id=>out.cameras[id]=store.get(id));
+  if (!Object.keys(out.cameras).length) return showBanner("No cues made in this browser yet.");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:"application/json"}));
+  a.download=`calibration_cues_${who().slice(6).replace(/\W+/g,"_")}_${out.exported_utc.slice(0,10)}.json`; a.click();
+};
+function nextCamera(){ const vis=visibleCams(), i=row?vis.findIndex(c=>c.camera_id===row.camera_id):-1;
+  if (vis.length) openCamera(vis[(i+1)%vis.length].camera_id); }
+$("nextCam").onclick=nextCamera;
+$("filter").onchange=drawQueue; $("search").addEventListener("input", drawQueue);
+$("who").value=(()=>{ try { return localStorage.getItem("cueName")||""; } catch { return ""; } })();
+$("who").addEventListener("input", ()=>{ try { localStorage.setItem("cueName",$("who").value); } catch {} });
+window.addEventListener("beforeunload", ()=>{ if (saveTimer) save(); });
+
+window.addEventListener("hashchange", ()=>{ const id=location.hash.slice(1); if (id && !(row&&row.camera_id===id)) openCamera(id); });
+
+if (STATIC) document.body.classList.add("static");
+/* boot */
+setTool("landmark"); resize();
+loadQueue().then(()=>{ const id=location.hash.slice(1); if (id) openCamera(id); }).catch(e=>showBanner(e.message));
+</script>
+</body>
+</html>
