@@ -442,6 +442,9 @@ async function grabLive(){
 function links(){
   const g=C&&C.gps_prior, a=[];
   if (row.page_url) a.push(`<a href="${encodeURI(row.page_url)}" target="_blank" rel="noopener">camera page</a>`);
+  const iu=row.image_url||"";
+  if (/youtube\.com|youtu\.be/i.test(iu)) a.push(`<a href="${encodeURI(iu)}" target="_blank" rel="noopener">YouTube stream</a>`);
+  else if (!row.page_url && /^https?:/i.test(iu)) a.push(`<a href="${encodeURI(iu)}" target="_blank" rel="noopener">${row.camera_type==="stream"?"live stream":"camera image"}</a>`);
   if (g){
     const h=calib?calib.az.toFixed(0):0;
     a.push(`<a href="https://earth.google.com/web/@${g.lat_deg},${g.lon_deg},${g.alt_m||0}a,1500d,35y,${h}h,65t,0r" target="_blank" rel="noopener">Google Earth</a>`);
