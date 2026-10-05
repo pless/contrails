@@ -85,6 +85,7 @@
     return "unknown";
   }
   const isYouTube = (r) => /youtube\.com|youtu\.be/i.test(r.image_url || "");
+  const isStream = (r) => (r.camera_type || "").trim() === "stream";   // live video that is not YouTube (HLS or MJPEG): no still image to embed
   // sources whose terms do not allow showing their images on other sites: link to them instead
   const NO_EMBED = /(^|\.)(idokep\.hu|viaero\.com|skylinewebcams\.com|hazcams\.com|myairportcams\.com|infoclimat\.fr)$/i;   // their terms do not allow showing the images
   const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
@@ -237,7 +238,7 @@
         const c = col[r._sc] || "#8a8f98";
         L.circleMarker(ll, { radius: 6, color: c, fillColor: c, fillOpacity: 0.85, weight: 1 })
           .bindPopup(() => `<b>${esc(r.name)}</b><br><code>${esc(r.camera_id)}</code> ${badge(r)}<br>${esc(r._net)} · ${esc(r.frame_interval_s || "?")} s · ${esc(r.region)}<br>
-            <a href="camera.html?id=${esc(r.camera_id)}">open camera page</a>` + (r._sc !== "dead" && !isYouTube(r) && !noEmbed(r) ? `<br><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy">` : ""), { maxWidth: 320 })
+            <a href="camera.html?id=${esc(r.camera_id)}">open camera page</a>` + (r._sc !== "dead" && !isYouTube(r) && !isStream(r) && !noEmbed(r) ? `<br><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy">` : ""), { maxWidth: 320 })
           .addTo(layer);
       }
       writeHash();
@@ -327,6 +328,7 @@
     function showImage() {
       if (yt) { box.innerHTML = `<iframe src="${esc(embedUrl(r.image_url))}" allowfullscreen></iframe>`; return; }
       if (!r.image_url) { box.innerHTML = `<div class="err">No image URL in the registry.</div>`; return; }
+      if (isStream(r)) { box.innerHTML = `<div class="err">Live video stream: no still image to show here.<br>${link(r.page_url || r.image_url, "Watch it on the camera's page")}${r.page_url ? " · " + link(r.image_url, "stream URL") : ""}</div>`; return; }
       if (noEmbed(r)) { box.innerHTML = `<div class="err">This source does not allow its images to be shown on other sites.<br>${link(r.page_url || r.image_url, "See the current image on the camera's own page")}</div>`; return; }
       const img = new Image();
       img.referrerPolicy = "no-referrer";
@@ -339,7 +341,7 @@
       };
       img.src = liveUrl(r.image_url, useProxy);
     }
-    function schedule() { clearInterval(timer); if ($("#auto").checked && !yt && !noEmbed(r) && sc !== "dead") timer = setInterval(showImage, 1000 * (CFG.refreshSeconds || 60)); }
+    function schedule() { clearInterval(timer); if ($("#auto").checked && !yt && !isStream(r) && !noEmbed(r) && sc !== "dead") timer = setInterval(showImage, 1000 * (CFG.refreshSeconds || 60)); }
     $("#btn-refresh").addEventListener("click", showImage);
     $("#auto").addEventListener("change", schedule);
     showImage(); schedule();
