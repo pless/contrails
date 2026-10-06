@@ -162,7 +162,7 @@
       <b>Vertical edge:</b> click the top and the bottom of a building edge, mast or pole. Two or more give tilt and roll.<br>
       <b>Horizon:</b> click along a sea horizon or far, flat land. Not mountains.<br>
       Drag to pan, scroll to zoom. Click a cue in the list (or in the picture, with its tool active) to select it; Delete removes it; Shift-click moves the selected landmark.
-      Everything saves by itself<span class="static-only">, in this browser: when you are done, press
+      Everything saves by itself<span class="static-only" id="staticHelp">, in this browser: when you are done, press
       <b>download my cues</b> (top left) and send the file to Robert</span>.
     </div>
   </div>
@@ -315,7 +315,9 @@ async function loadQueue(){
     cams=q.cameras.map(c=>{ published[c.camera_id]=c; const mine=store.get(c.camera_id);
       return {camera_id:c.camera_id, name:c.row.name, country:c.row.country, camera_type:c.row.camera_type, status:c.row.status,
               cues: mine?cueSummary(mine):c.cues, help:c.help||null}; });
-    $("export").style.display=""; refreshExport();
+    const auto=!!window.CUES_SUBMIT_URL;      // automatic submission configured: the download is only a fallback
+    $("export").style.display=auto?"none":""; refreshExport();
+    if (auto) $("staticHelp").textContent=", and each camera you save is sent in automatically; nothing to download or send";
   } else cams=await api("/api/cameras");
   const iberia=c=>/^(Spain|Portugal)$/.test(c.country)?0:1, fast=c=>/^candidate/.test(c.status)?0:1;
   const rank=c=>c.help&&c.help.rank?c.help.rank:1e6;   // tools/cue_priority.py: coverage gap x ease of the best human task
@@ -832,7 +834,7 @@ async function submitCues(id){                      // automatic ingestion (tool
   const url=window.CUES_SUBMIT_URL; if (!STATIC || !url || !C) return;
   const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{[id]:C}};
   try { await fetch(url, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(out)}); $("saveState").textContent="saved here and sent"; }
-  catch(e){ $("saveState").textContent="saved here (sending failed: use download my cues)"; }
+  catch(e){ $("saveState").textContent="saved here (sending failed: use download my cues)"; $("export").style.display=""; refreshExport(); }
 }
 $("export").onclick=()=>{
   const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{}};
