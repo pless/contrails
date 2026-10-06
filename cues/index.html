@@ -538,10 +538,12 @@ function roughPose(c){
   if (hz){ const sea=(c.horizon_points||[]).filter(p=>p.kind==="sea").length*2>(c.horizon_points||[]).length;
     const dip=sea?horizonDip(ref[2]):0; if (hz.slope!=null) roll=-Math.atan(hz.slope)/D2R;
     tiltFrom="horizon"; tiltOf=f=>Math.atan(hz.off/f)/D2R-dip; }
+  const gp=c.gravity_prior;      // GeoCalib on several frames (tools/geocalib_prior.py): used when no edge or horizon was clicked
+  if (gp && !vf && !hz){ roll=gp.roll_deg; tiltFrom=`GeoCalib (\u00b1${(+gp.sigma_tilt_deg).toFixed(1)} deg)`; tiltOf=()=>gp.tilt_deg; }
   const withAlt=mk.filter(m=>m.p3), freeEl=!tiltOf && withAlt.length>0;
   if (freeEl) tiltFrom=withAlt.some(m=>m.known)?"landmarks of known altitude":"ground elevation under the landmarks (rough)";
   else if (!tiltOf) assumed.push("level camera");
-  if (!vf && !(hz&&hz.slope!=null)) assumed.push("no roll");
+  if (!vf && !(hz&&hz.slope!=null) && !(gp && !hz)) assumed.push("no roll");
   const xs=mk.map(m=>m.px[0]), freeF=mk.length>=2 && Math.max(...xs)-Math.min(...xs)>=0.15*Wc;
   if (!freeF) assumed.push(hfov0.toFixed(0)+" deg field of view");
   const fOf=h=>Wc/(2*Math.tan(h*D2R/2));
