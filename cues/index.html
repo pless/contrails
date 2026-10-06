@@ -830,7 +830,9 @@ $("showSolve").onchange=draw;
 ["landmark","vertical","horizon"].forEach(t=>$("t_"+t).onclick=()=>setTool(t));
 $("prevF").onclick=()=>stepFrame(-1); $("nextF").onclick=()=>stepFrame(1); $("grab").onclick=grabLive;
 function refreshExport(){ if (STATIC) $("export").textContent=`download my cues (${store.ids().length} camera${store.ids().length===1?"":"s"})`; }
-async function submitCues(id){                      // automatic ingestion (tools/cue_submit/README.md); silent when not configured
+let submitTimer=null;
+function submitCues(id){ clearTimeout(submitTimer); submitTimer=setTimeout(()=>submitNow(id), 3000); }   // one send per burst of saves
+async function submitNow(id){                        // automatic ingestion (tools/cue_submit/README.md); silent when not configured
   const url=window.CUES_SUBMIT_URL; if (!STATIC || !url || !C) return;
   const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{[id]:C}};
   try { await fetch(url, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(out)}); $("saveState").textContent="saved here and sent"; }
