@@ -531,6 +531,10 @@ function roughPose(c){
   const hfov0=(c.hfov_prior&&c.hfov_prior.deg)||60, assumed=[], mk=[];
   (c.correspondences_3d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.alt_m, known:true}));
   (c.correspondences_2d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.height_hint_m!=null?p.height_hint_m+15:null, known:false}));
+  const vp=c.view_direction_prior;   // a provisional automatic fit (star solve, sun track, skyline) published for a person to confirm
+  if (!mk.length && vp && vp.az_deg!=null && /provisional|star|sun|skyline|automatic/i.test(vp.source||"")){
+    const f=Wc/(2*Math.tan(hfov0*D2R/2)), el=vp.el_deg||0, roll=vp.roll_deg||0;
+    return {az:((vp.az_deg%360)+360)%360, el, roll, f, R:rotFromView(vp.az_deg,el,roll), tilt_from:"automatic fit to confirm: "+(vp.source||""), assumed:[]}; }
   if (!mk.length) return null;
   mk.forEach(m=>{ const e=llaToEnu(m.lat,m.lon,ref[2],ref); m.d=Math.hypot(e[0],e[1]);
     m.lo=llaToEnu(m.lat,m.lon,ref[2]-0.2*m.d,ref); m.hi=llaToEnu(m.lat,m.lon,ref[2]+0.5*m.d,ref);
