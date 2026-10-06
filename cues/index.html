@@ -170,6 +170,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.CUES_STATIC = true;</script>
+<script src="config.js"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -372,7 +373,7 @@ function save(){
           const q=cams.find(c=>c.camera_id===id); if (q) q.cues=r.summary;
           setPose(); $("saveState").textContent=(STATIC?"kept in this browser ":"saved ")+new Date().toTimeString().slice(0,8);
           showBanner(""); drawQueue(); refreshExport(); };
-      if (STATIC){ C.updated_utc=new Date().toISOString().slice(0,19)+"Z"; store.put(id, C); return done({updated_utc:C.updated_utc, summary:cueSummary(C)}); }
+      if (STATIC){ C.updated_utc=new Date().toISOString().slice(0,19)+"Z"; store.put(id, C); submitCues(id); return done({updated_utc:C.updated_utc, summary:cueSummary(C)}); }
       return api("/api/camera/"+id, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({constraints:C, base})}).then(done); })
     .catch(e=>{ $("saveState").textContent="NOT SAVED"; showBanner("Not saved: "+e.message); });
   return saving;
@@ -827,6 +828,12 @@ $("showSolve").onchange=draw;
 ["landmark","vertical","horizon"].forEach(t=>$("t_"+t).onclick=()=>setTool(t));
 $("prevF").onclick=()=>stepFrame(-1); $("nextF").onclick=()=>stepFrame(1); $("grab").onclick=grabLive;
 function refreshExport(){ if (STATIC) $("export").textContent=`download my cues (${store.ids().length} camera${store.ids().length===1?"":"s"})`; }
+async function submitCues(id){                      // automatic ingestion (tools/cue_submit/README.md); silent when not configured
+  const url=window.CUES_SUBMIT_URL; if (!STATIC || !url || !C) return;
+  const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{[id]:C}};
+  try { await fetch(url, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(out)}); $("saveState").textContent="saved here and sent"; }
+  catch(e){ $("saveState").textContent="saved here (sending failed: use download my cues)"; }
+}
 $("export").onclick=()=>{
   const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{}};
   store.ids().forEach(id=>out.cameras[id]=store.get(id));
