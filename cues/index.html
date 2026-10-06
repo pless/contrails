@@ -2,19 +2,20 @@
 <!-- Calibration cues by hand. Two ways to run it:
      - local: tools/cue_server.py (http://localhost:8770); saves into data/contrailCameras/seeds/<id>/constraints.json;
      - published (tools/build_cue_site.py, window.CUES_STATIC): camera list and one stored frame per camera from
-       queue.json and frames/; cues are kept in the browser and downloaded as one JSON file
-       (merged with tools/cue_import.py). -->
+       queue.json and frames/; cues are kept in the browser and sent to the submit URL (tools/cue_submit/README.md)
+       or downloaded as one JSON file (merged with tools/cue_import.py).
+     The map is Google Maps; the browser key comes from window.GMAPS_API_KEY, which the server or the build
+     puts into the "cues-config" script (GMAPS_API_KEY in the environment, else ~/.config/google/maps_api_key). -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Calibration cues</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root { color-scheme: dark; --bg:#111; --panel:#1b1b1f; --line:#333; --text:#ddd; --muted:#8a8a92;
           --accent:#4cc9f0; --ok:#80ed99; --wait:#ffb703; --bad:#ff6b6b; }
   * { box-sizing: border-box; }
-  body { margin:0; height:100vh; min-width:1100px; display:grid; grid-template-columns:250px minmax(0,1fr) 430px;
+  body { margin:0; height:100vh; min-width:1100px; display:grid; grid-template-columns:240px minmax(0,1fr) max(35vw,430px);
          font:13px/1.4 -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--text); }
   input, select, button, textarea { background:#26262c; color:#eee; border:1px solid #444; border-radius:4px;
          padding:4px 6px; font:inherit; }
@@ -47,7 +48,9 @@
   #banner { position:absolute; left:8px; top:8px; background:#5a1e1eee; padding:4px 8px; border-radius:6px; display:none; }
 
   #right { display:flex; flex-direction:column; border-left:1px solid var(--line); background:var(--panel); min-height:0; }
-  #map { flex:0 0 46%; min-height:200px; }
+  #map { flex:0 0 55%; min-height:240px; background:#191919; }
+  #map .nomap { padding:10px; color:var(--muted); }
+  .camdot { width:14px; height:14px; border-radius:50%; background:#e63946; border:2px solid #fff; cursor:default; }
   #panel { flex:1; overflow-y:auto; padding:8px 10px; min-height:0; }
   .item { padding:3px 6px; border-bottom:1px solid #2a2a2a; cursor:pointer; display:flex; gap:6px; }
   .item.sel { background:#123; } .item .t { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -55,7 +58,7 @@
   .need { margin:2px 0; } .need.ok::before { content:"✓ "; color:var(--ok); }
   .need.part::before { content:"~ "; color:var(--wait); } .need.miss::before { content:"✗ "; color:var(--bad); }
   .num { background:#fff; color:#000; border-radius:50%; width:18px; height:18px; line-height:18px; text-align:center;
-         font-size:11px; font-weight:700; border:2px solid var(--ok); }
+         font-size:11px; font-weight:700; border:2px solid var(--ok); cursor:pointer; }
   .num.sel { border-color:#fff; background:var(--ok); }
   #saveState { margin-left:auto; }
   body:not(.static) .static-only { display:none; }
@@ -168,7 +171,6 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.CUES_STATIC = true;</script>
 <script src="config.js"></script>
 <script>
@@ -406,7 +408,7 @@ async function openCamera(id){
   const g=C.gps_prior;
   markDay();
   if (g){
-    map.setView([g.lat_deg, g.lon_deg], 15);
+    mapView(g.lat_deg, g.lon_deg, 15);
     if (g.alt_m==null) elevation(g.lat_deg, g.lon_deg).then(e=>{   // saved with the first cue
       if (C&&C.camera_id===id&&C.gps_prior.alt_m==null){ C.gps_prior.alt_m=Math.round(e+10);
         C.gps_prior.alt_datum="msl"; C.gps_prior.sigma_vertical_m=20;
@@ -671,7 +673,7 @@ function onClick(x,y,shift){
   const px=[Math.round(x*10)/10, Math.round(y*10)/10], frameId=frames[fi].name.replace(/\.\w+$/,"");
   if (shift && sel && sel.t==="mark"){ marks[sel.i].pixel=px; marks[sel.i].image_id=frameId; return dirty(); }
   const hit=pending?null:nearest(x,y);
-  if (hit){ sel=hit; if (hit.t==="mark"&&marks[hit.i].lat!=null) map.panTo([marks[hit.i].lat, marks[hit.i].lon]); return refresh(); }
+  if (hit){ sel=hit; if (hit.t==="mark"&&marks[hit.i].lat!=null) mapPan(marks[hit.i].lat, marks[hit.i].lon); return refresh(); }
   if (tool==="landmark"){ marks.push({pixel:px, text:"", lat:null, lon:null, alt:null, ground:null, image_id:frameId, source:who()});
     sel={t:"mark", i:marks.length-1}; dirty(); $("mText").focus(); }
   else if (tool==="vertical"){
@@ -697,40 +699,66 @@ window.addEventListener("keydown", e=>{
   else if (k==="n") nextCamera();
 });
 
-/* ============================ map ============================ */
-const map=L.map("map").setView([46,8],5);
-const layers={
-  "Satellite":L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19, attribution:"Esri World Imagery"}),
-  "Terrain (peak names)":L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",{maxZoom:17, attribution:"OpenTopoMap, OpenStreetMap"}),
-  "Streets":L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19, attribution:"OpenStreetMap"}) };
-layers["Satellite"].addTo(map); L.control.layers(layers).addTo(map); L.control.scale({imperial:false}).addTo(map);
-const overlay=L.layerGroup().addTo(map); let hoverLine=null;
+/* ============================ map (Google Maps) ============================ */
+let map=null, overlay=[], hoverLine=null, mapAt=[46,8,5];     // mapAt: centre and zoom to show, kept until the map is up
+const ll=p=>({lat:p[0], lng:p[1]});
+function mapView(lat, lon, zoom){ mapAt=[lat,lon,zoom]; if (map){ map.setCenter({lat,lng:lon}); map.setZoom(zoom); } }
+function mapPan(lat, lon){ if (map) map.panTo({lat,lng:lon}); }
+function loadGoogleMaps(key){
+  return new Promise((ok, fail)=>{
+    window.__gmapsReady=ok;
+    const s=document.createElement("script");
+    s.src="https://maps.googleapis.com/maps/api/js?key="+encodeURIComponent(key)+"&v=weekly&libraries=marker&loading=async&callback=__gmapsReady";
+    s.onerror=()=>fail(new Error("Google Maps did not load (network, or the key is not allowed on this site)."));
+    document.head.appendChild(s);
+  });
+}
+async function initMap(){
+  const key=window.GMAPS_API_KEY;
+  if (!key){ $("map").innerHTML='<div class="nomap">No map: the Google Maps key is missing (tools/cue_server.py and tools/build_cue_site.py read GMAPS_API_KEY or ~/.config/google/maps_api_key).</div>'; return; }
+  try { await loadGoogleMaps(key); } catch(e){ $("map").innerHTML=`<div class="nomap">${e.message}</div>`; return; }
+  map=new google.maps.Map($("map"), {center:ll(mapAt), zoom:mapAt[2], mapId:"DEMO_MAP_ID", mapTypeId:"hybrid",
+    mapTypeControl:true, mapTypeControlOptions:{style:google.maps.MapTypeControlStyle.DROPDOWN_MENU, mapTypeIds:["hybrid","satellite","terrain","roadmap"]},
+    streetViewControl:false, fullscreenControl:false, rotateControl:false, tilt:0, scaleControl:true, clickableIcons:false,
+    gestureHandling:"greedy", keyboardShortcuts:false, draggableCursor:"grab"});
+  map.addListener("click", e=>setPoint(e.latLng.lat(), e.latLng.lng()));
+  drawMap();
+}
+function clearOverlay(){ overlay.forEach(o=>{ if (o.setMap) o.setMap(null); else o.map=null; }); overlay=[]; }
+function line(pts, opt){ const p=new google.maps.Polyline(Object.assign({path:pts.map(ll), clickable:false, map}, opt)); overlay.push(p); return p; }
+function dashed(color){ return {strokeOpacity:0, icons:[{icon:{path:"M 0,-1 0,1", strokeOpacity:1, strokeColor:color, strokeWeight:2, scale:3}, offset:"0", repeat:"14px"}]}; }
+function placeMarker(lat, lon, el, title, onclick){      // a marker whose look is an HTML element, centred on the spot
+  el.style.transform="translateY(50%)";          // (advanced markers hang their content above the position)
+  const m=new google.maps.marker.AdvancedMarkerElement({position:{lat,lng:lon}, content:el, title, map, gmpClickable:true});
+  m.addEventListener("gmp-click", ()=>{ if (onclick) onclick(); });
+  overlay.push(m); return m;
+}
 function drawMap(){
-  overlay.clearLayers();
+  if (!map) return;
+  clearOverlay();
   const g=C&&C.gps_prior; if (!g) return;
   const cam=[g.lat_deg,g.lon_deg];
   if (calib){ const mid=calib.H/2;            // field of view of the rough pose
-    [[0,mid],[calib.W,mid]].forEach(p=>L.polyline([cam, destination(cam[0],cam[1],unproject(p[0],p[1],calib)[0],60000)],
-      {color:"#fff", weight:1, opacity:.8, interactive:false}).addTo(overlay));
+    [[0,mid],[calib.W,mid]].forEach(p=>line([cam, destination(cam[0],cam[1],unproject(p[0],p[1],calib)[0],60000)],
+      {strokeColor:"#fff", strokeWeight:1, strokeOpacity:.8}));
     if (sel&&sel.t==="mark"&&marks[sel.i].lat==null)   // where to look for the selected landmark
-      L.polyline([cam, destination(cam[0],cam[1],unproject(...marks[sel.i].pixel,calib)[0],60000)],
-        {color:"#ffb703", weight:2, dashArray:"6 5", interactive:false}).addTo(overlay); }
-  L.circleMarker(cam,{radius:7, color:"#fff", weight:2, fillColor:"#e63946", fillOpacity:1, bubblingMouseEvents:false}).bindTooltip("camera").addTo(overlay);
+      line([cam, destination(cam[0],cam[1],unproject(...marks[sel.i].pixel,calib)[0],60000)], dashed("#ffb703")); }
+  const dot=document.createElement("div"); dot.className="camdot"; placeMarker(cam[0], cam[1], dot, "camera");
   marks.forEach((m,i)=>{ if (m.lat==null) return;
     const on=sel&&sel.t==="mark"&&sel.i===i;
-    L.marker([m.lat,m.lon],{icon:L.divIcon({className:"", html:`<div class="num${on?" sel":""}">${i+1}</div>`, iconSize:[18,18], iconAnchor:[9,9]})})
-      .on("click", ()=>{ sel={t:"mark",i}; refresh(); }).addTo(overlay); });
+    const el=document.createElement("div"); el.className="num"+(on?" sel":""); el.textContent=i+1;
+    placeMarker(m.lat, m.lon, el, m.text||("landmark "+(i+1)), ()=>{ sel={t:"mark",i}; refresh(); }); });
 }
 function hoverRay(az){            // the direction under the mouse, drawn on the map
   const g=C&&C.gps_prior;
-  if (az==null||!g){ if (hoverLine){ hoverLine.remove(); hoverLine=null; } return; }
-  const pts=[[g.lat_deg,g.lon_deg], destination(g.lat_deg,g.lon_deg,az,60000)];
-  if (hoverLine) hoverLine.setLatLngs(pts);
-  else hoverLine=L.polyline(pts,{color:"#ffd166", weight:1.5, interactive:false}).addTo(map);
+  if (az==null||!g||!map){ if (hoverLine){ hoverLine.setMap(null); hoverLine=null; } return; }
+  const pts=[[g.lat_deg,g.lon_deg], destination(g.lat_deg,g.lon_deg,az,60000)].map(ll);
+  if (hoverLine) hoverLine.setPath(pts);
+  else hoverLine=new google.maps.Polyline({path:pts, strokeColor:"#ffd166", strokeWeight:1.5, clickable:false, map});
 }
 function setMoveCam(on){
   moveCam=on; $("moveCam").classList.toggle("on",on);
-  $("map").style.cursor=on?"crosshair":"";
+  if (map) map.setOptions({draggableCursor:on?"crosshair":"grab"});
   $("moveCam").textContent=on?"now click the map where the camera is (Esc cancels)":"set the camera's position on the map";
 }
 function setPoint(lat, lon){      // map position for the selected landmark, or for the camera
@@ -748,10 +776,9 @@ function setPoint(lat, lon){      // map position for the selected landmark, or 
   const m=marks[sel.i]; m.lat=lat; m.lon=lon; m.ground=null; dirty();
   elevation(lat, lon).then(e=>{ if (m.lat===lat&&m.lon===lon){ m.ground=e; dirty(); } }).catch(()=>{});
 }
-map.on("click", e=>setPoint(e.latlng.lat, e.latlng.lng));
 function usePaste(){ const p=parseCoords($("paste").value);
   if (!p || Math.abs(p[0])>90 || Math.abs(p[1])>180) return;
-  map.setView(p, Math.max(map.getZoom(),16));
+  mapView(p[0], p[1], Math.max(map?map.getZoom():0, 16));
   if ((sel&&sel.t==="mark")||moveCam){ setPoint(p[0],p[1]); $("paste").value=""; } }
 $("paste").addEventListener("paste", ()=>setTimeout(usePaste,0)); $("paste").addEventListener("change", usePaste);
 $("moveCam").onclick=()=>setMoveCam(!moveCam);
@@ -857,7 +884,7 @@ window.addEventListener("hashchange", ()=>{ const id=location.hash.slice(1); if 
 
 if (STATIC) document.body.classList.add("static");
 /* boot */
-setTool("landmark"); resize();
+setTool("landmark"); resize(); initMap().catch(e=>showBanner(e.message));
 loadQueue().then(()=>{ const id=location.hash.slice(1); if (id) openCamera(id); }).catch(e=>showBanner(e.message));
 </script>
 </body>
