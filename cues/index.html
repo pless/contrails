@@ -300,7 +300,8 @@ function drawQueue(){
     const kind=c.camera_type.startsWith("youtube")?"YouTube":/^slow/.test(c.status)?"slow":"fast";
     d.innerHTML=`<div class="n"><span class="dot ${camState(c)}"></span></div><div class="s"></div>`;
     d.firstChild.append(c.name||c.camera_id);
-    d.lastChild.textContent=[c.country, kind, cueText(c.cues)].filter(Boolean).join(" · ");
+    const h=c.help, help=h?`#${h.rank} · ${h.gap_km>=48?"no calibrated camera within "+Math.round(h.gap_km)+" km":"covered: "+Math.round(h.gap_km)+" km"} · ${h.task}`:"";
+    d.lastChild.textContent=[help, c.country, kind, cueText(c.cues)].filter(Boolean).join(" · ");
     d.onclick=()=>openCamera(c.camera_id); list.appendChild(d); });
   list.scrollTop=top;
   const done=cams.filter(c=>camState(c)!=="todo").length;
@@ -312,11 +313,12 @@ async function loadQueue(){
     const q=await (await fetch("queue.json", {cache:"no-cache"})).json();
     cams=q.cameras.map(c=>{ published[c.camera_id]=c; const mine=store.get(c.camera_id);
       return {camera_id:c.camera_id, name:c.row.name, country:c.row.country, camera_type:c.row.camera_type, status:c.row.status,
-              cues: mine?cueSummary(mine):c.cues}; });
+              cues: mine?cueSummary(mine):c.cues, help:c.help||null}; });
     $("export").style.display=""; refreshExport();
   } else cams=await api("/api/cameras");
   const iberia=c=>/^(Spain|Portugal)$/.test(c.country)?0:1, fast=c=>/^candidate/.test(c.status)?0:1;
-  cams.sort((a,b)=>iberia(a)-iberia(b)||fast(a)-fast(b)||a.country.localeCompare(b.country)||a.name.localeCompare(b.name));
+  const rank=c=>c.help&&c.help.rank?c.help.rank:1e6;   // tools/cue_priority.py: coverage gap x ease of the best human task
+  cams.sort((a,b)=>rank(a)-rank(b)||iberia(a)-iberia(b)||fast(a)-fast(b)||a.country.localeCompare(b.country)||a.name.localeCompare(b.name));
   drawQueue();
 }
 
@@ -392,7 +394,8 @@ async function openCamera(id){
   location.hash=id; showBanner("");
   $("title").textContent=row.name||id;
   $("sub").textContent=[id, row.country, row.camera_type, row.status].filter(Boolean).join(" · ");
-  $("desc").textContent=row.view_description||""; $("desc").title=row.view_description||"";
+  const hp=(published[id]||{}).help; const helpLine=hp?`What helps most here: ${hp.task} (${hp.why}).`:"";
+  $("desc").textContent=[helpLine, row.view_description||""].filter(Boolean).join(" "); $("desc").title=row.view_description||"";
   if (!C){ $("hud").textContent="No stored frame for this camera yet: try 'live frame'."; $("frameLabel").textContent="no frame"; $("links").innerHTML=""; drawQueue(); refresh(); draw(); return; }
   W=C.image_size.width; H=C.image_size.height;
   splitCues();
