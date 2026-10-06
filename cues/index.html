@@ -189,10 +189,10 @@ function cueSummary(c){
 async function elevation(lat, lon){          // ground height (m) from the AWS Terrarium elevation tiles
   if (!STATIC) return (await api(`/api/elevation?lat=${lat}&lon=${lon}`)).elevation_m;
   const z=12, n=2**z, x=(lon+180)/360*n, y=(1-Math.asinh(Math.tan(lat*Math.PI/180))/Math.PI)/2*n;
-  const im=new Image(); im.crossOrigin="anonymous";
-  await new Promise((ok,bad)=>{ im.onload=ok; im.onerror=bad;
-    im.src=`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${Math.floor(x)}/${Math.floor(y)}.png`; });
-  const c=document.createElement("canvas"); c.width=c.height=256; const g=c.getContext("2d"); g.drawImage(im,0,0);
+  // decoded without colour management: a managed canvas shifted the red byte by one on some tiles, i.e. +256 m (seen 2026-10-06)
+  const blob=await (await fetch(`https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${z}/${Math.floor(x)}/${Math.floor(y)}.png`)).blob();
+  const im=await createImageBitmap(blob, {colorSpaceConversion:"none", premultiplyAlpha:"none"});
+  const c=document.createElement("canvas"); c.width=c.height=256; const g=c.getContext("2d", {colorSpace:"srgb", willReadFrequently:true}); g.drawImage(im,0,0);
   const [r,gg,b]=g.getImageData(Math.min(255,Math.floor((x%1)*256)), Math.min(255,Math.floor((y%1)*256)), 1, 1).data;
   return r*256+gg+b/256-32768;
 }
