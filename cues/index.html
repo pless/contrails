@@ -131,10 +131,10 @@
         <span id="mPos" class="muted"></span>
       </div>
       <div class="row">
-        <label title="How high the clicked point is. A point placed on the map is on the ground unless you clicked the top of something.">height
+        <label title="How high the clicked point is: on the ground, unknown (the calibration works its height out), or a known altitude.">height
           <select id="mHeight">
             <option value="ground">on the ground (terrain height)</option>
-            <option value="top">top of a building or mast (about 15 m up)</option>
+            <option value="unknown">unknown height</option>
             <option value="known">known altitude</option>
           </select></label>
         <label id="mAltRow" style="display:none"><input id="mAlt" type="number" step="any" style="width:90px" placeholder="above sea level"> m</label>
@@ -167,8 +167,8 @@
       where it really is (the building or mast it looks from), press <b>set the camera's position</b> and click it.
       Everything else depends on it.<br>
       <b>Landmark:</b> click a point in the picture, then the same place on the map, and say what it is. A point is taken
-      to be on the ground (its height from the terrain model) unless you set it to the top of a building or mast, or a
-      known altitude. If you cannot find it on the map, the description alone is still saved.
+      to be on the ground (its height from the terrain model) unless you set it to unknown height (a rooftop, a tree line,
+      a distant ridge: the calibration works its height out) or a known altitude. If you cannot find it on the map, the description alone is still saved.
       Two landmarks far apart left and right give the heading and the field of view.<br>
       <b>Vertical edge:</b> click along a building edge, mast or pole, top to bottom. Two points are enough; three or more on a
       tall edge near the sides of the picture also record the lens distortion (the bend). A click on another edge, Enter,
@@ -182,7 +182,7 @@
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261007T133616Z"></script>
+<script src="config.js?v=20261007T170633Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -385,7 +385,7 @@ function splitCues(){
     kept[key]=arr.filter(it=>!mine.includes(it));
     mine.forEach(it=>{ const is3=key==="correspondences_3d", onGround=is3?/terrain model/.test(it.alt_source||""):it.height_above_ground_m===0;
       marks.push({pixel:it.pixel, text:it.description||it.label||"", lat:it.lat_deg??null, lon:it.lon_deg??null,
-        alt:is3?it.alt_m:null, ground:it.height_hint_m??(onGround&&is3?it.alt_m:null), above:is3?(onGround?"ground":"known"):(onGround?"ground":"top"),
+        alt:is3?it.alt_m:null, ground:it.height_hint_m??(onGround&&is3?it.alt_m:null), above:is3?(onGround?"ground":"known"):(onGround?"ground":"unknown"),   // no height: unknown
         image_id:it.image_id||null, source:it.source||null}); });
   }
   for (const key of ["vertical_lines","horizon_points"]){ const arr=C[key]||[]; kept[key]=arr.filter(it=>!human(it)); }
@@ -400,7 +400,7 @@ function mergeCues(){
     if (m.lat!=null && m.above==="known" && m.alt!=null) c3.push({...common, lat_deg:m.lat, lon_deg:m.lon, alt_m:m.alt, alt_datum:"msl", sigma_m:30});
     else if (m.lat!=null && m.above==="ground" && m.ground!=null)        // on the ground: a 3D point at the terrain height
       c3.push({...common, lat_deg:m.lat, lon_deg:m.lon, alt_m:Math.round(m.ground*10)/10, alt_datum:"msl", sigma_m:10, alt_source:"terrain model under the map point (cue page)", height_hint_m:m.ground, height_above_ground_m:0});
-    else if (m.lat!=null) c2.push({...common, lat_deg:m.lat, lon_deg:m.lon, height_hint_m:m.ground, height_above_ground_m:m.above==="ground"?0:15});
+    else if (m.lat!=null) c2.push({...common, lat_deg:m.lat, lon_deg:m.lon, height_hint_m:m.ground, ...(m.above==="ground"?{height_above_ground_m:0}:{})});   // unknown: height left free
     else dp.push({pixel:m.pixel, description:text, image_id:m.image_id, source:src});
   });
   C.correspondences_3d=kept.correspondences_3d.concat(c3);
@@ -600,7 +600,8 @@ function roughPose(c){
   const Wc=c.image_size.width, Hc=c.image_size.height, ref=[g.lat_deg, g.lon_deg, g.alt_m||0];
   const hfov0=(c.hfov_prior&&c.hfov_prior.deg)||60, assumed=[], mk=[];
   (c.correspondences_3d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.alt_m, known:true}));
-  (c.correspondences_2d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.height_hint_m!=null?p.height_hint_m+(p.height_above_ground_m??15):null, known:false}));
+  (c.correspondences_2d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg,   // unknown height: heading and lens only, not tilt
+    alt:p.height_hint_m!=null&&p.height_above_ground_m===0?p.height_hint_m:null, known:false}));
   const vp=c.view_direction_prior;   // a provisional automatic fit (star solve, sun track, skyline) published for a person to confirm
   if (!mk.length && vp && vp.az_deg!=null && /provisional|star|sun|skyline|automatic/i.test(vp.source||"")){
     const f=Wc/(2*Math.tan(hfov0*D2R/2)), el=vp.el_deg||0, roll=vp.roll_deg||0;
@@ -618,7 +619,7 @@ function roughPose(c){
   const gp=c.gravity_prior;      // GeoCalib on several frames (tools/geocalib_prior.py): used when no edge or horizon was clicked
   if (gp && !vf && !hz){ roll=gp.roll_deg; tiltFrom=`GeoCalib (\u00b1${(+gp.sigma_tilt_deg).toFixed(1)} deg)`; tiltOf=()=>gp.tilt_deg; }
   let withAlt=mk.filter(m=>m.p3); const freeEl=!tiltOf && withAlt.length>0;
-  if (freeEl) tiltFrom=withAlt.some(m=>m.known)?"landmarks of known altitude":"ground elevation under the landmarks (rough)";
+  if (freeEl) tiltFrom=withAlt.some(m=>m.known)?"landmarks of known altitude":"landmarks on the ground";
   else if (!tiltOf) assumed.push("level camera");
   if (!vf && !(hz&&hz.slope!=null) && !(gp && !hz)) assumed.push("no roll");
   // the camera's height: free when points of known height can separate it from the tilt (tilt pinned elsewhere, or
@@ -928,7 +929,7 @@ function refresh(){
   $("selBox").style.display=m?"block":"none";
   if (m){ $("selTitle").textContent="Landmark "+(sel.i+1);
     if (document.activeElement!==$("mText")) $("mText").value=m.text;
-    $("mHeight").value=m.above||"top"; $("mAltRow").style.display=m.above==="known"?"":"none";
+    $("mHeight").value=m.above||"unknown"; $("mAltRow").style.display=m.above==="known"?"":"none";
     if (document.activeElement!==$("mAlt")) $("mAlt").value=m.above==="known"?(m.alt??""):"";
     $("mPos").textContent=m.lat==null?"No map position yet: click the map, or paste coordinates above."
       :`${m.lat.toFixed(6)}, ${m.lon.toFixed(6)}`+(m.ground!=null?` · ground ${Math.round(m.ground)} m`:"");
@@ -981,7 +982,7 @@ function refresh(){
 }
 $("mText").addEventListener("input", ()=>{ if (sel&&sel.t==="mark"){ marks[sel.i].text=$("mText").value; dirty(); } });
 $("mAlt").addEventListener("input", ()=>{ if (sel&&sel.t==="mark"&&marks[sel.i].above==="known"){ const v=parseFloat($("mAlt").value); marks[sel.i].alt=isNaN(v)?null:v; dirty(); } });
-function setAbove(m, v){ m.above=v; m.alt=v==="ground"?(m.ground!=null?Math.round(m.ground*10)/10:null):v==="top"?null:(m.alt??null); }
+function setAbove(m, v){ m.above=v; m.alt=v==="ground"?(m.ground!=null?Math.round(m.ground*10)/10:null):v==="unknown"?null:(m.alt??null); }
 $("mHeight").onchange=()=>{ if (sel&&sel.t==="mark"){ setAbove(marks[sel.i], $("mHeight").value); dirty(); } };
 $("allGround").onclick=()=>{ if (!marks.length) return; marks.forEach(m=>setAbove(m,"ground")); dirty(); };
 $("useZ").onclick=()=>{                      // take the camera height the points of known height imply
