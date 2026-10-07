@@ -114,6 +114,7 @@
     <h3>Camera position</h3>
     <div id="camPos" class="muted"></div>
     <div id="resect" class="muted" style="display:none"><span id="resectText"></span> <button id="useResect" title="take the position the landmarks imply">move the camera there</button></div>
+    <div id="camZ" class="muted" style="display:none"><span id="camZText"></span> <button id="useZ" title="take the camera height the points of known height imply">use this height</button></div>
     <div class="row">
       <button id="moveCam" title="then click the map where you think the camera is">set the camera's position on the map</button>
       <select id="camSure" title="how sure you are of the spot you click">
@@ -130,13 +131,17 @@
         <span id="mPos" class="muted"></span>
       </div>
       <div class="row">
-        <label title="Fill this only if the image point is at a known altitude. Leave it blank for the tops of buildings and towers.">altitude
-          <input id="mAlt" type="number" step="any" style="width:80px" placeholder="unknown"> m</label>
-        <button id="mGround" title="use this when the point is on the ground: a summit, a shoreline, a road">point is at ground level</button>
+        <label title="How high the clicked point is. A point placed on the map is on the ground unless you clicked the top of something.">height
+          <select id="mHeight">
+            <option value="ground">on the ground (terrain height)</option>
+            <option value="top">top of a building or mast (about 15 m up)</option>
+            <option value="known">known altitude</option>
+          </select></label>
+        <label id="mAltRow" style="display:none"><input id="mAlt" type="number" step="any" style="width:90px" placeholder="above sea level"> m</label>
       </div>
     </div>
 
-    <h3>Cues for this camera</h3>
+    <h3>Cues for this camera <button id="allGround" style="font-size:11px;text-transform:none;letter-spacing:0" title="every landmark becomes a point at terrain height">all landmarks on the ground</button></h3>
     <div id="items"></div>
     <div class="row" id="horRow" style="display:none">
       <label>the horizon is <select id="horKind"><option value="terrain">far, flat land</option><option value="sea">sea or a large lake</option></select></label>
@@ -161,8 +166,9 @@
       <b>Camera position first:</b> the red dot on the map is where the camera is thought to be. If you can tell
       where it really is (the building or mast it looks from), press <b>set the camera's position</b> and click it.
       Everything else depends on it.<br>
-      <b>Landmark:</b> click a point in the picture, then the same place on the map, and say what it is.
-      If you cannot find it on the map, the description alone is still saved.
+      <b>Landmark:</b> click a point in the picture, then the same place on the map, and say what it is. A point is taken
+      to be on the ground (its height from the terrain model) unless you set it to the top of a building or mast, or a
+      known altitude. If you cannot find it on the map, the description alone is still saved.
       Two landmarks far apart left and right give the heading and the field of view.<br>
       <b>Vertical edge:</b> click along a building edge, mast or pole, top to bottom. Two points are enough; three or more on a
       tall edge near the sides of the picture also record the lens distortion (the bend). A click on another edge, Enter,
@@ -176,7 +182,7 @@
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261007T130614Z"></script>
+<script src="config.js?v=20261007T133616Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -237,7 +243,7 @@ function checkHeights(){                     // ground heights saved by an earli
   if (!C||!row) return; const id=row.camera_id, g=C.gps_prior;
   marks.forEach(m=>{ if (m.lat==null||m.ground==null) return;
     elevation(m.lat,m.lon).then(e=>{ if (!(row&&row.camera_id===id)||Math.abs(e-m.ground)<=100) return;
-      if (m.alt!=null&&Math.abs(m.alt-m.ground)<1) m.alt=Math.round(e);   // "point is at ground level" had copied the wrong height
+      if (m.above==="ground"||(m.alt!=null&&Math.abs(m.alt-m.ground)<1)) m.alt=Math.round(e*10)/10;   // a ground point carries the terrain height
       m.ground=e; dirty(); }).catch(()=>{}); });
   if (g&&g.alt_m!=null&&/cue page|terrain model/.test(g.source||""))
     elevation(g.lat_deg,g.lon_deg).then(e=>{ if (row&&row.camera_id===id&&C.gps_prior===g&&Math.abs(g.alt_m-(e+10))>100){ g.alt_m=Math.round(e+10); dirty(); } }).catch(()=>{});
@@ -377,8 +383,10 @@ function splitCues(){
   for (const key of ["correspondences_3d","correspondences_2d","described_points"]){
     const arr=C[key]||[], mine=key==="described_points"?arr:arr.filter(human);
     kept[key]=arr.filter(it=>!mine.includes(it));
-    mine.forEach(it=>marks.push({pixel:it.pixel, text:it.description||it.label||"", lat:it.lat_deg??null, lon:it.lon_deg??null,
-      alt:key==="correspondences_3d"?it.alt_m:null, ground:it.height_hint_m??null, image_id:it.image_id||null, source:it.source||null}));
+    mine.forEach(it=>{ const is3=key==="correspondences_3d", onGround=is3?/terrain model/.test(it.alt_source||""):it.height_above_ground_m===0;
+      marks.push({pixel:it.pixel, text:it.description||it.label||"", lat:it.lat_deg??null, lon:it.lon_deg??null,
+        alt:is3?it.alt_m:null, ground:it.height_hint_m??(onGround&&is3?it.alt_m:null), above:is3?(onGround?"ground":"known"):(onGround?"ground":"top"),
+        image_id:it.image_id||null, source:it.source||null}); });
   }
   for (const key of ["vertical_lines","horizon_points"]){ const arr=C[key]||[]; kept[key]=arr.filter(it=>!human(it)); }
   verts=(C.vertical_lines||[]).filter(human); hors=(C.horizon_points||[]).filter(human);
@@ -389,8 +397,10 @@ function mergeCues(){
   marks.forEach((m,i)=>{
     const text=m.text.trim(), src=m.source||(m.source=who());
     const common={pixel:m.pixel, sigma_px:3, label:text.slice(0,40)||("landmark "+(i+1)), description:text||null, image_id:m.image_id, source:src};
-    if (m.lat!=null && m.alt!=null) c3.push({...common, lat_deg:m.lat, lon_deg:m.lon, alt_m:m.alt, alt_datum:"msl", sigma_m:30});
-    else if (m.lat!=null) c2.push({...common, lat_deg:m.lat, lon_deg:m.lon, height_hint_m:m.ground});
+    if (m.lat!=null && m.above==="known" && m.alt!=null) c3.push({...common, lat_deg:m.lat, lon_deg:m.lon, alt_m:m.alt, alt_datum:"msl", sigma_m:30});
+    else if (m.lat!=null && m.above==="ground" && m.ground!=null)        // on the ground: a 3D point at the terrain height
+      c3.push({...common, lat_deg:m.lat, lon_deg:m.lon, alt_m:Math.round(m.ground*10)/10, alt_datum:"msl", sigma_m:10, alt_source:"terrain model under the map point (cue page)", height_hint_m:m.ground, height_above_ground_m:0});
+    else if (m.lat!=null) c2.push({...common, lat_deg:m.lat, lon_deg:m.lon, height_hint_m:m.ground, height_above_ground_m:m.above==="ground"?0:15});
     else dp.push({pixel:m.pixel, description:text, image_id:m.image_id, source:src});
   });
   C.correspondences_3d=kept.correspondences_3d.concat(c3);
@@ -590,7 +600,7 @@ function roughPose(c){
   const Wc=c.image_size.width, Hc=c.image_size.height, ref=[g.lat_deg, g.lon_deg, g.alt_m||0];
   const hfov0=(c.hfov_prior&&c.hfov_prior.deg)||60, assumed=[], mk=[];
   (c.correspondences_3d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.alt_m, known:true}));
-  (c.correspondences_2d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.height_hint_m!=null?p.height_hint_m+15:null, known:false}));
+  (c.correspondences_2d||[]).forEach(p=>mk.push({px:p.pixel, lat:p.lat_deg, lon:p.lon_deg, alt:p.height_hint_m!=null?p.height_hint_m+(p.height_above_ground_m??15):null, known:false}));
   const vp=c.view_direction_prior;   // a provisional automatic fit (star solve, sun track, skyline) published for a person to confirm
   if (!mk.length && vp && vp.az_deg!=null && /provisional|star|sun|skyline|automatic/i.test(vp.source||"")){
     const f=Wc/(2*Math.tan(hfov0*D2R/2)), el=vp.el_deg||0, roll=vp.roll_deg||0;
@@ -611,6 +621,9 @@ function roughPose(c){
   if (freeEl) tiltFrom=withAlt.some(m=>m.known)?"landmarks of known altitude":"ground elevation under the landmarks (rough)";
   else if (!tiltOf) assumed.push("level camera");
   if (!vf && !(hz&&hz.slope!=null) && !(gp && !hz)) assumed.push("no roll");
+  // the camera's height: free when points of known height can separate it from the tilt (tilt pinned elsewhere, or
+  // three or more such points at distances differing by a factor of two)
+  const dd=withAlt.map(m=>m.d), freeZ=withAlt.length>=2 && (tiltOf!=null || (withAlt.length>=3 && Math.max(...dd)>=2*Math.min(...dd)));
   const xs=mk.map(m=>m.px[0]), freeF=mk.length>=2 && Math.max(...xs)-Math.min(...xs)>=0.15*Wc;
   if (!freeF) assumed.push(hfov0.toFixed(0)+" deg field of view");
   const fOf=h=>Wc/(2*Math.tan(h*D2R/2));
@@ -622,13 +635,14 @@ function roughPose(c){
     const f=fOf(hf), el=tiltOf?tiltOf(f):0;
     for (let az=0; az<360; az+=2){ const cst=side(az,f,el).reduce((s,v)=>s+Math.min(v*v,cap),0)+((hf-hfov0)/60)**2; if (cst<best[0]) best=[cst,az,hf]; }
   }
-  const unpack=x=>{ const f=freeF?Math.exp(x[1]):fOf(hfov0); return [x[0], f, freeEl?x[x.length-1]:(tiltOf?tiltOf(f):0)]; };
-  const soft=r=>2*(Math.sqrt(1+(r/5)**2)-1);
-  const cost=x=>{ const [az,f,el]=unpack(x); let s=side(az,f,el).reduce((t,v)=>t+soft(v),0);
-    if (freeEl){ const R=rotFromView(az,el,roll); withAlt.forEach(m=>{ const p=pin(m.p3,R,f,Wc,Hc); s+=soft(p?Math.min(1e4,Math.abs(p[1]-m.px[1])):1e4); }); }
+  const iF=freeF?1:-1, iE=freeEl?(freeF?2:1):-1, iZ=freeZ?1+(freeF?1:0)+(freeEl?1:0):-1;    // x = [az, log f?, el?, dz?]
+  const unpack=x=>{ const f=iF>=0?Math.exp(x[iF]):fOf(hfov0); return [x[0], f, iE>=0?x[iE]:(tiltOf?tiltOf(f):0), iZ>=0?x[iZ]:0]; };
+  const soft=r=>2*(Math.sqrt(1+(r/5)**2)-1), up=(p,dz)=>[p[0],p[1],p[2]-dz];      // the camera dz higher = the point dz lower
+  const cost=x=>{ const [az,f,el,dz]=unpack(x); let s=side(az,f,el).reduce((t,v)=>t+soft(v),0);
+    if (freeEl||freeZ){ const R=rotFromView(az,el,roll); withAlt.forEach(m=>{ const p=pin(up(m.p3,dz),R,f,Wc,Hc); s+=soft(p?Math.min(1e4,Math.abs(p[1]-m.px[1])):1e4); }); }
     const hf=2*Math.atan(Wc/(2*f))/D2R; if (hf<15||hf>140) s+=1e6;
-    if (freeEl && (el<-30||el>80)) s+=1e6; return s; };
-  const x0=[best[1]], st=[2]; if (freeF){ x0.push(Math.log(fOf(best[2]))); st.push(0.1); } if (freeEl){ x0.push(0); st.push(5); }
+    if (freeEl && (el<-30||el>80)) s+=1e6; if (Math.abs(dz)>200) s+=1e6; return s+(dz/50)**2; };
+  const x0=[best[1]], st=[2]; if (freeF){ x0.push(Math.log(fOf(best[2]))); st.push(0.1); } if (freeEl){ x0.push(0); st.push(5); } if (freeZ){ x0.push(0); st.push(3); }
   let x=nelderMead(cost,x0,st); const ignored=[];
   while (freeEl && withAlt.length>=3){    // a wrong ground height (the elevation lookup once returned +256 m) must not drag tilt and field of view
     const full=cost(x), all=withAlt; let bestDrop=null;
@@ -636,17 +650,17 @@ function roughPose(c){
     withAlt=all;
     if (bestDrop.c<0.3*full){ withAlt=all.filter(k=>k!==bestDrop.m); x=bestDrop.x; ignored.push(bestDrop.m.px); } else break;
   }
-  const [az,f,el]=unpack(x);
+  const [az,f,el,dz]=unpack(x);
   // where the landmarks alone put the camera: the same fit with the position free (east/north offset in m), when four or
   // more landmarks with map positions span the picture; a leave-one-out spread says how firmly they pin it
   let resect=null;
   if (freeF && mk.length>=4){
     const shift=(p,d)=>[p[0]-d[0], p[1]-d[1], p[2]], unpackD=y=>unpack(y.slice(0,-2));
-    const costD=(y,skip)=>{ const [az2,f2,el2]=unpackD(y), d=y.slice(-2), R=rotFromView(az2,el2,roll); let s=0;
+    const costD=(y,skip)=>{ const [az2,f2,el2,dz2]=unpackD(y), d=y.slice(-2), R=rotFromView(az2,el2,roll); let s=0;
       mk.forEach(m=>{ if (m===skip) return; const a=pin(shift(m.lo,d),R,f2,Wc,Hc), b=pin(shift(m.hi,d),R,f2,Wc,Hc);
         if (!a||!b){ s+=soft(1e4); return; } const nx=-(b[1]-a[1]), ny=b[0]-a[0], nn=Math.hypot(nx,ny)||1e-9;
         s+=soft(Math.max(-1e4, Math.min(1e4, ((m.px[0]-a[0])*nx+(m.px[1]-a[1])*ny)/nn))); });
-      if (freeEl) withAlt.forEach(m=>{ if (m===skip) return; const q=pin(shift(m.p3,d),R,f2,Wc,Hc); s+=soft(q?Math.min(1e4,Math.abs(q[1]-m.px[1])):1e4); });
+      if (freeEl||freeZ) withAlt.forEach(m=>{ if (m===skip) return; const q=pin(up(shift(m.p3,d),dz2),R,f2,Wc,Hc); s+=soft(q?Math.min(1e4,Math.abs(q[1]-m.px[1])):1e4); });
       const hf=2*Math.atan(Wc/(2*f2))/D2R; if (hf<15||hf>140) s+=1e6; if (freeEl&&(el2<-30||el2>80)) s+=1e6;
       return s+(d[0]*d[0]+d[1]*d[1])/90000; };                 // a 300 m leash: a degenerate layout cannot run away
     const y0=[...x,0,0], stD=[...st,10,10], y=nelderMead(yy=>costD(yy,null), y0, stD, 600), d=y.slice(-2);
@@ -655,12 +669,12 @@ function roughPose(c){
     resect={dE:d[0], dN:d[1], dist:Math.hypot(d[0],d[1]), bearing:((Math.atan2(d[0],d[1])/D2R)+360)%360, hfov:2*Math.atan(Wc/(2*fD))/D2R,
             az:((azD%360)+360)%360, spread, n:mk.length, lat:ref[0]+d[1]/111320, lon:ref[1]+d[0]/(111320*Math.cos(ref[0]*D2R))};
   }
-  return {az:((az%360)+360)%360, el, roll, f, R:rotFromView(az,el,roll), tilt_from:tiltFrom, assumed, ignored, resect};
+  return {az:((az%360)+360)%360, el, roll, f, R:rotFromView(az,el,roll), tilt_from:tiltFrom, assumed, ignored, resect, dz:freeZ?dz:null, n_alt:withAlt.length};
 }
 function setPose(){
   calib=null; solveInfo=null;
   if (C){ try { mergeCues(); const p=roughPose(C);
-      if (p){ const g=C.gps_prior; solveInfo={tilt_from:p.tilt_from, assumed:p.assumed, resect:p.resect||null,
+      if (p){ const g=C.gps_prior; solveInfo={tilt_from:p.tilt_from, assumed:p.assumed, resect:p.resect||null, dz:p.dz, n_alt:p.n_alt,
           ignored:(p.ignored||[]).map(px=>marks.findIndex(m=>m.pixel[0]===px[0]&&m.pixel[1]===px[1])+1).filter(n=>n>0)};
         calib={lat:g.lat_deg, lon:g.lon_deg, alt:g.alt_m||0, R:p.R, fx:p.f, fy:p.f, cx:W/2, cy:H/2, k1:0, k2:0, k3:0, W, H,
                az:p.az, el:p.el, roll:p.roll, hfov:2*Math.atan(W/(2*p.f))/D2R}; } }
@@ -758,7 +772,7 @@ function onClick(x,y,shift){
   if (shift && sel && sel.t==="vert"){ const l=verts[sel.i]; l.pixels=l.pixels.concat([px]).sort((a,b)=>a[1]-b[1]); return dirty(); }   // one more point on the selected edge
   const hit=pending?null:nearest(x,y);
   if (hit){ sel=hit; if (hit.t==="mark"&&marks[hit.i].lat!=null) mapPan(marks[hit.i].lat, marks[hit.i].lon); return refresh(); }
-  if (tool==="landmark"){ marks.push({pixel:px, text:"", lat:null, lon:null, alt:null, ground:null, image_id:frameId, source:who()});
+  if (tool==="landmark"){ marks.push({pixel:px, text:"", lat:null, lon:null, alt:null, ground:null, above:"ground", image_id:frameId, source:who()});
     sel={t:"mark", i:marks.length-1}; dirty(); $("mText").focus(); }
   else if (tool==="vertical"){           // points gather on one edge until it is finished; a click well off that line starts the next edge
     if (pending && pending.length>=2 && offEdge(pending, px)>0.04*W) finishEdge();
@@ -871,7 +885,7 @@ function setPoint(lat, lon){      // map position for the selected landmark, or 
     return dirty(); }
   if (!(sel&&sel.t==="mark")){ $("hud").textContent="Click a landmark in the picture first, then its place on the map."; return; }
   const m=marks[sel.i]; m.lat=lat; m.lon=lon; m.ground=null; dirty();
-  elevation(lat, lon).then(e=>{ if (m.lat===lat&&m.lon===lon){ m.ground=e; dirty(); } }).catch(()=>{});
+  elevation(lat, lon).then(e=>{ if (m.lat===lat&&m.lon===lon){ m.ground=e; if (m.above==="ground") m.alt=Math.round(e*10)/10; dirty(); } }).catch(()=>{});
 }
 function usePaste(){ const p=parseCoords($("paste").value);
   if (!p || Math.abs(p[0])>90 || Math.abs(p[1])>180) return;
@@ -880,7 +894,7 @@ function usePaste(){ const p=parseCoords($("paste").value);
 $("paste").addEventListener("paste", ()=>setTimeout(usePaste,0)); $("paste").addEventListener("change", usePaste);
 $("moveCam").onclick=()=>setMoveCam(!moveCam);
 $("useResect").onclick=()=>{                 // take the position the landmarks imply (the rough pose then re-solves from there)
-  const rs=solveInfo&&solveInfo.resect; if (!rs||!C) return;
+  if (!C) return; setPose(); const rs=solveInfo&&solveInfo.resect; if (!rs) return;
   const g=C.gps_prior, lat=+rs.lat.toFixed(7), lon=+rs.lon.toFixed(7), sig=Math.max(10, Math.round(rs.spread));
   const before=`${g.lat_deg}, ${g.lon_deg} (${(g.source||"").slice(0,80)})`;
   Object.assign(g,{lat_deg:lat, lon_deg:lon, sigma_horizontal_m:sig, source:`resection from ${rs.n} landmarks on the cue page by ${who()} (±${sig} m, leave-one-out spread); before: ${before}`});
@@ -914,10 +928,11 @@ function refresh(){
   $("selBox").style.display=m?"block":"none";
   if (m){ $("selTitle").textContent="Landmark "+(sel.i+1);
     if (document.activeElement!==$("mText")) $("mText").value=m.text;
-    if (document.activeElement!==$("mAlt")) $("mAlt").value=m.alt??"";
+    $("mHeight").value=m.above||"top"; $("mAltRow").style.display=m.above==="known"?"":"none";
+    if (document.activeElement!==$("mAlt")) $("mAlt").value=m.above==="known"?(m.alt??""):"";
     $("mPos").textContent=m.lat==null?"No map position yet: click the map, or paste coordinates above."
       :`${m.lat.toFixed(6)}, ${m.lon.toFixed(6)}`+(m.ground!=null?` · ground ${Math.round(m.ground)} m`:"");
-    $("mGround").disabled=m.ground==null; }
+    }
   // list
   const items=$("items"); items.innerHTML="";
   const add=(t,i,text,extra)=>{ const d=document.createElement("div"); d.className="item"+(sel&&sel.t===t&&sel.i===i?" sel":"");
@@ -940,6 +955,9 @@ function refresh(){
   $("resect").style.display=rs?"":"none"; $("useResect").style.display=rs&&rs.dist>=3&&firm?"":"none";
   if (rs) $("resectText").textContent=rs.dist<3?`The ${rs.n} landmarks alone agree with the dot (within 3 m).`
     :`The ${rs.n} landmarks alone put the camera ${rs.dist.toFixed(0)} m to the ${compass(rs.bearing)} of the dot (lens ${rs.hfov.toFixed(0)}° from there; leaving any one landmark out moves it by up to ${rs.spread.toFixed(0)} m${firm?"":": too loose to use"}).`;
+  const dzv=solveInfo&&solveInfo.dz, gz=C&&C.gps_prior; $("camZ").style.display=dzv!=null&&gz&&gz.alt_m!=null?"":"none";
+  if (dzv!=null&&gz&&gz.alt_m!=null){ $("camZText").textContent=`The ${solveInfo.n_alt} points of known height put the camera at ${Math.round(gz.alt_m+dzv)} m above sea level (${dzv>=0?"+":"\u2212"}${Math.abs(dzv).toFixed(0)} m from the ${Math.round(gz.alt_m)} m assumed).`;
+    $("useZ").style.display=Math.abs(dzv)>=2?"":"none"; }
   $("vp").textContent=C?verticalReadout():"";
   // what is missing
   const onMap=marks.filter(k=>k.lat!=null), n3=onMap.filter(k=>k.alt!=null).length, needs=[];
@@ -962,8 +980,14 @@ function refresh(){
   drawMap(); draw();
 }
 $("mText").addEventListener("input", ()=>{ if (sel&&sel.t==="mark"){ marks[sel.i].text=$("mText").value; dirty(); } });
-$("mAlt").addEventListener("input", ()=>{ if (sel&&sel.t==="mark"){ const v=parseFloat($("mAlt").value); marks[sel.i].alt=isNaN(v)?null:v; dirty(); } });
-$("mGround").onclick=()=>{ if (sel&&sel.t==="mark"&&marks[sel.i].ground!=null){ marks[sel.i].alt=Math.round(marks[sel.i].ground); dirty(); } };
+$("mAlt").addEventListener("input", ()=>{ if (sel&&sel.t==="mark"&&marks[sel.i].above==="known"){ const v=parseFloat($("mAlt").value); marks[sel.i].alt=isNaN(v)?null:v; dirty(); } });
+function setAbove(m, v){ m.above=v; m.alt=v==="ground"?(m.ground!=null?Math.round(m.ground*10)/10:null):v==="top"?null:(m.alt??null); }
+$("mHeight").onchange=()=>{ if (sel&&sel.t==="mark"){ setAbove(marks[sel.i], $("mHeight").value); dirty(); } };
+$("allGround").onclick=()=>{ if (!marks.length) return; marks.forEach(m=>setAbove(m,"ground")); dirty(); };
+$("useZ").onclick=()=>{                      // take the camera height the points of known height imply
+  if (!C) return; setPose(); const dz=solveInfo&&solveInfo.dz; if (dz==null) return; const g=C.gps_prior;   // from the cues as they are now
+  g.alt_m=Math.round(g.alt_m+dz); g.sigma_vertical_m=5; g.source=(g.source||"")+`; height from ${solveInfo.n_alt} points of known height on the cue page (${who()})`; dirty();
+};
 $("horKind").onchange=dirty; $("rState").onchange=dirty; $("rNote").addEventListener("input", dirty);
 $("showSolve").onchange=draw;
 ["landmark","vertical","horizon"].forEach(t=>$("t_"+t).onclick=()=>setTool(t));
