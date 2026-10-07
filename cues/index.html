@@ -87,7 +87,7 @@
     <div id="desc" class="muted"></div>
     <div class="row">
       <button id="t_landmark" title="L">Landmark</button>
-      <button id="t_vertical" title="V">Vertical edge</button>
+      <button id="t_vertical" title="V">Vertical edge</button><button id="finishV" style="display:none" title="Enter, or double-click the last point">finish edge</button>
       <button id="t_horizon" title="H">Horizon</button>
       <span class="muted">|</span>
       <button id="prevF" title="[">◀</button><span id="frameLabel" class="muted">no frame</span><button id="nextF" title="]">▶</button>
@@ -162,9 +162,11 @@
       <b>Landmark:</b> click a point in the picture, then the same place on the map, and say what it is.
       If you cannot find it on the map, the description alone is still saved.
       Two landmarks far apart left and right give the heading and the field of view.<br>
-      <b>Vertical edge:</b> click the top and the bottom of a building edge, mast or pole. Two or more give tilt and roll.<br>
+      <b>Vertical edge:</b> click along a building edge, mast or pole, top to bottom. Two points are enough; three or more on a
+      tall edge near the sides of the picture also record the lens distortion (the bend). A click on another edge, Enter,
+      a double-click or <b>finish edge</b> ends one. Two or more edges give tilt and roll.<br>
       <b>Horizon:</b> click along a sea horizon or far, flat land. Not mountains.<br>
-      Drag to pan, scroll to zoom. Click a cue in the list (or in the picture, with its tool active) to select it; Delete removes it; Shift-click moves the selected landmark.
+      Drag to pan, scroll to zoom. Click a cue in the list (or in the picture, with its tool active) to select it; Delete removes it; Shift-click moves the selected landmark, or adds a point to the selected edge.
       Everything saves by itself<span class="static-only" id="staticHelp">, in this browser: when you are done, press
       <b>download my cues</b> (top left) and send the file to Robert</span>.
     </div>
@@ -172,7 +174,7 @@
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261006T205814Z"></script>
+<script src="config.js?v=20261007T001327Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -209,7 +211,7 @@ let cams = [];                       // the queue
 let row = null, C = null, base = null;   // open camera: registry row, constraints, updated_utc it was loaded with
 let frames = [], fi = 0, img = null, W = 0, H = 0;
 let marks = [], verts = [], hors = [], kept = {};   // editable cues; kept = automated items, written back untouched
-let tool = "landmark", sel = null, pending = null, moveCam = false;
+let tool = "landmark", sel = null, pending = null, pendingFrame = null, moveCam = false;   // pending: the points clicked so far on one vertical edge
 let calib = null, solveInfo = null;
 let view = {s:1, ox:0, oy:0};
 const who = () => "human:" + ($("who").value.trim() || "anonymous");
@@ -385,7 +387,7 @@ function save(){
 async function flush(){ if (saveTimer) save(); await saving; }
 
 async function openCamera(id){
-  await flush();
+  finishEdge(); await flush();
   let d;
   if (STATIC){
     const p=published[id];
@@ -498,9 +500,20 @@ function pin(p, R, f, Wc, Hc){        // pinhole without distortion
   const z=R[2][0]*p[0]+R[2][1]*p[1]+R[2][2]*p[2]; if (z<=1e-9) return null;
   return [Wc/2+f*(R[0][0]*p[0]+R[0][1]*p[1]+R[0][2]*p[2])/z, Hc/2+f*(R[1][0]*p[0]+R[1][1]*p[1]+R[1][2]*p[2])/z];
 }
+function lineThrough(P){            // least-squares line x = x0 + b (y - y0) through an edge's points; null when they span < 2 px in y
+  const n=P.length, x0=P.reduce((s,p)=>s+p[0],0)/n, y0=P.reduce((s,p)=>s+p[1],0)/n;
+  const syy=P.reduce((s,p)=>s+(p[1]-y0)**2,0); if (Math.sqrt(syy/n)<1) return null;
+  return {x0, y0, b:P.reduce((s,p)=>s+(p[0]-x0)*(p[1]-y0),0)/syy};
+}
+function edgeBend(P){               // how far the middle points of an edge sit from the chord between its ends (px): the lens distortion it shows
+  if (P.length<3) return 0; const a=P[0], z=P[P.length-1], L=Math.hypot(z[0]-a[0], z[1]-a[1]); if (L<1) return 0;
+  return Math.max(...P.slice(1,-1).map(p=>Math.abs((z[0]-a[0])*(p[1]-a[1])-(z[1]-a[1])*(p[0]-a[0]))/L));
+}
+function offEdge(P, p){             // sideways distance (px) from a point to the line through the points clicked so far
+  const t=lineThrough(P); return t?Math.abs(p[0]-(t.x0+t.b*(p[1]-t.y0))):Math.abs(p[0]-P[0][0]);
+}
 function verticalFit(lines, Wc, Hc){   // slope of each edge against where it crosses the middle row: slope = alpha + beta * x
-  const L=lines.map(l=>{ const p=l.pixels[0], q=l.pixels[l.pixels.length-1]; if (Math.abs(q[1]-p[1])<2) return null;
-    const b=(q[0]-p[0])/(q[1]-p[1]); return [p[0]+b*(Hc/2-p[1])-Wc/2, b]; }).filter(Boolean);
+  const L=lines.map(l=>{ const t=lineThrough(l.pixels); return t&&[t.x0+t.b*(Hc/2-t.y0)-Wc/2, t.b]; }).filter(Boolean);
   if (L.length<2) return null;
   const n=L.length, ma=L.reduce((s,l)=>s+l[0],0)/n, mb=L.reduce((s,l)=>s+l[1],0)/n;
   const saa=L.reduce((s,l)=>s+(l[0]-ma)**2,0); if (Math.sqrt(saa/n)<0.1*Wc) return null;
@@ -605,11 +618,13 @@ function draw(){
   ctx.drawImage(img, view.ox, view.oy, W*view.s, H*view.s);
   if (calib && $("showSolve").checked) drawSolve();
   // vertical edges, extended across the picture so that their convergence shows
-  verts.forEach((l,i)=>{ const [a,b]=[l.pixels[0], l.pixels[l.pixels.length-1]], on=sel&&sel.t==="vert"&&sel.i===i;
-    if (Math.abs(b[1]-a[1])>1){ const sl=(b[0]-a[0])/(b[1]-a[1]);
-      seg([a[0]+sl*(0-a[1]),0],[a[0]+sl*(H-a[1]),H],"#f7258566",1,[4,4]); }
-    seg(a,b,"#f72585",on?4:2.5); });
-  if (pending) dotAt(pending,"#f72585",4);
+  verts.forEach((l,i)=>{ const P=l.pixels, on=sel&&sel.t==="vert"&&sel.i===i, t=lineThrough(P);
+    if (t) seg([t.x0+t.b*(0-t.y0),0],[t.x0+t.b*(H-t.y0),H],"#f7258566",1,[4,4]);
+    for (let k=1;k<P.length;k++) seg(P[k-1],P[k],"#f72585",on?4:2.5);
+    if (P.length>2) P.forEach(p=>dotAt(p,"#f72585",on?4:3)); });        // the points of a bent edge, so the distortion shows
+  if (pending){ pending.forEach(p=>dotAt(p,"#f72585",4)); for (let k=1;k<pending.length;k++) seg(pending[k-1],pending[k],"#f72585",2); }
+  $("finishV").style.display=pending&&pending.length>=2?"":"none";
+  if (pending) $("finishV").textContent=`finish edge (${pending.length} points)`;
   hors.forEach((h,i)=>dotAt(h.pixel,"#4cc9f0",sel&&sel.t==="hor"&&sel.i===i?7:4));
   if (hors.length>1){ const s=[...hors].sort((a,b)=>a.pixel[0]-b.pixel[0]);
     for(let i=1;i<s.length;i++) seg(s[i-1].pixel,s[i].pixel,"#4cc9f0aa",1.5); }
@@ -652,7 +667,7 @@ cv.addEventListener("mousemove", e=>{
   let t=`x ${ix.toFixed(0)}  y ${iy.toFixed(0)}`;
   if (calib && ix>=0&&iy>=0&&ix<=W&&iy<=H){ const [az,el]=unproject(ix,iy,calib);
     t+=`   looking ${az.toFixed(1)}° ${compass(az)}, ${el>=0?"+":""}${el.toFixed(1)}° up (rough pose)`; hoverRay(az); }
-  $("hud").textContent=t+"   ·   "+(tool==="landmark"?"click a landmark":tool==="vertical"?(pending?"click the other end of the edge":"click one end of a vertical edge"):"click along the horizon");
+  $("hud").textContent=t+"   ·   "+(tool==="landmark"?"click a landmark":tool==="vertical"?(pending?`${pending.length} point${pending.length>1?"s":""} on this edge: click more along it, then finish it (Enter, double-click, the button, or a click on another edge)`:"click along a vertical edge, top to bottom; 3 or more points show the lens distortion"):"click along the horizon");
 });
 cv.addEventListener("mouseleave", ()=>hoverRay(null));
 window.addEventListener("mouseup", e=>{ if (drag && !drag.moved && e.target===cv) onClick(...toImg(drag.x,drag.y), drag.shift); drag=null; });
@@ -672,27 +687,38 @@ function onClick(x,y,shift){
   if (!img||!C||x<0||y<0||x>W||y>H) return;
   const px=[Math.round(x*10)/10, Math.round(y*10)/10], frameId=frames[fi].name.replace(/\.\w+$/,"");
   if (shift && sel && sel.t==="mark"){ marks[sel.i].pixel=px; marks[sel.i].image_id=frameId; return dirty(); }
+  if (shift && sel && sel.t==="vert"){ const l=verts[sel.i]; l.pixels=l.pixels.concat([px]).sort((a,b)=>a[1]-b[1]); return dirty(); }   // one more point on the selected edge
   const hit=pending?null:nearest(x,y);
   if (hit){ sel=hit; if (hit.t==="mark"&&marks[hit.i].lat!=null) mapPan(marks[hit.i].lat, marks[hit.i].lon); return refresh(); }
   if (tool==="landmark"){ marks.push({pixel:px, text:"", lat:null, lon:null, alt:null, ground:null, image_id:frameId, source:who()});
     sel={t:"mark", i:marks.length-1}; dirty(); $("mText").focus(); }
-  else if (tool==="vertical"){
-    if (!pending){ pending=px; draw(); }
-    else { const pts=[pending,px].sort((a,b)=>a[1]-b[1]); pending=null;
-      verts.push({pixels:pts, sigma_px:3, label:"edge "+(verts.length+1), image_id:frameId, source:who()});
-      sel={t:"vert", i:verts.length-1}; dirty(); } }
+  else if (tool==="vertical"){           // points gather on one edge until it is finished; a click well off that line starts the next edge
+    if (pending && pending.length>=2 && offEdge(pending, px)>0.04*W) finishEdge();
+    if (!pending){ pending=[]; pendingFrame=frameId; }
+    pending.push(px); sel=null; refresh(); }
   else if (tool==="horizon"){ hors.push({pixel:px, sigma_px:4, kind:$("horKind").value, image_id:frameId, source:who()});
     sel={t:"hor", i:hors.length-1}; dirty(); }
 }
+function finishEdge(){                // the points clicked so far become one vertical edge (two or more of them; fewer are dropped)
+  const P=pending; pending=null; if (!P) return;
+  if (P.length<2 || !lineThrough(P)) return draw();
+  verts.push({pixels:P.slice().sort((a,b)=>a[1]-b[1]), sigma_px:3, label:"edge "+(verts.length+1), image_id:pendingFrame, source:who()});
+  sel={t:"vert", i:verts.length-1}; dirty();
+}
+$("finishV").onclick=finishEdge;
+cv.addEventListener("dblclick", ()=>{ if (!pending||pending.length<2) return;   // the double-click's second click repeated the last point
+  const n=pending.length; if (n>=3 && Math.hypot(pending[n-1][0]-pending[n-2][0], pending[n-1][1]-pending[n-2][1])<3) pending.pop();
+  finishEdge(); });
 function removeSel(){
   if (!sel) return;
   (sel.t==="mark"?marks:sel.t==="vert"?verts:hors).splice(sel.i,1); sel=null; dirty();
 }
-function setTool(t){ tool=t; pending=null; ["landmark","vertical","horizon"].forEach(k=>$("t_"+k).classList.toggle("on",k===t)); draw(); }
+function setTool(t){ finishEdge(); tool=t; ["landmark","vertical","horizon"].forEach(k=>$("t_"+k).classList.toggle("on",k===t)); draw(); }
 window.addEventListener("keydown", e=>{
   if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){ if (e.key==="Escape") e.target.blur(); return; }
   const k=e.key.toLowerCase();
   if (k==="l") setTool("landmark"); else if (k==="v") setTool("vertical"); else if (k==="h") setTool("horizon");
+  else if (k==="enter") finishEdge();
   else if (k==="escape"){ pending=null; sel=null; setMoveCam(false); refresh(); }
   else if (k==="delete"||k==="backspace") removeSel();
   else if (k==="[") stepFrame(-1); else if (k==="]") stepFrame(1);
@@ -785,16 +811,17 @@ $("moveCam").onclick=()=>setMoveCam(!moveCam);
 
 /* ============================ side panel ============================ */
 function verticalReadout(){        // slope of each edge against where it crosses the middle row: b = alpha + beta * a
-  const L2=verts.map(l=>{ const p=l.pixels[0], q=l.pixels[l.pixels.length-1]; if (Math.abs(q[1]-p[1])<2) return null;
-    const b=(q[0]-p[0])/(q[1]-p[1]); return {a:p[0]+b*(H/2-p[1])-W/2, b}; }).filter(Boolean);
+  const L2=verts.map(l=>{ const t=lineThrough(l.pixels); return t&&{a:t.x0+t.b*(H/2-t.y0)-W/2, b:t.b}; }).filter(Boolean);
   if (!L2.length) return "";
+  const bends=verts.map((l,i)=>[i+1, edgeBend(l.pixels)]).filter(x=>x[1]>=1);   // edges with extra points: what their bend says
+  const bendText=bends.length?` Bend of the edges with extra points: ${bends.map(([i,b])=>`edge ${i} ${b.toFixed(0)} px`).join(", ")} (lens distortion; the rough pose ignores it).`:"";
   const n=L2.length, ma=L2.reduce((s,l)=>s+l.a,0)/n, mb=L2.reduce((s,l)=>s+l.b,0)/n;
   const saa=L2.reduce((s,l)=>s+(l.a-ma)**2,0), sab=L2.reduce((s,l)=>s+(l.a-ma)*(l.b-mb),0);
-  if (n<2 || Math.sqrt(saa/n)<0.1*W) return "Vertical edges: mark at least two, far apart left and right, to get tilt and roll.";
+  if (n<2 || Math.sqrt(saa/n)<0.1*W) return "Vertical edges: mark at least two, far apart left and right, to get tilt and roll."+bendText;
   const beta=sab/saa, alpha=mb-beta*ma, f=calib?calib.fx:W/(2*Math.tan((C.hfov_prior?C.hfov_prior.deg:60)*D2R/2));
   const tilt=Math.atan(beta*f)/D2R, roll=Math.atan(alpha)/D2R;
   return `Vertical edges say: camera tilted ${Math.abs(tilt).toFixed(1)}° ${tilt>=0?"up":"down"}, leaning ${Math.abs(roll).toFixed(1)}°`+
-    ` (${calib?"with the rough pose's lens":"if the field of view is "+(C.hfov_prior?C.hfov_prior.deg:60)+"°"}).`;
+    ` (${calib?"with the rough pose's lens":"if the field of view is "+(C.hfov_prior?C.hfov_prior.deg:60)+"°"}).`+bendText;
 }
 function landmarkMiss(m){          // degrees between the clicked pixel's bearing and the bearing of its map point
   if (!calib||m.lat==null) return null;
@@ -822,7 +849,7 @@ function refresh(){
   marks.forEach((k,i)=>{ const miss=landmarkMiss(k);
     add("mark",i,`${i+1}. ${k.text||"(no description)"}`, k.lat==null?{text:"needs map point", color:"var(--wait)"}
       :miss!=null?{text:Math.abs(miss).toFixed(1)+"° off", color:Math.abs(miss)>2?"var(--bad)":"var(--ok)"}:{text:k.alt!=null?"3D":"on map", color:"var(--ok)"}); });
-  verts.forEach((l,i)=>add("vert",i,"vertical edge "+(i+1)));
+  verts.forEach((l,i)=>add("vert",i,"vertical edge "+(i+1)+(l.pixels.length>2?` (${l.pixels.length} points)`:"")));
   if (hors.length) add("hor",sel&&sel.t==="hor"?sel.i:0,`horizon: ${hors.length} point${hors.length>1?"s":""}`);
   if (!marks.length&&!verts.length&&!hors.length) items.innerHTML='<div class="muted">none yet</div>';
   $("horRow").style.display=hors.length?"flex":"none";
@@ -878,7 +905,7 @@ $("nextCam").onclick=nextCamera;
 $("filter").onchange=drawQueue; $("search").addEventListener("input", drawQueue);
 $("who").value=(()=>{ try { return localStorage.getItem("cueName")||""; } catch { return ""; } })();
 $("who").addEventListener("input", ()=>{ try { localStorage.setItem("cueName",$("who").value); } catch {} });
-window.addEventListener("beforeunload", ()=>{ if (saveTimer) save(); });
+window.addEventListener("beforeunload", ()=>{ finishEdge(); if (saveTimer) save(); });
 
 window.addEventListener("hashchange", ()=>{ const id=location.hash.slice(1); if (id && !(row&&row.camera_id===id)) openCamera(id); });
 
