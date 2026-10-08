@@ -133,8 +133,8 @@
       <div class="row">
         <label title="How high the clicked point is: on the ground, unknown (the calibration works its height out), or a known altitude.">height
           <select id="mHeight">
-            <option value="ground">on the ground (terrain height)</option>
             <option value="unknown">unknown height</option>
+            <option value="ground">on the ground (terrain height)</option>
             <option value="known">known altitude</option>
           </select></label>
         <label id="mAltRow" style="display:none"><input id="mAlt" type="number" step="any" style="width:90px" placeholder="above sea level"> m</label>
@@ -167,8 +167,8 @@
       where it really is (the building or mast it looks from), press <b>set the camera's position</b> and click it.
       Everything else depends on it.<br>
       <b>Landmark:</b> click a point in the picture, then the same place on the map, and say what it is. A point is taken
-      to be on the ground (its height from the terrain model) unless you set it to unknown height (a rooftop, a tree line,
-      a distant ridge: the calibration works its height out) or a known altitude. If you cannot find it on the map, the description alone is still saved.
+      to be at an unknown height (a rooftop, a tree line, a distant ridge: the calibration works its height out) unless you
+      set it on the ground (its height from the terrain model) or a known altitude. If you cannot find it on the map, the description alone is still saved.
       Two landmarks far apart left and right give the heading and the field of view.<br>
       <b>Vertical edge:</b> click along a building edge, mast or pole, top to bottom. Two points are enough; three or more on a
       tall edge near the sides of the picture also record the lens distortion (the bend). A click on another edge, Enter,
@@ -182,7 +182,7 @@
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261007T170633Z"></script>
+<script src="config.js?v=20261008T140052Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -773,7 +773,7 @@ function onClick(x,y,shift){
   if (shift && sel && sel.t==="vert"){ const l=verts[sel.i]; l.pixels=l.pixels.concat([px]).sort((a,b)=>a[1]-b[1]); return dirty(); }   // one more point on the selected edge
   const hit=pending?null:nearest(x,y);
   if (hit){ sel=hit; if (hit.t==="mark"&&marks[hit.i].lat!=null) mapPan(marks[hit.i].lat, marks[hit.i].lon); return refresh(); }
-  if (tool==="landmark"){ marks.push({pixel:px, text:"", lat:null, lon:null, alt:null, ground:null, above:"ground", image_id:frameId, source:who()});
+  if (tool==="landmark"){ marks.push({pixel:px, text:"", lat:null, lon:null, alt:null, ground:null, above:"unknown", image_id:frameId, source:who()});   // default: unknown height (Robert, 2026-10-08)
     sel={t:"mark", i:marks.length-1}; dirty(); $("mText").focus(); }
   else if (tool==="vertical"){           // points gather on one edge until it is finished; a click well off that line starts the next edge
     if (pending && pending.length>=2 && offEdge(pending, px)>0.04*W) finishEdge();
