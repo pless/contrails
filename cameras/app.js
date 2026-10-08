@@ -14,13 +14,28 @@
     return { rows, source: "snapshot", label: meta.snapshot_label || meta.built_utc || "snapshot", meta };
   }
 
-  async function loadLiveSheet() {
-    const url = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(CFG.sheetTab || "cameras")}`;
+  async function gviz(tq) {
+    const url = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(CFG.sheetTab || "cameras")}`
+      + (tq ? "&tq=" + encodeURIComponent(tq) : "");
     const txt = await fetch(url, { credentials: "omit" }).then((r) => r.text());
     const a = txt.indexOf("("), b = txt.lastIndexOf(")");
     if (a < 0 || b < 0) throw new Error("not a gviz response");
     const j = JSON.parse(txt.slice(a + 1, b));
     if (j.status === "error") throw new Error(JSON.stringify(j.errors));
+    return j;
+  }
+
+  // Only the columns a page uses (fields), or one camera's whole row (id): the full sheet is several MB, mostly long
+  // notes and pointing texts the list never shows. Column letters come from a header-only query, so columns can move.
+  async function loadLiveSheet(fields, id) {
+    let tq = "";
+    if (fields || id) {
+      const head = await gviz("select * limit 0");
+      const letter = Object.fromEntries(head.table.cols.map((c) => [(c.label || "").trim(), c.id]));
+      const sel = fields ? fields.filter((f) => letter[f]).map((f) => letter[f]) : null;
+      tq = (sel ? "select " + sel.join(",") : "select *") + (id ? ` where ${letter.camera_id} = '${String(id).replace(/'/g, "")}'` : "");
+    }
+    const j = await gviz(tq);
     const cols = j.table.cols.map((c) => (c.label || c.id || "").trim());
     const rows = [];
     for (const r of j.table.rows) {
@@ -37,11 +52,11 @@
     return { rows, source: "live", label: "live sheet, loaded " + new Date().toISOString().slice(11, 19) + " UTC" };
   }
 
-  async function loadRegistry() {
+  async function loadRegistry(fields) {
     const snap = await loadSnapshot();
     if (CFG.liveSheet && CFG.sheetId) {
       try {
-        const live = await loadLiveSheet();
+        const live = await loadLiveSheet(fields);
         // keep build-time fields (stored-image flags) from the snapshot
         const extra = new Map(snap.rows.map((r) => [r.camera_id, r]));
         for (const r of live.rows) {
@@ -135,7 +150,7 @@
   }
 
   async function initVerify() {
-    const [reg, ver] = await Promise.all([loadRegistry(), loadVerify()]);
+    const [reg, ver] = await Promise.all([loadRegistry(["camera_id", "name", "status"]), loadVerify()]);
     setSourceBadge(reg);
     const byId = new Map(reg.rows.map((r) => [r.camera_id, r]));
     const cams = ver.cameras.map((c) => {
@@ -183,8 +198,10 @@
   }
 
   // ---------- index page ----------
+  const INDEX_FIELDS = ["camera_id", "name", "image_url", "lat", "lon", "frame_interval_s", "camera_type", "region", "country",
+    "image_width", "image_height", "last_verified", "status", "source_tab"];
   async function initIndex() {
-    const reg = await loadRegistry();
+    const reg = await loadRegistry(INDEX_FIELDS);
     setSourceBadge(reg);
     const rows = reg.rows;
     rows.forEach((r, i) => { r._i = i; r._net = network(r); r._sc = statusClass(r); r._cad = cadence(r); });
@@ -213,7 +230,7 @@
       const q = state.q.trim().toLowerCase();
       return rows.filter((r) => (!state.status || r._sc === state.status) && (!state.region || r.region === state.region) && (!state.net || r._net === state.net)
         && (!state.fast || r._cad === "fast")
-        && (!q || [r.name, r.camera_id, r.country, r.view_description, r.notes, r.image_url].some((v) => (v || "").toLowerCase().includes(q))));
+        && (!q || [r.name, r.camera_id, r.country, r.region, r._net, r.image_url].some((v) => (v || "").toLowerCase().includes(q))));
     }
     const num = (v) => { const n = parseFloat(v); return isNaN(n) ? -Infinity : n; };
     function sorted(list) {
@@ -260,13 +277,17 @@
   // ---------- camera page ----------
   async function initCamera() {
     const id = new URLSearchParams(location.search).get("id");
-    const [reg, images, ver] = await Promise.all([loadRegistry(), fetch("data/images.json").then((r) => r.json()).catch(() => ({})), loadVerify()]);
+    const [reg, images, ver] = await Promise.all([loadRegistry(["camera_id", "name"]), fetch("data/images.json").then((r) => r.json()).catch(() => ({})), loadVerify()]);
     setSourceBadge(reg);
-    const rows = reg.rows;
+    const rows = reg.rows;                                  // ids and names only: previous / next and the sheet row number
     const v = ver.cameras.find((c) => c.camera_id === id);
     const i = rows.findIndex((r) => r.camera_id === id);
     if (i < 0) { $("#page").innerHTML = `<p>No camera with id <code>${esc(id)}</code> in the registry. <a href="index.html">Back to the list</a>.</p>`; return; }
-    const r = rows[i];
+    let r = rows[i];
+    if (reg.source === "live") {                            // this camera's whole row
+      try { const one = await loadLiveSheet(null, id); if (one.rows[0]) r = Object.assign({}, r, one.rows[0]); }
+      catch (e) { console.warn("this camera's row did not load:", e.message); }
+    }
     document.title = `${r.name || r.camera_id} · contrailCameras`;
     const prev = rows[(i - 1 + rows.length) % rows.length], next = rows[(i + 1) % rows.length];
     const net = network(r), sc = statusClass(r), cad = cadence(r);
