@@ -102,7 +102,9 @@
   const isYouTube = (r) => /youtube\.com|youtu\.be/i.test(r.image_url || "");
   const isStream = (r) => (r.camera_type || "").trim() === "stream";   // live video that is not YouTube (HLS or MJPEG): no still image to embed
   // sources whose terms do not allow showing their images on other sites: link to them instead
-  const NO_EMBED = /(^|\.)(idokep\.hu|viaero\.com|skylinewebcams\.com|hazcams\.com|myairportcams\.com|infoclimat\.fr)$/i;   // their terms do not allow showing the images
+  // their terms do not allow showing the images; the second line (Greek camera sites, Robert 2026-10-10) may be stored for our own research but not republished
+  const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr"
+    + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr)$", "i");
   const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
   const hasCoords = (r) => !isNaN(parseFloat(r.lat)) && !isNaN(parseFloat(r.lon));
   const badge = (r) => `<span class="badge ${esc(statusClass(r))}" title="${esc(r.status)}">${esc((r.status || "?").split(" (")[0])}</span>`;
