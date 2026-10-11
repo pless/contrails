@@ -106,6 +106,10 @@
   const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr"
     + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr)$", "i");
   const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
+  // foto-webcam.eu allows its current image on other sites only as a link to the camera's own page, uncropped, with the source named (each camera's "Webcam-Infos")
+  const CLICK_THROUGH = /(^|\.)foto-webcam\.eu$/i;
+  const clickThrough = (r) => { try { return !!r.page_url && CLICK_THROUGH.test(new URL(r.image_url).hostname); } catch { return false; } };
+  const CREDIT = `<div class="credit" style="font-size:12px;margin-top:4px">Image: <a href="https://www.foto-webcam.eu/" target="_blank" rel="noopener">www.foto-webcam.eu</a></div>`;
   const hasCoords = (r) => !isNaN(parseFloat(r.lat)) && !isNaN(parseFloat(r.lon));
   const badge = (r) => `<span class="badge ${esc(statusClass(r))}" title="${esc(r.status)}">${esc((r.status || "?").split(" (")[0])}</span>`;
 
@@ -257,7 +261,7 @@
         const c = col[r._sc] || "#8a8f98";
         L.circleMarker(ll, { radius: 6, color: c, fillColor: c, fillOpacity: 0.85, weight: 1 })
           .bindPopup(() => `<b>${esc(r.name)}</b><br><code>${esc(r.camera_id)}</code> ${badge(r)}<br>${esc(r._net)} · ${esc(r.frame_interval_s || "?")} s · ${esc(r.region)}<br>
-            <a href="camera.html?id=${esc(r.camera_id)}">open camera page</a>` + (r._sc !== "dead" && !isYouTube(r) && !isStream(r) && !noEmbed(r) ? `<br><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy">` : ""), { maxWidth: 320 })
+            <a href="camera.html?id=${esc(r.camera_id)}">open camera page</a>` + (r._sc !== "dead" && !isYouTube(r) && !isStream(r) && !noEmbed(r) ? (clickThrough(r) ? `<br><a href="${esc(r.page_url)}" target="_blank" rel="noopener"><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy"></a>${CREDIT}` : `<br><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy">`) : ""), { maxWidth: 320 })
           .addTo(layer);
       }
       writeHash();
@@ -356,9 +360,15 @@
       const img = new Image();
       img.referrerPolicy = "no-referrer";
       img.alt = r.name || r.camera_id;
-      img.onload = () => { box.replaceChildren(img); $("#loaded").textContent = `loaded ${new Date().toISOString().slice(11, 19)} UTC · ${img.naturalWidth}×${img.naturalHeight}${useProxy ? " · via proxy" : ""}`; };
+      img.onload = () => {
+        if (clickThrough(r)) {
+          const a = document.createElement("a"); a.href = r.page_url; a.target = "_blank"; a.rel = "noopener"; a.appendChild(img);
+          const c = document.createElement("div"); c.innerHTML = CREDIT;
+          box.replaceChildren(a, c.firstChild);
+        } else box.replaceChildren(img);
+        $("#loaded").textContent = `loaded ${new Date().toISOString().slice(11, 19)} UTC · ${img.naturalWidth}×${img.naturalHeight}${useProxy ? " · via proxy" : ""}`; };
       img.onerror = () => {
-        if (!useProxy) { useProxy = true; img.src = liveUrl(r.image_url, true); return; }
+        if (!useProxy && !clickThrough(r)) { useProxy = true; img.src = liveUrl(r.image_url, true); return; }
         box.innerHTML = `<div class="err">Could not load the current image (blocked, offline, or the camera is down).<br>${link(r.image_url, "Try the source URL directly")}</div>`;
         $("#loaded").textContent = "";
       };
