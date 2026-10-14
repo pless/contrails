@@ -103,8 +103,8 @@
   const isStream = (r) => (r.camera_type || "").trim() === "stream";   // live video that is not YouTube (HLS or MJPEG): no still image to embed
   // sources whose terms do not allow showing their images on other sites: link to them instead
   // their terms do not allow showing the images; the second line (Greek camera sites, Robert 2026-10-10) may be stored for our own research but not republished
-  const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr"
-    + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr)$", "i");
+  const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr|video\\.nest\\.com"
+    + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr|weatherstem\\.com|panomax\\.com|kymesonet\\.org|hpwren\\.ucsd\\.edu|flugschule-eichenberger\\.ch|elektro-wagner\\.com)$", "i");
   const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
   // foto-webcam.eu allows its current image on other sites only as a link to the camera's own page, uncropped, with the source named (each camera's "Webcam-Infos")
   const CLICK_THROUGH = /(^|\.)foto-webcam\.eu$/i;
@@ -342,8 +342,9 @@
             ${row("cadence", cadLabel)}${row("frame interval", r.frame_interval_s ? r.frame_interval_s + " s" : "")}${row("how measured", r.frame_interval_source)}
             ${row("last hourly capture", r._last_capture ? r._last_capture.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3 $4:$5 UTC") : "")}</dl></div>
           <div class="card"><h3>Calibration</h3><dl>
-            ${row("folder", driveFolder, true)}${row("constraints.json", r._constraints ? (r._constraints_file_id ? link(`https://drive.google.com/file/d/${r._constraints_file_id}/view`, "seeded (open)") : "seeded") : "not yet", true)}
-            ${row("calibration.json", r._calibration ? "present" : "not yet")}${row("tier", ((r.status || "").match(/^calibrated \((T\d)/) || [])[1] || (r._calibration ? "" : "T0 (metadata only)"))}
+            ${row("folder", driveFolder, true)}${row("constraints.json", r._constraints ? (r._constraints_file_id ? link(`https://drive.google.com/file/d/${r._constraints_file_id}/view`, "present (open)") : "present") : "not yet", true)}
+            ${row("model", r._model ? `${esc(r._model)} <code>${esc(r._model_file)}</code>` : (r._calibration ? "present" : "not yet"), true)}${row("uncertainty", r._pointing_deg ? `${esc(r._pointing_deg)}° (one sigma) <span class="muted">${esc(r._uncertainty_basis)}</span>` : "", true)}
+            ${row("calibrated on", r._calibrated_on)}${row("release", r._release ? `${esc(r._release)} of the camera records (private)` : "")}${row("tier", ((r.status || "").match(/^calibrated \((T\d)/) || [])[1] || (r._calibration ? "" : "T0 (metadata only)"))}
             ${row("evidence", v ? "skyline and sun pictures in the Verification card" : "")}</dl></div>
           ${r.notes ? `<div class="card"><h3>Notes</h3><div class="notes">${esc(r.notes)}</div></div>` : ""}
         </div>

@@ -19,10 +19,13 @@
 <table>
 <tr><th>registry</th><td>The <a href="https://docs.google.com/spreadsheets/d/1Wn2NxC56LbhtVOmohMansWGv1uCzy9HBOPA4eqncCGk/edit" target="_blank" rel="noopener">contrailCameras Google Sheet</a>, tab <code>cameras</code>, one row per camera. The page reads the sheet directly when it is shared as “anyone with the link can view”; otherwise it falls back to the snapshot built into the site (the badge in the header says which one you are looking at).</td></tr>
 <tr><th>camera_id</th><td><code>ws-</code> + the first 8 hex characters of SHA-1 of the normalized image URL. Minted once and never renumbered; it is also column A of the WorldScope sheet and the name of the camera's Drive folder.</td></tr>
-<tr><th>current image</th><td>Fetched from the camera's own image URL each time the page loads (and every 60 s while auto-refresh is on). Cameras that only serve plain <code>http://</code> are loaded through the images.weserv.nl proxy because this site is served over https. YouTube feeds are embedded. Időkép, Viaero, SkylineWebcams, Hazcams and Aus Web Cams (myairportcams.com) cameras are not shown here (their terms do not allow it): the page links to the camera's own page instead, and they are not in the hourly capture. Cameras of Greek sites that ask not to be republished without permission (meteolive.gr / elaticam.com, meteothes.gr, weatherdata.gr, meteo.gr, livecameras.gr) are also shown as links only: their frames are kept for our own research but neither the live image nor stored thumbnails appear here. foto-webcam.eu cameras show their current image as a link to the camera's own page with the source named, as that site asks; they are not in our capture because the operator keeps every frame in its own archive.</td></tr>
+<tr><th>current image</th><td>Fetched from the camera's own image URL each time the page loads (and every 60 s while auto-refresh is on). Cameras that only serve plain <code>http://</code> are loaded through the images.weserv.nl proxy because this site is served over https. YouTube feeds are embedded. Időkép, Viaero, SkylineWebcams, Hazcams and Aus Web Cams (myairportcams.com) cameras are not shown here (their terms do not allow it): the page links to the camera's own page instead, and they are not in the hourly capture. Cameras of Greek sites that ask not to be republished without permission (meteolive.gr / elaticam.com, meteothes.gr, weatherdata.gr, meteo.gr, livecameras.gr) are also shown as links only: their frames are kept for our own research but neither the live image nor stored thumbnails appear here. foto-webcam.eu cameras show their current image as a link to the camera's own page with the source named, as that site asks; they are not in our capture because the operator keeps every frame in its own archive. WeatherSTEM, Panomax, Kentucky Mesonet and HPWREN cameras are links only as well (HPWREN licenses only pictures more than a day old).</td></tr>
 <tr><th>stored images</th><td>Frames saved for calibration in Google Drive under <code>Worldscope/cameras/&lt;camera_id&gt;/images/</code>. A job every 2 hours (<code>tools/capture_hourly.py</code>, run by launchd on Robert's Mac; hourly until 2026-10-03) saves one validated frame per live camera there, in shuffled order and with per-host rate limits; YouTube streams get one frame through yt-dlp + ffmpeg. The montage shows thumbnails made at build time by <code>tools/build_dashboard.py</code> (the newest 6 per curated camera, the newest 1 for Pool A and AllSky7 rows); each links to the file in Drive when its id is known. The “captured” column in the list is the time of the last saved frame.</td></tr>
-<tr><th>constraints / calibration</th><td><code>constraints.json</code> (priors and hand-clicked evidence) and <code>calibration.json</code> (solver output) live next to <code>images/</code> in the camera's Drive folder.</td></tr>
+<tr><th>constraints / model</th><td>Each camera's evidence (<code>constraints.json</code>) and solved model live in the camera records, a private repository released by tag. The model file is <code>calibration.json</code> for ordinary cameras, <code>calibration_fisheye.json</code> for all-sky ones, <code>calibration_allsky7.json</code> for AllSky7 cameras (the network's own star calibration) and <code>calibration_steered.json</code> or <code>calibration.json</code> for cameras that turn (each frame is pointed from the pan and tilt the network publishes). The Calibration card shows the model, its uncertainty (a typical pointing error in degrees, with what it rests on) and the date of the evidence. Calibrations are temporary: cameras get bumped and re-aimed.</td></tr>
 </table>
+
+<h2>Sources and credits</h2>
+<p>Every camera picture belongs to its operator; the camera page names and links each one. Among the operators: Deutscher Wetterdienst (DWD), MeteoSwiss, the U.S. Geological Survey (the FAA weather cameras through USGS AshCam) and the Czech Hydrometeorological Institute (ČHMÚ).</p>
 
 <h2>Status vocabulary</h2>
 <table>
@@ -34,6 +37,7 @@
 <tr><td><span class="badge in">in progress</span></td><td>someone is collecting evidence / solving</td></tr>
 <tr><td><span class="badge calibrated">calibrated (T1–T4)</span></td><td>solved; the tier says how well: T1 coarse (~5°), T2 horizon and landmarks (~0.5°), T3 celestial (a few pixels), T4 independently validated</td></tr>
 <tr><td><span class="badge skip">skip: reason</span></td><td>not worth pursuing</td></tr>
+<tr><td><span class="badge">rotating</span></td><td>the camera sweeps back and forth; each frame is pointed by matching it to a panorama of the view, so it has no fixed model</td></tr>
 </table>
 <p>The first word is the machine-readable part; anything after it is evidence. Cadence is a fixed property of a camera, measured once with a two-look check (two requests about 62 s apart), not monitored.</p>
 
@@ -54,7 +58,9 @@
     --images ~/contrailCapture/spool --captures ~/contrailCapture \
     --drive-uploads data/contrailCameras/drive_uploads.csv \
     --max-per-camera 6 --max-pool-a 1 \
+    --release-index ../cameras/release_index.csv --release-tag release-YYYY-MM-DD \
     --snapshot-label "contrailCameras sheet, exported YYYY-MM-DD"</code></pre>
+<p><code>--no-thumbs</code> keeps the previous build's thumbnails as they are and rewrites only the data (minutes instead of hours).</p>
 <p>Then commit and push the <code>cameras/</code> directory of the contrails repository.</p>
 </div>
 </body>
