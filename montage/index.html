@@ -18,6 +18,7 @@
   button:disabled { opacity:.45; cursor:default; }
   .muted { color:var(--muted); }
   .key i { display:inline-block; width:9px; height:9px; border-radius:50%; margin:0 3px 0 10px; vertical-align:0; }
+  .key i.ring { width:7px; height:7px; border:1.5px solid var(--muted); background:transparent; }
   #main { display:grid; grid-template-columns:minmax(320px, 38%) 1fr; height:calc(100% - 47px); }
   #map { height:100%; }
   #side { overflow:auto; padding:10px 12px; }
@@ -42,7 +43,7 @@
   <h1>Camera montage</h1>
   <button id="draw" title="or hold shift and drag on the map">draw a rectangle</button>
   <button id="again" disabled>12 new cameras</button>
-  <span class="muted key"><i style="background:#2e8540"></i>calibrated <i style="background:#1f6fd1"></i>other cameras <i style="background:#a0a0a8"></i>link only or no still picture</span>
+  <span class="muted key"><i style="background:#2e8540"></i>calibrated <i style="background:#1f6fd1"></i>other cameras <i class="ring"></i>ring: picture not shown here (link only, or no still picture)</span>
 </header>
 <div id="main">
   <div id="map"></div>
@@ -66,9 +67,10 @@ const numbers = L.layerGroup().addTo(map);
 
 fetch("cameras.json").then(r => r.json()).then(d => {
   cams = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
-  for (const c of cams) {
-    const colour = !SHOWN.has(c.kind) ? "#a0a0a8" : c.status === "calibrated" ? "#2e8540" : "#1f6fd1";
-    L.circleMarker([c.lat, c.lon], {radius:3.5, stroke:false, fillColor:colour, fillOpacity:.85}).bindTooltip(esc(c.name)).addTo(map);
+  for (const c of cams) {     // colour = calibration status; a ring = this page may not show its picture (it still counts on the map)
+    const colour = c.status === "calibrated" ? "#2e8540" : "#1f6fd1", shown = SHOWN.has(c.kind);
+    L.circleMarker([c.lat, c.lon], shown ? {radius:3.5, stroke:false, fillColor:colour, fillOpacity:.85} : {radius:3.2, color:colour, weight:1.5, opacity:.85, fill:false})
+      .bindTooltip(esc(c.name) + (shown ? "" : c.kind === "link" ? " (link only: its picture is not shown here)" : " (no still picture)")).addTo(map);
   }
   const n = cams.filter(c => SHOWN.has(c.kind)).length;
   $("info").textContent = `${cams.length.toLocaleString()} cameras, ${n.toLocaleString()} with a picture this page may show (built ${d.built_utc.slice(0, 10)}). `
