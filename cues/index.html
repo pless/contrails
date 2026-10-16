@@ -161,7 +161,7 @@
     </select>
     <textarea id="rNote" rows="2" style="margin-top:4px" placeholder="Anything else that helps: what the camera looks at, where it is mounted, which way it faces…"></textarea>
 
-    <h3>How</h3>
+    <details id="howBox" style="margin-top:10px"><summary style="cursor:pointer"><b>click here for instructions</b></summary>
     <div class="muted">
       <b>Camera position first:</b> the red dot on the map is where the camera is thought to be. If you can tell
       where it really is (the building or mast it looks from), press <b>set the camera's position</b> and click it.
@@ -178,11 +178,24 @@
       Everything saves by itself<span class="static-only" id="staticHelp">, in this browser: when you are done, press
       <b>download my cues</b> (top left) and send the file to Robert</span>.
     </div>
+    </details>
+
+    <details id="agentBox" style="margin-top:8px"><summary style="cursor:pointer"><b>Ask an AI agent</b> (instructions for it, and a box for what it finds)</summary>
+      <div class="muted" style="margin:4px 0">1. Copy the instructions and give them to an AI agent; attach the picture if it cannot open links.
+        2. Paste its whole answer into the box below. It is saved with your cues, and its points are checked against the
+        other cues before any calibration uses them.</div>
+      <button id="agentCopy">copy the instructions</button> <a id="agentPic" download href="#">download the picture</a>
+      <button id="agentShow" style="font-size:11px">show the instructions</button> <span id="agentCopied" class="muted"></span>
+      <pre id="agentText" style="display:none;white-space:pre-wrap;font-size:11px;line-height:1.35;max-height:360px;overflow:auto;background:rgba(127,127,127,.08);padding:6px;border-radius:4px"></pre>
+      <div style="margin-top:6px"><b>What the agent found</b></div>
+      <textarea id="agentFindings" rows="6" placeholder="Paste the agent's answer here, as it gave it: its JSON block and its explanation."></textarea>
+      <div id="agentParsed" class="muted"></div>
+    </details>
   </div>
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261008T140052Z"></script>
+<script src="config.js?v=20261016T062251Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -412,6 +425,15 @@ function mergeCues(){
   const state=$("rState").value, note=$("rNote").value.trim(), old=C.review||{};
   if (state!==(old.state||"todo") || note!==(old.note||""))
     C.review={state, note:note||null, by:who(), utc:new Date().toISOString().slice(0,19)+"Z"};
+  // what an AI agent found, pasted as it gave it (Robert, 2026-10-16: a new box, saved as-is); one entry per person.
+  // tools/cue_import.py reads its JSON block into cues marked "agent", and tools/cue_calibrate.py drops those the other cues contradict
+  const ft=$("agentFindings").value.trim(), me=who(), list=Array.isArray(C.agent_findings)?C.agent_findings:[], mine=list.find(x=>x.by===me);
+  if (ft!==((mine&&mine.text)||"")){                // an emptied box stays as an empty entry: the import then drops the old answer
+    const f=frames&&frames[fi], utc=new Date().toISOString().slice(0,19)+"Z";
+    C.agent_findings=list.filter(x=>x!==mine).concat([ft?{text:ft, by:me, utc, image_id:f?f.name.replace(/\.\w+$/,""):null,
+      picture:f?(f.src||f.uri||null):null, uri:f?(f.uri||null):null, image_size:[W,H], shown_size:img?[img.naturalWidth, img.naturalHeight]:null}
+      :{text:"", by:me, utc}]);
+  }
   C.annotator="tools/cues.html: "+who();
   const used=new Set([...marks,...verts,...hors].map(x=>x.image_id).filter(Boolean)), have=new Set((C.images||[]).map(x=>x.image_id));
   C.images=C.images||[];
@@ -444,7 +466,7 @@ async function openCamera(id){
   if (STATIC){
     const p=published[id];
     if (!p) return showBanner("No such camera in this list: "+id);
-    d={row:p.row, constraints:store.get(id)||JSON.parse(JSON.stringify(p.seed)), base:null, frames:p.frames.map(f=>({...f}))};
+    d={row:{camera_id:id, ...p.row}, constraints:store.get(id)||JSON.parse(JSON.stringify(p.seed)), base:null, frames:p.frames.map(f=>({...f}))};   // the published row has no id of its own
   } else {
     try { d=await api("/api/camera/"+id); } catch(e){ showBanner(e.message); return; }
   }
@@ -455,6 +477,8 @@ async function openCamera(id){
   $("sub").textContent=[id, row.country, row.camera_type, row.status].filter(Boolean).join(" · ");
   const hp=(published[id]||{}).help; const helpLine=hp?`What helps most here: ${hp.task} (${hp.why}).`:"";
   $("desc").textContent=[helpLine, row.view_description||""].filter(Boolean).join(" "); $("desc").title=row.view_description||"";
+  const af=C&&Array.isArray(C.agent_findings)?C.agent_findings.find(x=>x.by===who()):null;
+  $("agentFindings").value=(af&&af.text)||""; agentParsed();
   if (!C){ $("hud").textContent="No stored frame for this camera yet: try 'live frame'."; $("frameLabel").textContent="no frame"; $("links").innerHTML=""; drawQueue(); refresh(); draw(); return; }
   W=C.image_size.width; H=C.image_size.height;
   splitCues(); checkHeights();
@@ -470,7 +494,88 @@ async function openCamera(id){
   }
   const dayIdx=frames.map((f,i)=>f.day?i:-1).filter(i=>i>=0);
   fi=dayIdx.length?dayIdx[dayIdx.length-1]:frames.length-1;
-  setPose(); links(); drawQueue(); loadFrame(true);
+  setPose(); links(); drawQueue(); loadFrame(true); agentBrief();
+}
+/* ============================ instructions for agents ============================ */
+function agentBrief(){             // everything an AI agent needs to help with this camera, as plain text
+  if (!row) return;
+  const g=C&&C.gps_prior, f=frames&&frames[fi], id=(C&&C.camera_id)||row.camera_id||location.hash.slice(1), hp=(published[id]||{}).help;
+  const abs=u=>{ try { return new URL(u, location.href).href; } catch(e){ return u||""; } };
+  const pic=f?abs(f.src||f.uri||""):"(no stored picture: use the image feed below)";
+  const n=k=>((C&&C[k])||[]).length, num=(v,d)=>(v===""||v==null||isNaN(+v))?"unknown":(+v).toFixed(d)+" deg";
+  const L=[];
+  L.push("Instructions for agents: WorldScope camera calibration");
+  L.push("Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.");
+  L.push("");
+  L.push(`Camera: ${row.name||id} (${id})`);
+  L.push(`1. Example picture: ${pic}`);
+  if (f) L.push(`   taken ${f.time||"at an unknown time"} UTC; the full-size picture is ${W}x${H} pixels (the linked copy may be smaller: report pixels in the picture you look at and give its size); x runs right from the left edge, y down from the top edge.`);
+  L.push(`2. Links: image feed ${row.image_url||"none"}; camera page ${row.page_url||"none"}; this page ${location.href.split("#")[0]}#${id}`);
+  if (row.view_description) L.push(`   what the camera shows: ${row.view_description}`);
+  L.push(`   country/region: ${[row.country,row.region].filter(Boolean).join(", ")||"unknown"}; camera type: ${row.camera_type||"unknown"}`);
+  L.push(`3. Camera position now: ${g?(+g.lat_deg).toFixed(6)+", "+(+g.lon_deg).toFixed(6):"unknown"}${g&&g.alt_m!=null?", "+Math.round(g.alt_m)+" m above sea level":""}; accuracy: ${row.location_accuracy||"unknown"}; source: ${row.location_source||(g&&g.source)||"unknown"}`);
+  L.push(`4. Calibration now: ${row.status||"unknown"}`);
+  L.push(`   heading ${num(row.heading_deg,1)} (clockwise from north, where the picture centre points), tilt ${num(row.tilt_deg,1)} (up from horizontal), horizontal field of view ${num(row.est_hfov_deg,1)}`);
+  if (row.pointing_source) L.push(`   based on: ${row.pointing_source}`);
+  L.push(`   cues already recorded: ${n("correspondences_3d")} map points with a height, ${n("correspondences_2d")} without, ${n("described_points")} described only, ${n("vertical_lines")} vertical edges, ${n("horizon_points")} horizon points`);
+  if (hp) L.push(`   what would help most here: ${hp.task} (${hp.why})`);
+  L.push("");
+  L.push("Please return any of the following that you can find with high confidence:");
+  L.push("1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: \"ground\" if it is at ground level, its altitude in metres above sea level if known, else \"unknown\".");
+  L.push("2. Named features: mountain summits and ridgelines (name, latitude, longitude, elevation from a map or Wikipedia), known buildings, lighthouses, landmarks, with the pixel where each appears.");
+  L.push("3. The camera's own location if you can identify it (the building, mast or address it is mounted on), with roughly how high above the ground it is.");
+  L.push("4. Vertical edges (building corners, poles: two or more pixels along each, top to bottom) and a sea or flat-land horizon (pixels along it). These fix tilt and roll.");
+  L.push("5. The sun or the moon in a picture whose time you know (pixel and UTC time).");
+  L.push("6. Anything showing that the camera moved, zoomed, or does not look where this page says.");
+  L.push("Spread the points across the picture, left and right, near and far: two well-separated map points already fix the heading and the field of view. Do not guess: a wrong point does more harm than a missing one.");
+  L.push("");
+  L.push("How to answer: give your answer to the person who sent you here; they paste it into the page. Do not try to use the page yourself.");
+  L.push("Start with one JSON block in exactly this shape, leaving out what you do not have. Pixels are in the picture you looked at; put its width and height in picture_size. A landmark's height is \"ground\" (at ground level), a number (metres above sea level, e.g. a summit's elevation) or \"unknown\".");
+  L.push("After the JSON, explain in a few sentences how you found each point and how sure you are.");
+  L.push(JSON.stringify({camera_id:id, agent:"your name and model", picture:pic, picture_size:[W,H],
+    camera_position:{lat:0, lon:0, height_above_ground_m:0, how:"how you know"},
+    landmarks:[{pixel:[0,0], lat:0, lon:0, height:"ground", what:"what it is", how:"how you identified it", confidence:"high"}],
+    vertical_edges:[{pixels:[[0,0],[0,0]], what:"building corner"}],
+    horizon:{kind:"sea | flat land", pixels:[[0,0],[0,0]]},
+    sun_or_moon:[{body:"sun", pixel:[0,0], time_utc:"2026-10-16T18:00:00Z"}],
+    notes:"anything else"}, null, 1));
+  $("agentText").textContent=L.join("\n");
+  const a=$("agentPic");                                   // the picture itself, for an agent that cannot open links
+  if (f&&(f.src||f.uri)){ a.href=f.src||f.uri; a.download=`${id}_${f.name||"frame.jpg"}`; a.style.display=""; } else a.style.display="none";
+}
+function findingsJSON(t){           // the JSON block of an agent's answer: a fenced ```json block, else the widest {...} that parses
+  const m=t.match(/```(?:json)?\s*([\s\S]*?)```/i), tries=m?[m[1]]:[], a=t.indexOf("{");
+  for (let b=t.lastIndexOf("}"); a>=0 && b>a && tries.length<60; b=t.lastIndexOf("}", b-1)) tries.push(t.slice(a, b+1));
+  for (const s of tries){ try { const j=JSON.parse(s); if (j&&typeof j==="object"&&!Array.isArray(j)) return j; } catch(e){} }
+  return null;
+}
+function agentParsed(){             // tell the person what the importer will read from the pasted answer
+  const t=$("agentFindings").value.trim(), el=$("agentParsed");
+  if (!t){ el.textContent=""; return; }
+  const j=findingsJSON(t);
+  if (!j){ el.textContent="No JSON block found: the text is saved as it is, for a person to read."; return; }
+  const arr=k=>Array.isArray(j[k])?j[k]:[], lm=arr("landmarks").filter(x=>x&&x.lat!=null&&x.lon!=null&&Array.isArray(x.pixel)).length;
+  const parts=[`${lm} landmark${lm===1?"":"s"} with a map position`];
+  if (arr("landmarks").length>lm) parts.push(`${arr("landmarks").length-lm} without one`);
+  if (arr("vertical_edges").length) parts.push(`${arr("vertical_edges").length} vertical edge${arr("vertical_edges").length===1?"":"s"}`);
+  if (j.horizon&&Array.isArray(j.horizon.pixels)&&j.horizon.pixels.length) parts.push(`${j.horizon.pixels.length} horizon points`);
+  if (j.camera_position&&j.camera_position.lat!=null) parts.push("a camera position (for a person to check)");
+  const warn=[];
+  const cid=(C&&C.camera_id)||(row&&row.camera_id);
+  if (j.camera_id&&cid&&j.camera_id!==cid) warn.push(`it names camera ${j.camera_id}, not this one`);
+  if (!Array.isArray(j.picture_size)) warn.push("no picture_size, so its pixels are taken to be in the picture shown here");
+  el.textContent="Read: "+parts.join(", ")+"."+(warn.length?" Note: "+warn.join("; ")+".":"")+" Saved with your cues.";
+}
+function copyText(t, say){          // the clipboard where the browser allows it, else the older copy command, else select the text
+  const ok=()=>say("copied: now paste it to the agent");
+  const old=()=>{ const ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly", ""); ta.style.cssText="position:fixed;top:-1000px;opacity:0";
+    document.body.appendChild(ta); ta.select(); let r=false; try { r=document.execCommand("copy"); } catch(e){} ta.remove();
+    if (r) return ok();
+    const pre=$("agentText"), s=window.getSelection(), rg=document.createRange(); pre.style.display="block"; $("agentShow").textContent="hide the instructions";
+    rg.selectNodeContents(pre); s.removeAllRanges(); s.addRange(rg);
+    say("this browser did not let the page copy: the text is selected below, press Ctrl+C (⌘C on a Mac)"); };
+  try { if (navigator.clipboard&&navigator.clipboard.writeText) return void navigator.clipboard.writeText(t).then(ok, old); } catch(e){}
+  old();
 }
 function markDay(){               // frames taken with the sun well up at the camera
   const g=C&&C.gps_prior;
@@ -1017,6 +1122,13 @@ $("who").value=(()=>{ try { return localStorage.getItem("cueName")||""; } catch 
 $("who").addEventListener("input", ()=>{ try { localStorage.setItem("cueName",$("who").value); } catch {} });
 window.addEventListener("beforeunload", ()=>{ finishEdge(); if (saveTimer) save(); });
 
+let copiedTimer=null;
+$("agentCopy").addEventListener("click", ()=>{ agentBrief(); copyText($("agentText").textContent, m=>{ $("agentCopied").textContent=m;
+  clearTimeout(copiedTimer); copiedTimer=setTimeout(()=>$("agentCopied").textContent="", 8000); }); });
+$("agentShow").addEventListener("click", ()=>{ agentBrief(); const p=$("agentText"), on=p.style.display==="none";
+  p.style.display=on?"block":"none"; $("agentShow").textContent=on?"hide the instructions":"show the instructions"; });
+$("agentFindings").addEventListener("input", ()=>{ agentParsed(); dirty(); });
+$("agentBox").addEventListener("toggle", ()=>{ if ($("agentBox").open) agentBrief(); });
 window.addEventListener("hashchange", ()=>{ const id=location.hash.slice(1); if (id && !(row&&row.camera_id===id)) openCamera(id); });
 
 if (STATIC) document.body.classList.add("static");
