@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Camera montage</title>
+<!-- Built by visualization/build_montage.py in pless/worldscopeLive (with cameras.json beside it); edit there, not here. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root { --bg:#ffffff; --fg:#1d1d1f; --muted:#6b6b70; --line:#dcdce0; --card:#1b1b1f; --num:#d6336c; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#141416; --fg:#ececf0; --muted:#9d9da6; --line:#2e2e34; } }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font:14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:8px 14px; border-bottom:1px solid var(--line); }
+  header h1 { font-size:16px; margin:0 6px 0 0; }
+  button { font:inherit; padding:4px 10px; border:1px solid var(--line); border-radius:6px; background:transparent; color:var(--fg); cursor:pointer; }
+  button.on { background:var(--num); border-color:var(--num); color:#fff; }
+  button:disabled { opacity:.45; cursor:default; }
+  .muted { color:var(--muted); }
+  .key i { display:inline-block; width:9px; height:9px; border-radius:50%; margin:0 3px 0 10px; vertical-align:0; }
+  #main { display:grid; grid-template-columns:minmax(320px, 38%) 1fr; height:calc(100% - 47px); }
+  #map { height:100%; }
+  #side { overflow:auto; padding:10px 12px; }
+  #info { margin:0 0 8px; }
+  #grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:8px; }
+  .tile { position:relative; background:var(--card); border-radius:6px; overflow:hidden; outline:3px solid transparent; transition:outline-color .2s; }
+  .tile.hl { outline-color:var(--num); }
+  .tile .pic { display:block; width:100%; aspect-ratio:16/9; object-fit:contain; background:#000; }
+  .tile .wait { position:absolute; top:0; left:0; right:0; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; color:#888; font-size:12px; pointer-events:none; }
+  .tile .n, .num { background:var(--num); color:#fff; font-weight:700; border-radius:50%; text-align:center; box-shadow:0 0 0 2px #fff, 0 1px 4px rgba(0,0,0,.5); }
+  .tile .n { position:absolute; top:6px; left:6px; width:22px; height:22px; line-height:22px; font-size:12px; }
+  .tile .cap { padding:4px 7px 6px; font-size:12px; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tile .cap a { color:#9cc6ff; }
+  .num { width:20px; height:20px; line-height:20px; font-size:11px; }
+  .num.hl { transform:scale(1.45); }
+  #map.drawing { cursor:crosshair; }
+  @media (max-width:900px) { #main { grid-template-columns:1fr; height:auto; } #map { height:55vh; } #grid { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Camera montage</h1>
+  <button id="draw" title="or hold shift and drag on the map">draw a rectangle</button>
+  <button id="again" disabled>12 new cameras</button>
+  <span class="muted key"><i style="background:#2e8540"></i>calibrated <i style="background:#1f6fd1"></i>other cameras <i style="background:#a0a0a8"></i>link only or no still picture</span>
+</header>
+<div id="main">
+  <div id="map"></div>
+  <div id="side">
+    <p id="info" class="muted">Loading the cameras…</p>
+    <div id="grid"></div>
+  </div>
+</div>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const N = 12, GAP_MS = 600, TIMEOUT_MS = 25000;   // twelve pictures; at least 0.6 s between two requests to one host
+const SHOWN = new Set(["img", "yt", "fw"]);       // kinds whose picture this page may show (build_montage.py)
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let cams = [], rect = null, start = null, drawing = false, pool = [], used = new Set(), slots = [];
+
+const map = L.map("map", {preferCanvas:true, boxZoom:false, worldCopyJump:true}).fitBounds([[24, -125], [62, 32]]);   // the USA and Europe
+new ResizeObserver(() => map.invalidateSize()).observe($("map"));   // a map laid out while hidden or resized draws itself again
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, attribution:"&copy; OpenStreetMap contributors"}).addTo(map);
+const numbers = L.layerGroup().addTo(map);
+
+fetch("cameras.json").then(r => r.json()).then(d => {
+  cams = d.rows.map(r => Object.fromEntries(d.cols.map((k, i) => [k, r[i]])));
+  for (const c of cams) {
+    const colour = !SHOWN.has(c.kind) ? "#a0a0a8" : c.status === "calibrated" ? "#2e8540" : "#1f6fd1";
+    L.circleMarker([c.lat, c.lon], {radius:3.5, stroke:false, fillColor:colour, fillOpacity:.85}).bindTooltip(esc(c.name)).addTo(map);
+  }
+  const n = cams.filter(c => SHOWN.has(c.kind)).length;
+  $("info").textContent = `${cams.length.toLocaleString()} cameras, ${n.toLocaleString()} with a picture this page may show (built ${d.built_utc.slice(0, 10)}). `
+    + "Press “draw a rectangle” (or hold shift) and drag on the map: twelve cameras inside it appear here, numbered as on the map.";
+}).catch(e => { $("info").textContent = "The camera list did not load: " + e.message; });
+
+/* ---------- drawing the rectangle ---------- */
+function setDrawing(on) { drawing = on; $("draw").classList.toggle("on", on); $("map").classList.toggle("drawing", on); }
+$("draw").onclick = () => setDrawing(!drawing);
+map.on("mousedown", e => {
+  if (!(drawing || e.originalEvent.shiftKey)) return;
+  map.dragging.disable(); start = e.latlng;
+  if (rect) rect.remove();
+  rect = L.rectangle([start, start], {color:"#d6336c", weight:2, fillOpacity:.06, interactive:false}).addTo(map);
+});
+map.on("mousemove", e => { if (start) rect.setBounds([start, e.latlng]); });
+map.on("mouseup", e => {
+  if (!start) return;
+  const a = map.latLngToContainerPoint(start), b = map.latLngToContainerPoint(e.latlng);
+  start = null; map.dragging.enable(); setDrawing(false);
+  if (Math.abs(a.x - b.x) < 6 || Math.abs(a.y - b.y) < 6) { rect.remove(); rect = null; return; }   // a click, not a rectangle
+  const box = rect.getBounds();
+  pool = shuffle(cams.filter(c => SHOWN.has(c.kind) && box.contains([c.lat, c.lon])));
+  used = new Set();
+  const all = cams.filter(c => box.contains([c.lat, c.lon])).length;
+  $("info").textContent = `${all} cameras in the rectangle, ${pool.length} with a picture this page may show`
+    + (all > pool.length ? " (the others link only to their source, or have no still picture)." : ".");
+  montage();
+});
+$("again").onclick = () => montage();
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function next() {             // the next camera of the rectangle not shown since the last start
+  let c = pool.find(c => !used.has(c.id));
+  if (!c) return null;
+  used.add(c.id); return c;
+}
+
+/* ---------- the montage ---------- */
+function montage() {
+  if (pool.filter(c => !used.has(c.id)).length < Math.min(N, pool.length)) { used = new Set(); shuffle(pool); }   // seen nearly all: start over
+  slots.forEach(s => clearTimeout(s.timer));
+  $("grid").innerHTML = ""; numbers.clearLayers(); slots = [];
+  for (let i = 0; i < Math.min(N, pool.length); i++) {
+    const tile = document.createElement("div"); tile.className = "tile";
+    $("grid").appendChild(tile);
+    slots.push({tile, marker:null, timer:null, gen:0});
+    fill(i, next());
+  }
+  if (!pool.length) $("grid").innerHTML = '<p class="muted">No camera in this rectangle has a picture this page may show.</p>';
+  $("again").disabled = !pool.length;
+}
+
+function fill(i, c) {
+  const s = slots[i], gen = ++s.gen;
+  const live = () => slots[i] === s && s.gen === gen;     // false once another camera (or a new montage) has this place
+  clearTimeout(s.timer);
+  if (s.marker) { numbers.removeLayer(s.marker); s.marker = null; }
+  if (!c) { s.tile.innerHTML = `<div class="n">${i + 1}</div><div class="pic"></div><div class="cap">no more cameras with a picture here</div>`; return; }
+  const page = c.page ? ` · <a href="${esc(c.page)}" target="_blank" rel="noopener">source</a>` : "";
+  const camLink = `<a href="../cameras/camera.html?id=${esc(c.id)}" target="_blank" rel="noopener">${esc(c.name)}</a>`;
+  const img = `<img class="pic" alt="${esc(c.name)}" referrerpolicy="no-referrer">`;
+  s.tile.innerHTML = `${c.kind === "fw" ? `<a href="${esc(c.page)}" target="_blank" rel="noopener">${img}</a>` : img}<div class="wait">loading…</div>`
+    + `<div class="n">${i + 1}</div><div class="cap" title="${esc(c.name)} (${esc(c.id)}, ${esc(c.status)})">${camLink}${page}`
+    + (c.kind === "fw" ? ` · Image: <a href="https://www.foto-webcam.eu/" target="_blank" rel="noopener">www.foto-webcam.eu</a>` : "") + "</div>";
+  const pic = s.tile.querySelector("img");
+  let second = false;
+  const fail = () => {
+    if (!live()) return;
+    if (c.kind === "yt" && !second) { second = true; return attempt(picUrl(c, true)); }
+    fill(i, next());                  // did not load: another camera of the rectangle takes the place
+  };
+  const attempt = url => {
+    clearTimeout(s.timer);
+    s.timer = setTimeout(() => { if (live()) { pic.removeAttribute("src"); fail(); } }, TIMEOUT_MS);
+    load(pic, url, hostOf(c), live);
+  };
+  pic.onload = () => {
+    if (!live()) return;
+    clearTimeout(s.timer);
+    if (pic.naturalWidth < 160) return fail();      // a tiny "no picture" placeholder
+    const w = s.tile.querySelector(".wait"); if (w) w.remove();
+  };
+  pic.onerror = () => { if (live()) { clearTimeout(s.timer); fail(); } };
+  attempt(picUrl(c, false));
+  s.marker = L.marker([c.lat, c.lon], {icon:L.divIcon({className:"", html:`<div class="num">${i + 1}</div>`, iconSize:[20, 20]}), title:c.name, zIndexOffset:1000}).addTo(numbers);
+  s.marker.on("click", () => { s.tile.scrollIntoView({block:"nearest", behavior:"smooth"}); flash(s.tile); });
+  s.tile.onmouseenter = () => { const el = s.marker && s.marker.getElement(); if (el) el.firstChild.classList.add("hl"); };
+  s.tile.onmouseleave = () => { const el = s.marker && s.marker.getElement(); if (el) el.firstChild.classList.remove("hl"); };
+}
+
+function flash(tile) { tile.classList.add("hl"); setTimeout(() => tile.classList.remove("hl"), 1500); }
+function hostOf(c) { try { return c.kind === "yt" ? "i.ytimg.com" : new URL(c.img).hostname; } catch (e) { return "?"; } }
+function picUrl(c, second) {   // the current picture: a fresh copy from the host (YouTube: the stream's still; plain http through the dashboard's image proxy)
+  const t = Date.now();
+  if (c.kind === "yt") return `https://i.ytimg.com/vi/${encodeURIComponent(c.img)}/${second ? "hqdefault_live" : "maxresdefault_live"}.jpg?t=${t}`;
+  const u = c.img + (c.img.includes("?") ? "&" : "?") + "_=" + t;
+  return /^http:\/\//i.test(u) ? "https://images.weserv.nl/?url=" + encodeURIComponent(u.replace(/^http:\/\//i, "")) : u;
+}
+const nextAt = {};             // per host: no two requests closer than GAP_MS
+function load(img, url, host, live) {
+  const now = Date.now(), at = Math.max(now, nextAt[host] || 0);
+  nextAt[host] = at + GAP_MS;
+  setTimeout(() => { if (live()) img.src = url; }, at - now);
+}
+</script>
+</body>
+</html>
