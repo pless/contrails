@@ -1,0 +1,68 @@
+Instructions for agents: WorldScope camera calibration, camera ws-c0b73e48
+Camera ws-c0b73e48: Rochehaut (Europe; camera type rectilinear)
+Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
+
+1. The picture: https://pless.github.io/contrails/cues/frames/ws-c0b73e48.jpg
+   taken 2026-10-06T14:08:48Z UTC; 1280x720 pixels as linked (the camera's own pictures are 1920x1080); x runs right from the left edge, y down from the top edge.
+   Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
+2. Links: image feed https://cams.meteo-be.net/rochehaut-bouillon/default/_latest.jpg (the camera's picture now, if it is still live); camera page https://www.aubergederochehaut.com/fr/page/webcam; the cue page https://pless.github.io/contrails/cues/#ws-c0b73e48 (it needs a browser with JavaScript; everything on it about this camera is in this text)
+   what the camera shows: Infoclimat-listed webcam (proxy URL); sky fraction not yet assessed
+3. Camera position now: 49.850000, 5.000000; accuracy: approximate; source: Infoclimat listing, via WorldScope Main
+4. Calibration now: slow (<1 image/min)
+   heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   what would help most here: horizon + landmark (no calibrated camera within 100 km; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
+
+Please return any of the following that you can find with high confidence:
+1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: "ground" if it is at ground level, its altitude in metres above sea level if known, else "unknown".
+2. Named features: mountain summits and ridgelines (name, latitude, longitude, elevation from a map or Wikipedia), known buildings, lighthouses, landmarks, with the pixel where each appears.
+3. The camera's own location if you can identify it (the building, mast or address it is mounted on), with roughly how high above the ground it is.
+4. Vertical edges (building corners, poles: two or more pixels along each, top to bottom) and a sea or flat-land horizon (pixels along it). These fix tilt and roll.
+5. The sun or the moon in a picture whose time you know (pixel and UTC time).
+6. Anything showing that the camera moved, zoomed, or does not look where this text says.
+Spread the points across the picture, left and right, near and far: two well-separated map points already fix the heading and the field of view. Do not guess: a wrong point does more harm than a missing one.
+
+How to answer: give your answer to the person who sent you here; they paste it into the cue page. Do not try to use the page yourself.
+Start with one JSON block in exactly this shape, leaving out what you do not have. Pixels are in the picture you looked at; put its width and height in picture_size. A landmark's height is "ground" (at ground level), a number (metres above sea level, e.g. a summit's elevation) or "unknown".
+After the JSON, explain in a few sentences how you found each point and how sure you are.
+{
+ "camera_id": "ws-c0b73e48",
+ "agent": "your name and model",
+ "picture": "https://pless.github.io/contrails/cues/frames/ws-c0b73e48.jpg",
+ "picture_size": [1280, 720],
+ "camera_position": {
+  "lat": 0,
+  "lon": 0,
+  "height_above_ground_m": 0,
+  "how": "how you know"
+ },
+ "landmarks": [
+  {
+   "pixel": [0, 0],
+   "lat": 0,
+   "lon": 0,
+   "height": "ground",
+   "what": "what it is",
+   "how": "how you identified it",
+   "confidence": "high"
+  }
+ ],
+ "vertical_edges": [
+  {
+   "pixels": [[0, 0], [0, 0]],
+   "what": "building corner"
+  }
+ ],
+ "horizon": {
+  "kind": "sea | flat land",
+  "pixels": [[0, 0], [0, 0]]
+ },
+ "sun_or_moon": [
+  {
+   "body": "sun",
+   "pixel": [0, 0],
+   "time_utc": "2026-10-16T18:00:00Z"
+  }
+ ],
+ "notes": "anything else"
+}
