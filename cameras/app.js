@@ -14,8 +14,8 @@
     return { rows, source: "snapshot", label: meta.snapshot_label || meta.built_utc || "snapshot", meta };
   }
 
-  async function gviz(tq) {
-    const url = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(CFG.sheetTab || "cameras")}`
+  async function gviz(tq, tab) {
+    const url = `https://docs.google.com/spreadsheets/d/${CFG.sheetId}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(tab || CFG.sheetTab || "cameras")}`
       + (tq ? "&tq=" + encodeURIComponent(tq) : "");
     const txt = await fetch(url, { credentials: "omit" }).then((r) => r.text());
     const a = txt.indexOf("("), b = txt.lastIndexOf(")");
@@ -103,7 +103,7 @@
   const isStream = (r) => (r.camera_type || "").trim() === "stream";   // live video that is not YouTube (HLS or MJPEG): no still image to embed
   // sources whose terms do not allow showing their images on other sites: link to them instead
   // their terms do not allow showing the images; the second line (Greek camera sites, Robert 2026-10-10) may be stored for our own research but not republished
-  const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr|video\\.nest\\.com"
+  const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr|video\\.nest\\.com|cdn-surfline\\.com"
     + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr|weatherstem\\.com|panomax\\.com|kymesonet\\.org|hpwren\\.ucsd\\.edu|flugschule-eichenberger\\.ch|elektro-wagner\\.com)$", "i");
   const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
   // foto-webcam.eu allows its current image on other sites only as a link to the camera's own page, uncropped, with the source named (each camera's "Webcam-Infos")
@@ -281,6 +281,63 @@
   }
 
   // ---------- camera page ----------
+  // ---------- notes from visitors (Robert, 2026-10-17) ----------
+  // A note goes through the cue page's Apps Script into the registry spreadsheet's "cues" tab (kind "camera_note");
+  // the calibration side lists new ones with calibration/tools/camera_notes.py. The tab is readable by anyone with the
+  // sheet's link, which is also how the notes already sent for a camera are shown here.
+  const NOTE_KINDS = { broken: "picture broken, frozen or black", moved: "camera turned or view changed", position: "position on the map is wrong", other: "other" };
+  function noteCard() {
+    let who = ""; try { who = localStorage.getItem("cc_note_who") || ""; } catch (e) { /* no storage */ }
+    return `<div class="card" id="notecard"><h3>Send a note about this camera</h3>
+      <p class="muted">For example: the picture is frozen or black, the camera has turned, its position is wrong. Notes go to the
+        calibration team's review list. They are kept in a sheet that anyone with its link can read, so leave out anything private.</p>
+      <form id="noteform" class="noteform">
+        <select id="notekind">${Object.entries(NOTE_KINDS).map(([k, v]) => `<option value="${k}"${k === "other" ? " selected" : ""}>${esc(v)}</option>`).join("")}</select>
+        <textarea id="notetext" rows="3" maxlength="2000" placeholder="What did you see?"></textarea>
+        <div class="noterow"><input id="notewho" maxlength="60" placeholder="your name (optional)" value="${esc(who)}">
+          <button type="submit" id="notesend">Send note</button> <span id="notestatus" class="muted"></span></div>
+      </form>
+      <div id="notelist"></div></div>`;
+  }
+  function wireNotes(r) {
+    const form = $("#noteform"); if (!form) return;
+    const shown = [];
+    const render = () => {
+      $("#notelist").innerHTML = shown.length ? `<h4>Notes sent for this camera</h4><ul class="notelist">${shown.map((n) => `<li><span class="muted">${esc((n.received || "").slice(0, 16).replace("T", " "))} UTC${n.who ? " · " + esc(n.who) : ""}${n.pending ? " · just sent" : ""}</span><br>
+        <b>${esc(NOTE_KINDS[n.note.kind] || n.note.kind || "")}</b>${n.note.text ? ": " + esc(n.note.text) : ""}</li>`).join("")}</ul>` : "";
+    };
+    (async () => {                                          // notes already in the sheet for this camera
+      try {
+        const j = await gviz(`select A,B,C,F where C = '${String(r.camera_id).replace(/'/g, "")}'`, CFG.notesTab || "cues");
+        for (const row of j.table.rows) {
+          const cell = (k) => (row.c[k] && row.c[k].v != null) ? String(row.c[k].v) : "";
+          let d; try { d = JSON.parse(cell(3)); } catch (e) { continue; }
+          const note = d && d.cameras && d.cameras[r.camera_id] && d.cameras[r.camera_id].camera_note;
+          if (note) shown.push({ received: cell(0), who: cell(1), note });
+        }
+        shown.sort((a, b) => (b.received || "").localeCompare(a.received || "")); render();
+      } catch (e) { console.warn("notes not loaded:", e.message); }
+    })();
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const status = (t) => { $("#notestatus").textContent = t; };
+      const kind = $("#notekind").value, text = $("#notetext").value.trim(), who = $("#notewho").value.trim();
+      if (!text && kind === "other") { status("Write a few words first."); return; }
+      if (!CFG.notesSubmitUrl) { status("Notes cannot be sent from this copy of the page."); return; }
+      try { localStorage.setItem("cc_note_who", who); } catch (e) { /* no storage */ }
+      const now = new Date().toISOString();
+      const note = { kind, text, utc: now, page_url: location.href, picture: $("#loaded") ? $("#loaded").textContent : "" };
+      const body = JSON.stringify({ kind: "camera_note", by: who, page: "camera page", exported_utc: now, cameras: { [r.camera_id]: { camera_note: note } } });
+      $("#notesend").disabled = true; status("sending…");
+      try {
+        await fetch(CFG.notesSubmitUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body });
+        status("Sent. Thank you."); $("#notetext").value = "";
+        shown.unshift({ received: now, who, note, pending: true }); render();
+      } catch (e) { status("Could not send: " + e.message); }
+      finally { $("#notesend").disabled = false; }
+    });
+  }
+
   async function initCamera() {
     const id = new URLSearchParams(location.search).get("id");
     const [reg, images, ver] = await Promise.all([loadRegistry(["camera_id", "name"]), fetch("data/images.json").then((r) => r.json()).catch(() => ({})), loadVerify()]);
@@ -347,6 +404,7 @@
             ${row("calibrated on", r._calibrated_on)}${row("release", r._release ? `${esc(r._release)} of the camera records (private)` : "")}${row("tier", ((r.status || "").match(/^calibrated \((T\d)/) || [])[1] || (r._calibration ? "" : "T0 (metadata only)"))}
             ${row("evidence", v ? "skyline and sun pictures in the Verification card" : "")}</dl></div>
           ${r.notes ? `<div class="card"><h3>Notes</h3><div class="notes">${esc(r.notes)}</div></div>` : ""}
+          ${noteCard()}
         </div>
       </div>`;
 
@@ -379,6 +437,7 @@
     $("#btn-refresh").addEventListener("click", showImage);
     $("#auto").addEventListener("change", schedule);
     showImage(); schedule();
+    wireNotes(r);
 
     // minimap
     if (hasCoords(r)) {
