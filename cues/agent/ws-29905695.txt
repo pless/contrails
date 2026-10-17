@@ -12,7 +12,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
    heading 104.8 deg (clockwise from north, where the picture centre points), tilt 3.1 deg (up from horizontal), horizontal field of view unknown
    based on: approximate (+-2 deg): sun track on 3 days (57 positions, median 0.58 deg; single frames on two other days land 0.13 and 0.8 deg off), free lens about 97 deg wide, 2026-10-10 (camera_by_camera/sunweek/sw_fit.py). The fitted horizon lies on the distant flat horizon within about 0.7 deg (not used in the fit). Waits for a fourth day before being called calibrated. The name's facing word is East.
    cues already recorded: 0 map points with a height, 1 without, 0 described only, 0 vertical edges, 0 horizon points
-   what would help most here: confirm (no calibrated camera within 214 km; a star solve exists for one night frame: one landmark with a map position confirms its heading)
+   what would help most here: confirm (no calibrated camera within 61 km; a star solve exists for one night frame: one landmark with a map position confirms its heading)
 
 Please return any of the following that you can find with high confidence:
 1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: "ground" if it is at ground level, its altitude in metres above sea level if known, else "unknown".

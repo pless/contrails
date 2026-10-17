@@ -12,7 +12,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
    heading 229.2 deg (clockwise from north, where the picture centre points), tilt 0.0 deg (up from horizontal), horizontal field of view unknown
    based on: home view from stars over 2 nights, pooled blind star solver (star_joint 2026-10-10); the camera can pan: its daytime view changed on 1 of 8 days, so check the picture label before use
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
-   what would help most here: horizon + landmark (no calibrated camera within 407 km; flat or coastal view: click the horizon and one landmark)
+   what would help most here: horizon + landmark (a calibrated camera is 24 km away; flat or coastal view: click the horizon and one landmark)
 
 Please return any of the following that you can find with high confidence:
 1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: "ground" if it is at ground level, its altitude in metres above sea level if known, else "unknown".

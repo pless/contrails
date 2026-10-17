@@ -12,6 +12,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
    heading 155.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: USGS AshCam's camera list (bearing), not checked
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   what would help most here: horizon + landmark (no calibrated camera within 386 km; flat or coastal view: click the horizon and one landmark)
 
 Please return any of the following that you can find with high confidence:
 1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: "ground" if it is at ground level, its altitude in metres above sea level if known, else "unknown".

@@ -12,7 +12,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
    heading 221.0 deg (clockwise from north, where the picture centre points), tilt -3.1 deg (up from horizontal), horizontal field of view 40.0 deg
    based on: provisional: hand cues on the cue page (human:anonymous, 2026-10-06): sea horizon + five landmarks within 100 m; heading uncertain by about 4 deg, field of view by about 10 deg; valid for the preset shown in the cued frame (the camera moves between presets)
    cues already recorded: 0 map points with a height, 5 without, 0 described only, 0 vertical edges, 4 horizon points
-   what would help most here: confirm (no calibrated camera within 55 km; a provisional automatic fit exists (hand cues 2026-10-06: the sea horizon fits, tilt -3.1 roll 0.1): check the drawn horizon and add one landmark if it is off)
+   what would help most here: confirm (no calibrated camera within 94 km; a provisional automatic fit exists (hand cues 2026-10-06: the sea horizon fits, tilt -3.1 roll 0.1): check the drawn horizon and add one landmark if it is off)
 
 Please return any of the following that you can find with high confidence:
 1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: "ground" if it is at ground level, its altitude in metres above sea level if known, else "unknown".
