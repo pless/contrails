@@ -3,7 +3,7 @@ Camera ws-21596c0c: Talvijärvi (PanoCloud ruka9) (Finland, Europe; camera type 
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-21596c0c.jpg
-   taken 2026-10-14T10:23:37Z UTC; 1280x720 pixels as linked (the camera's own pictures are 3840x2160); x runs right from the left edge, y down from the top edge.
+   taken 2026-10-14T10:23:37 UTC; 1280x720 pixels as linked (the camera's own pictures are 3840x2160); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://ruka9.panocloud.webcam/big_panorama1.jpg (the camera's picture now, if it is still live); camera page https://ruka9.panocloud.webcam/; the cue page https://pless.github.io/contrails/cues/#ws-21596c0c (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: View from Ruka; about 50% sky
@@ -13,18 +13,15 @@ Goal: find where this camera is and exactly where it points, by matching things 
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
    what would help most here: horizon + landmark (no calibrated camera within 127 km; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
-Please return any of the following that you can find with high confidence:
-1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: "ground" if it is at ground level, its altitude in metres above sea level if known, else "unknown".
-2. Named features: mountain summits and ridgelines (name, latitude, longitude, elevation from a map or Wikipedia), known buildings, lighthouses, landmarks, with the pixel where each appears.
-3. The camera's own location if you can identify it (the building, mast or address it is mounted on), with roughly how high above the ground it is.
-4. Vertical edges (building corners, poles: two or more pixels along each, top to bottom) and a sea or flat-land horizon (pixels along it). These fix tilt and roll.
-5. The sun or the moon in a picture whose time you know (pixel and UTC time).
-6. Anything showing that the camera moved, zoomed, or does not look where this text says.
-Spread the points across the picture, left and right, near and far: two well-separated map points already fix the heading and the field of view. Do not guess: a wrong point does more harm than a missing one.
+Please return what you can find with high confidence:
+1. Map points: things you can find both in the picture and on a map (a building corner at ground level, the foot of a tower, mast or post, a road junction, a pier end, a mountain summit). For each: the pixel; the latitude and longitude (6 decimals) of that exact spot, not of a nearby road node; and height_above_ground_m: 0 for a point on the ground (a summit too), else its height above the ground there (a roof edge, a mast top). Measure each position on a map or satellite view; if you cannot place the spot to about 10 m, leave lat and lon out (the pixel and what it is still help). Prefer points 100 m or more away, spread left to right and near to far; skip anything within 20 m of the camera.
+2. The camera's own position, if you can identify it (the building, mast or address it is on), and its height above the ground.
+3. Vertical edges (a building corner, a pole): the top and the bottom pixel of one plumb line. A sea or lake horizon: pixels along it.
+4. The sun or the moon in a picture whose time you know (pixel and UTC time).
+5. Anything showing that the camera moved, zoomed, or does not look where this text says.
 
-How to answer: give your answer to the person who sent you here; they paste it into the cue page. Do not try to use the page yourself.
-Start with one JSON block in exactly this shape, leaving out what you do not have. Pixels are in the picture you looked at; put its width and height in picture_size. A landmark's height is "ground" (at ground level), a number (metres above sea level, e.g. a summit's elevation) or "unknown".
-After the JSON, explain in a few sentences how you found each point and how sure you are.
+Rules: pixels are [x, y] in the picture you looked at, with its size in picture_size. Do not guess: a wrong point does more harm than a missing one. Do not estimate heading, tilt or field of view yourself; they are fitted from your points. If nothing qualifies, say so in one sentence.
+How to answer: do not type into the cue page. Give the person who sent you one JSON block in exactly this shape (leave out what you do not have), then a few sentences on how you found each point.
 {
  "camera_id": "ws-21596c0c",
  "agent": "your name and model",
@@ -41,7 +38,7 @@ After the JSON, explain in a few sentences how you found each point and how sure
    "pixel": [0, 0],
    "lat": 0,
    "lon": 0,
-   "height": "ground",
+   "height_above_ground_m": 0,
    "what": "what it is",
    "how": "how you identified it",
    "confidence": "high"
@@ -49,12 +46,13 @@ After the JSON, explain in a few sentences how you found each point and how sure
  ],
  "vertical_edges": [
   {
-   "pixels": [[0, 0], [0, 0]],
+   "top": [0, 0],
+   "bottom": [0, 0],
    "what": "building corner"
   }
  ],
  "horizon": {
-  "kind": "sea | flat land",
+  "kind": "sea | lake",
   "pixels": [[0, 0], [0, 0]]
  },
  "sun_or_moon": [
