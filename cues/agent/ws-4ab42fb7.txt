@@ -5,7 +5,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-4ab42fb7.jpg
    taken 2026-10-06T10:05:30Z UTC; 1280x720 pixels as linked; x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
-2. Links: image feed https://s76.ipcamlive.com/streams/4chmaz7ei4fqevz0g/snapshot.jpg (the camera's picture now, if it is still live); camera page https://www.ipcamlive.com/5553bfd506c2c; the cue page https://pless.github.io/contrails/cues/#ws-4ab42fb7 (it needs a browser with JavaScript; everything on it about this camera is in this text)
+2. Links: image feed https://g1.ipcamlive.com/player/snapshot.php?alias=5553bfd506c2c (the camera's picture now, if it is still live); camera page https://www.ipcamlive.com/5553bfd506c2c; the cue page https://pless.github.io/contrails/cues/#ws-4ab42fb7 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Windy categories: beach, coast
 3. Camera position now: 42.706240, 27.723920; accuracy: approximate; source: Windy webcams API position (webcam 1594610071), 2026-10-05
 4. Calibration now: candidate

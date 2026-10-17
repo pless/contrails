@@ -1,17 +1,17 @@
-Instructions for agents: WorldScope camera calibration, camera ws-67e4d21b
-Camera ws-67e4d21b: Myrtle Beach Boardwalk Cam (YouTube) (United States, USA; camera type youtube)
+Instructions for agents: WorldScope camera calibration, camera ws-ae08f638
+Camera ws-ae08f638: FAA weather camera Chistochina - SE (USGS AshCam copy) (USA, USA; camera type rectilinear)
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
-1. The picture: https://pless.github.io/contrails/cues/frames/ws-67e4d21b.jpg
-   taken 2026-10-04T20:15:59Z UTC; 1280x720 pixels as linked (the camera's own pictures are 1920x1080); x runs right from the left edge, y down from the top edge.
+1. The picture: https://pless.github.io/contrails/cues/frames/ws-ae08f638.jpg
+   taken 2026-10-16T20:07:01Z UTC; 640x480 pixels as linked; x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
-2. Links: image feed https://www.youtube.com/watch?v=UKtfCDXhCq0 (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-67e4d21b (it needs a browser with JavaScript; everything on it about this camera is in this text)
-   what the camera shows: Myrtle Beach Boardwalk Cam
-3. Camera position now: 33.690402, -78.880749, 15 m above sea level; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Myrtle Beach, South Carolina, USA)
-4. Calibration now: candidate
-   heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 6 map points with a height, 1 without, 0 described only, 2 vertical edges, 3 horizon points
-   what would help most here: one landmark (no calibrated camera within 299 km; tilt and roll are known (horizon): one landmark with a map position gives the heading)
+2. Links: image feed https://volcview.wr.usgs.gov/ashcam-api/images/webcams/chistochina-SE/current.jpg (the camera's picture now, if it is still live); camera page https://volcview.wr.usgs.gov/ashcam-gui/webcam.html?webcam=chistochina-SE; the cue page https://pless.github.io/contrails/cues/#ws-ae08f638 (it needs a browser with JavaScript; everything on it about this camera is in this text)
+   what the camera shows: FAA weather camera Chistochina - SE, looking SE; about 64% sky
+3. Camera position now: 62.594640, -144.649100, 586 m above sea level; accuracy: exact; source: USGS AshCam's camera list (latitude, longitude, elevation), not checked
+4. Calibration now: slow (<1 image/min)
+   heading 140.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
+   based on: USGS AshCam's camera list (bearing), not checked
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
 
 Please return any of the following that you can find with high confidence:
 1. Points you can find both in the picture and on a map (Google Maps satellite view): building corners, towers, water towers, masts, bridge ends, road intersections, piers. For each: the pixel, the map latitude and longitude (6 decimals), what it is, and its height: "ground" if it is at ground level, its altitude in metres above sea level if known, else "unknown".
@@ -26,10 +26,10 @@ How to answer: give your answer to the person who sent you here; they paste it i
 Start with one JSON block in exactly this shape, leaving out what you do not have. Pixels are in the picture you looked at; put its width and height in picture_size. A landmark's height is "ground" (at ground level), a number (metres above sea level, e.g. a summit's elevation) or "unknown".
 After the JSON, explain in a few sentences how you found each point and how sure you are.
 {
- "camera_id": "ws-67e4d21b",
+ "camera_id": "ws-ae08f638",
  "agent": "your name and model",
- "picture": "https://pless.github.io/contrails/cues/frames/ws-67e4d21b.jpg",
- "picture_size": [1280, 720],
+ "picture": "https://pless.github.io/contrails/cues/frames/ws-ae08f638.jpg",
+ "picture_size": [640, 480],
  "camera_position": {
   "lat": 0,
   "lon": 0,

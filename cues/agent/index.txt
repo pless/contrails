@@ -1,13 +1,12 @@
 WorldScope cue page: one plain-text file per camera with everything an AI agent needs to help calibrate it
 (its picture, position, current calibration and what to return). The page itself, https://pless.github.io/contrails/cues/, needs JavaScript.
-2060 cameras, most useful first; built 2026-10-16T18:28:19Z.
+1942 cameras, most useful first; built 2026-10-17T02:21:25Z.
 
 camera_id	name	country	instructions
 ws-6f69bd51	Saint-Hilaire-de-Brethmas		https://pless.github.io/contrails/cues/agent/ws-6f69bd51.txt
 ws-29905695	Anthoupoli › East	Greece	https://pless.github.io/contrails/cues/agent/ws-29905695.txt
 ws-249f0bde	Prignano Cilento › West: Agropoli	Italy	https://pless.github.io/contrails/cues/agent/ws-249f0bde.txt
 ws-0f123b6a	Balchik		https://pless.github.io/contrails/cues/agent/ws-0f123b6a.txt
-ws-67e4d21b	Myrtle Beach Boardwalk Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-67e4d21b.txt
 ws-09b5e8f5	183 Deer Ridge Trail, Thomasville GA (Georgia)	United States	https://pless.github.io/contrails/cues/agent/ws-09b5e8f5.txt
 ws-c61cee42	Saint-Chamond		https://pless.github.io/contrails/cues/agent/ws-c61cee42.txt
 ws-e3479655	LIVE Rifugio Corsini | Monte Nerone 2026-10-04 21:46 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-e3479655.txt
@@ -17,29 +16,21 @@ ws-83b91ec2	Albuquerque Soaring Club 1		https://pless.github.io/contrails/cues/a
 ws-1d6d514b	Plabennec		https://pless.github.io/contrails/cues/agent/ws-1d6d514b.txt
 ws-9b5062a2	clarkejackson	USA	https://pless.github.io/contrails/cues/agent/ws-9b5062a2.txt
 ws-bedc75c3	elmoreemaold	USA	https://pless.github.io/contrails/cues/agent/ws-bedc75c3.txt
-ws-6b4cff8f	Live - Sport Camera - Deerfield Beach, Florida USA (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-6b4cff8f.txt
 ws-9a5e6427	SIESTA KEY BEACH - LIVE (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-9a5e6427.txt
-ws-3baed662	Glensheen Lake Cam | Duluth, MN | Livestream (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-3baed662.txt
 ws-79ab9113	Live TORREMOLINOS El Bajondillo Beach WEBCAM & WEATHER Málaga - Costa del Sol - Andalucía  - España (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-79ab9113.txt
 ws-ed6a2172	Galveston, Texas | 24/7 Live Beach Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-ed6a2172.txt
 ws-326fcf17	Midway Airport | Chicago, IL USA | StreamTime LIVE  4K (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-326fcf17.txt
 ws-ca7ad4e6	Houghton Lake, MI - Weather Camera - Michigan Storm Chasers (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-ca7ad4e6.txt
 ws-4d518bfb	Visit Sheboygan Live Beach Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-4d518bfb.txt
-ws-b1090b3f	🌞 Mallorca Webcam Port Adriano El Toro | 4K UHD |  #Mallorca #Livestream #Balearics #Weather #beach (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-b1090b3f.txt
 ws-4547ca7e	St Brides Spa Hotel, Saundersfoot Live Webcam (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-4547ca7e.txt
 ws-ffaf0359	Ottawa, Ontario, Canada LIVE Camera (YouTube)	Canada	https://pless.github.io/contrails/cues/agent/ws-ffaf0359.txt
-ws-315de6f9	🔴 Floresta live webcam -  Panoramica nord-est (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-315de6f9.txt
 ws-7b2e1a5a	Lake Hood Seaplane Base, Anchorage, Alaska, USA | StreamTime LIVE (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-7b2e1a5a.txt
 ws-d5a6d30c	🔴Live Railcam: Boone Iowa - Cam 1 (West) - Trains On Demand (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-d5a6d30c.txt
 ws-d91d00f4	LIVE CAM Zagorodny avenue, St. Petersburg. Веб-камера онлайн Загородный проспект, Санкт-Петербург (YouTube)	Russia	https://pless.github.io/contrails/cues/agent/ws-d91d00f4.txt
 ws-d0b8a046	RRWW: Roland Weather Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-d0b8a046.txt
 ws-6be2ab81	Sheridan Tower Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-6be2ab81.txt
-ws-2fe498b5	Greenville Texas USA  Live Cam East  with Train & Airport Scanner Feed (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-2fe498b5.txt
 ws-30f2936f	Big Bog State Recreation Area Web Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-30f2936f.txt
 ws-416c7e58	La Plata, Missouri, USA | LIVE Train Camera (Fixed View – East) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-416c7e58.txt
-ws-f7af4d64	Discount Motors CSU Pueblo Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-f7af4d64.txt
-ws-d1434e40	Salt Lake Sunset (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-d1434e40.txt
-ws-607357f8	Galesburg, Illinois, USA | LIVE Train Camera (PTZ) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-607357f8.txt
 ws-ce226d1e	Lance Creek 4ENE - Tower (Looking West) (Wyoming Mesonet)	United States	https://pless.github.io/contrails/cues/agent/ws-ce226d1e.txt
 ws-03717fa5	Sarnegor (N40)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-03717fa5.txt
 ws-80824725	Belogradchik (N107)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-80824725.txt
@@ -47,9 +38,7 @@ ws-2ed6eccc	Fasoula (Limassol)	Cyprus	https://pless.github.io/contrails/cues/age
 ws-63923e86	Aritzo 360	Italy	https://pless.github.io/contrails/cues/agent/ws-63923e86.txt
 ws-a0f5b386	Webcam playa de Loredo (Cantabria) | SurfCam.io 🏄🏼‍♀ 2026-10-04 21:30 (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-a0f5b386.txt
 ws-a7c4fed9	LIVE Florida Webcams: Relaxing Canal Views, Sky Views and Sounds 24/7 2026-10-04 22:59 (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-a7c4fed9.txt
-ws-03049ce2	Quarterdeck Livestream 2026-10-04 23:10 (YouTube)	USA	https://pless.github.io/contrails/cues/agent/ws-03049ce2.txt
 ws-003b26fd	Sveti Stefan › North-west: Sveti Stefan Beach - Sveti Nikola Island	Montenegro	https://pless.github.io/contrails/cues/agent/ws-003b26fd.txt
-ws-fb924b07	Strachan › South: Cairn O'Mount Road	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-fb924b07.txt
 ws-0f10b2e1	Mantua › West: Castello di San Giorgio - Lago di Mezzo	Italy	https://pless.github.io/contrails/cues/agent/ws-0f10b2e1.txt
 ws-c86ce7dc	Dolno Dupeni › West: Psarades	North Macedonia	https://pless.github.io/contrails/cues/agent/ws-c86ce7dc.txt
 ws-5c29c6cc	Dafni › South-east: Ιερός Ναός Αγίων Αναργύρων	Greece	https://pless.github.io/contrails/cues/agent/ws-5c29c6cc.txt
@@ -77,12 +66,10 @@ ws-dec52223	AVAMET Griegos (1604 m, Zones limítrofes) webcam 1	Spain	https://pl
 ws-818a57eb	KFLFERNA8 - Fernandina Beach East (Fernandina Beach)	United States	https://pless.github.io/contrails/cues/agent/ws-818a57eb.txt
 ws-de674ac5	The Enclave Orange Beach, AL (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-de674ac5.txt
 ws-949ec3d4	Generalovo › North-west: Dikaia	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-949ec3d4.txt
-ws-1ffda351	Web Cam - Club nautique de l'Île d'Orléans (YouTube)	Canada	https://pless.github.io/contrails/cues/agent/ws-1ffda351.txt
 ws-a2584d64	Mark Twain Camp (Saranac Lake)	United States	https://pless.github.io/contrails/cues/agent/ws-a2584d64.txt
 ws-429903a0	Lignerolles		https://pless.github.io/contrails/cues/agent/ws-429903a0.txt
 ws-38b2afcd	Dave's Weather (Hampstead)	United States	https://pless.github.io/contrails/cues/agent/ws-38b2afcd.txt
 ws-e6c952cd	Webcam en direct du port de Vannes (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-e6c952cd.txt
-ws-97a1517f	Chehalis, Washington, USA | LIVE Train Camera (Fixed View – North) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-97a1517f.txt
 ws-52a44492	[LIVE] Webcam Pennapiedimonte - località Balzolo, CH (710 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-52a44492.txt
 ws-8e488b5f	RawsonRidge (Grantham)	United States	https://pless.github.io/contrails/cues/agent/ws-8e488b5f.txt
 ws-e3dd3fed	Akouda		https://pless.github.io/contrails/cues/agent/ws-e3dd3fed.txt
@@ -100,19 +87,15 @@ ws-a63730a2	Station 1: KSCMOUNT118 (Mount Pleasant, SC)	United States	https://pl
 ws-5a2a84c4	Plana Earth Station (N068)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-5a2a84c4.txt
 ws-dbbe661f		United States	https://pless.github.io/contrails/cues/agent/ws-dbbe661f.txt
 ws-84ab6ca7	Ibiza live from the Hotel Gran Sol 2026-10-04 21:52 (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-84ab6ca7.txt
-ws-d94d9132	Scotland Edinburgh UK LIVE Cam Webcam Stream 4K HD Arthur's Seat. Salisbury Crags. 12hr Rewind. 2026-10-04 22: (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-d94d9132.txt
 ws-319731d7	Naked Garden (Falmouth)	United States	https://pless.github.io/contrails/cues/agent/ws-319731d7.txt
 ws-9711e3ec	Haynes Post Station  (Lincoln)	United States	https://pless.github.io/contrails/cues/agent/ws-9711e3ec.txt
-ws-2d59785c	Snow King Mountain Cowboy Coaster & Alpine Slide Live Cam - SeeJH.ai (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-2d59785c.txt
 ws-4e34439c	Julius Römer Hütte - Cabana Postavarul - 🔴 Poiana Brasov Live Webcam Partia Lupului (YouTube)	Romania	https://pless.github.io/contrails/cues/agent/ws-4e34439c.txt
 ws-adab6002	Webcam Saint-Cast-le-Guildo - Le Port (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-adab6002.txt
-ws-640441df	Live River Moy From Foxford 2026-10-04 22:51 (YouTube)	Ireland	https://pless.github.io/contrails/cues/agent/ws-640441df.txt
 ws-e62d9b15	Fort Loramie Weather (Fort Loramie)	United States	https://pless.github.io/contrails/cues/agent/ws-e62d9b15.txt
 ws-4199547e	Drama › South-east	Greece	https://pless.github.io/contrails/cues/agent/ws-4199547e.txt
 ws-7deb1c92	Live WEBCAM Lille  • Ciel en Direct dans le Nord (France) | Météo Temps Réel 24/7 (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-7deb1c92.txt
 ws-7ed6af0b	MeteoGalicia Monforte (Monforte de Lemos, Lugo)	Spain	https://pless.github.io/contrails/cues/agent/ws-7ed6af0b.txt
 ws-df7ddfa4	AVAMET Pilar de la Horadada (9 m, el Baix Segura) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-df7ddfa4.txt
-ws-7113962b	Webcam Gourette - Front de Neige (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-7113962b.txt
 ws-2007a9bf	Ja&eacute;n		https://pless.github.io/contrails/cues/agent/ws-2007a9bf.txt
 ws-9da68b7c	Metsovo › South-east	Greece	https://pless.github.io/contrails/cues/agent/ws-9da68b7c.txt
 ws-f9936dba	wedowee	USA	https://pless.github.io/contrails/cues/agent/ws-f9936dba.txt
@@ -126,7 +109,6 @@ ws-877d93e2	Simsbury North (Simsbury)	United States	https://pless.github.io/cont
 ws-2ff59c6d	Gonni: Makrychori	Greece	https://pless.github.io/contrails/cues/agent/ws-2ff59c6d.txt
 ws-0f8c3652	Alexandroupoli › South: Lighthouse of Alexandroupoli - Alexandroupolis Passenger Port	Greece	https://pless.github.io/contrails/cues/agent/ws-0f8c3652.txt
 ws-0350e4cb	Clevedon Marine Lake Live (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-0350e4cb.txt
-ws-7a26a78c	Lekeitioko Udala 2026-10-04 21:43 (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-7a26a78c.txt
 ws-5c148e50	Villavieja de Yeltes	Spain	https://pless.github.io/contrails/cues/agent/ws-5c148e50.txt
 ws-3c5e8df2	AVAMET Rubielos de Mora (932 m, Zones limítrofes) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-3c5e8df2.txt
 ws-18e7a9ea	Ierissos › South	Greece	https://pless.github.io/contrails/cues/agent/ws-18e7a9ea.txt
@@ -140,7 +122,6 @@ ws-fd3e9325	Abbey Road (Newmanstown)	United States	https://pless.github.io/contr
 ws-deedc12c	Buellas		https://pless.github.io/contrails/cues/agent/ws-deedc12c.txt
 ws-959e00b8	KNYEASTD5 (East Durham)	United States	https://pless.github.io/contrails/cues/agent/ws-959e00b8.txt
 ws-edcbdd97	Melle	Germany	https://pless.github.io/contrails/cues/agent/ws-edcbdd97.txt
-ws-b3fa83d2	Webkamera Doksy - LIVE 2026-10-04 22:26 (YouTube)	Czechia	https://pless.github.io/contrails/cues/agent/ws-b3fa83d2.txt
 ws-9ecf9e01	Quincy, Illinois, USA | LIVE Train Camera (Fixed View – East) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-9ecf9e01.txt
 ws-cfabfb1a	Episcopia › South-east: Comune di Episcopia - Chiesa Madre di San Nicola di Bari - Chiesa di Sant'Antonio - Ac	Italy	https://pless.github.io/contrails/cues/agent/ws-cfabfb1a.txt
 ws-4eb5c10f	LHR (Inverness)	United States	https://pless.github.io/contrails/cues/agent/ws-4eb5c10f.txt
@@ -152,11 +133,9 @@ ws-bf72a492	K8VL WX Station (WS-2000) (Lexington)	United States	https://pless.gi
 ws-6b37beb0	Heath-Green Skyranch (Gumbranch)	United States	https://pless.github.io/contrails/cues/agent/ws-6b37beb0.txt
 ws-4a982129	MorningStar (Warwick)	United States	https://pless.github.io/contrails/cues/agent/ws-4a982129.txt
 ws-e1fd18c8	Borkum - Strandstraße 28, Borkum	Germany	https://pless.github.io/contrails/cues/agent/ws-e1fd18c8.txt
-ws-7c907282	Givet		https://pless.github.io/contrails/cues/agent/ws-7c907282.txt
 ws-41e9f1e7	Can&eacute;jan		https://pless.github.io/contrails/cues/agent/ws-41e9f1e7.txt
 ws-9065a3ed	Sylt, Tinnum - Flughafen 69, Sylt, Tinnum	Germany	https://pless.github.io/contrails/cues/agent/ws-9065a3ed.txt
 ws-e05a4a26	Conversano › West: Castellana Grotte	Italy	https://pless.github.io/contrails/cues/agent/ws-e05a4a26.txt
-ws-63a71e98	Cattle Pasture Panorama at Farm Sanctuary powered by EXPLORE.org (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-63a71e98.txt
 ws-a387b895	Gavião (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-a387b895.txt
 ws-13ac5d4c	Romilly-sur-Aigre		https://pless.github.io/contrails/cues/agent/ws-13ac5d4c.txt
 ws-aa26cb55	Dee's New Weather Station (Dahlonega)	United States	https://pless.github.io/contrails/cues/agent/ws-aa26cb55.txt
@@ -180,7 +159,6 @@ ws-e84abc7e	WS5000SUMTERSC (Sumter, SC)	United States	https://pless.github.io/co
 ws-b462a39f	tuscaloosasouth	USA	https://pless.github.io/contrails/cues/agent/ws-b462a39f.txt
 ws-ac3f9b25	Trutnov - vrchol Šibeník (Gablenz) | Live webcam (TEST) 2026-10-04 22:26 (YouTube)	Czechia	https://pless.github.io/contrails/cues/agent/ws-ac3f9b25.txt
 ws-c21a9954	Brunsbüttel - Cuxhavener Straße, Brunsbüttel	Germany	https://pless.github.io/contrails/cues/agent/ws-c21a9954.txt
-ws-fad8b1c9	The Edge Hotel Clearwater Beach (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-fad8b1c9.txt
 ws-b68e0229	Harrison, AR - Live Weather Camera - Sponsored by Reynolds Media - Internet Services (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-b68e0229.txt
 ws-4b7c1cdd	Heiligenhafen - Seebrückenpromenade 3, Heiligenhafen	Germany	https://pless.github.io/contrails/cues/agent/ws-4b7c1cdd.txt
 ws-31a4b766	🔴 LIVE Cruise Port Key West (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-31a4b766.txt
@@ -195,30 +173,23 @@ ws-95774fa3	FOGGIA SKY  (West Long Branch)	United States	https://pless.github.io
 ws-ff0514ef	Messalonskee West River (Waterville)	United States	https://pless.github.io/contrails/cues/agent/ws-ff0514ef.txt
 ws-464b4290	Municipal Unit of Palairos › West: Paleros Marina	Greece	https://pless.github.io/contrails/cues/agent/ws-464b4290.txt
 ws-6b4a9749	Hang Glide Central (Hackettstown)	United States	https://pless.github.io/contrails/cues/agent/ws-6b4a9749.txt
-ws-1d15351b	Live AXIS Q6358-LE PTZ Network Camera at the Milwaukee AEC (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-1d15351b.txt
 ws-3f28bc45	mobilenorth	USA	https://pless.github.io/contrails/cues/agent/ws-3f28bc45.txt
-ws-04656d2e	Islamorada Charter Boats Live WebCam - Islamorada Florida Keys (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-04656d2e.txt
 ws-987ff6e6	coffeeema	USA	https://pless.github.io/contrails/cues/agent/ws-987ff6e6.txt
 ws-7a0a116c	Oak Ridge (Baxley)	United States	https://pless.github.io/contrails/cues/agent/ws-7a0a116c.txt
 ws-092001d7	Hidden Valley Homestead (Rogersville)	United States	https://pless.github.io/contrails/cues/agent/ws-092001d7.txt
 ws-9174b048	The Palencia (Canterra) Weather Station (St. Augustine)	United States	https://pless.github.io/contrails/cues/agent/ws-9174b048.txt
 ws-a9bd164f	Grashevo (N313)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-a9bd164f.txt
-ws-b6924876	arley	USA	https://pless.github.io/contrails/cues/agent/ws-b6924876.txt
 ws-1881b173	Sugarwood Hill (Rutland)	United States	https://pless.github.io/contrails/cues/agent/ws-1881b173.txt
 ws-4ab42fb7	Sveti Vlas › South-east: Hotel Sentido Bellevue Beach	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-4ab42fb7.txt
 ws-c55d6678	Webcam Playa de Altea 2026-10-04 21:28 (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-c55d6678.txt
-ws-a4eea904	Patada › East	Italy	https://pless.github.io/contrails/cues/agent/ws-a4eea904.txt
-ws-15800bc1	Leavenworth Washington Live Webcam from The Rhein Haus (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-15800bc1.txt
 ws-eb268c07	Sines (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-eb268c07.txt
 ws-18b23874	Pineapple Willy's Beach Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-18b23874.txt
 ws-12f886ff	atmore	USA	https://pless.github.io/contrails/cues/agent/ws-12f886ff.txt
 ws-d48f6d60	Redacted (Merritt)	United States	https://pless.github.io/contrails/cues/agent/ws-d48f6d60.txt
-ws-5d559ee2	🔴Live Rail/SkyCam: Glidden Iowa - Cam 2 (East) with Extremely Long-Range Railroad Radio Feed 🔊 (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-5d559ee2.txt
 ws-96f5fad5	Templin - Kantstraße 7-8, Templin	Germany	https://pless.github.io/contrails/cues/agent/ws-96f5fad5.txt
 ws-8aaa2859	LIVE | LORAIN OHIO | BLACK RIVER LANDING CAM (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-8aaa2859.txt
 ws-d9e6eb4a	Whitwell Camera | Countryside, Wildlife Camera & Ford Farm House | Isle of Wight Webcams UK LIVE 2026-10-04 22 (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-d9e6eb4a.txt
 ws-43e99da9	Ely Park (Binghamton)	United States	https://pless.github.io/contrails/cues/agent/ws-43e99da9.txt
-ws-9a36d007	Bad Hindelang Oberjoch - Paßstraße, 44, Bad Hindelang Oberjoch	Germany	https://pless.github.io/contrails/cues/agent/ws-9a36d007.txt
 ws-441b46ea	unionsprings	USA	https://pless.github.io/contrails/cues/agent/ws-441b46ea.txt
 ws-2f79836d	MeteoGalicia Ribadeo (Ribadeo, Lugo)	Spain	https://pless.github.io/contrails/cues/agent/ws-2f79836d.txt
 ws-9b665dd6	Måløy Live 2026-10-04 21:46 (YouTube)	Norway	https://pless.github.io/contrails/cues/agent/ws-9b665dd6.txt
@@ -226,9 +197,7 @@ ws-ac180a68	Two17.co HQ 🌡️ (Virginia Beach)	United States	https://pless.git
 ws-2ad32a62	pisgahhighschool	USA	https://pless.github.io/contrails/cues/agent/ws-2ad32a62.txt
 ws-f77fa14a	Susong Cemetery II (Bristol)	United States	https://pless.github.io/contrails/cues/agent/ws-f77fa14a.txt
 ws-8d2b669e	MeteoGalicia Coruña-Langosteira (Arteixo, A Coruña)	Spain	https://pless.github.io/contrails/cues/agent/ws-8d2b669e.txt
-ws-f5cbde3e	🏰 MONT-SAINT-MICHEL EN DIRECT – Webcam LIVE depuis les falaises de Champeaux 2026-10-04 22:01 (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-f5cbde3e.txt
 ws-55411ac6	Bellaria-Igea Marina	Italy	https://pless.github.io/contrails/cues/agent/ws-55411ac6.txt
-ws-c5087f55	🔴 Live Now: 24/7 Kilauea Volcano Livestream in Hawaii (Cam C) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-c5087f55.txt
 ws-801b4904	Marvão (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-801b4904.txt
 ws-6d581a33	Webcam Chiemsee - Chieming 2026-10-04 22:14 (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-6d581a33.txt
 ws-cf1827d7	Marc	France	https://pless.github.io/contrails/cues/agent/ws-cf1827d7.txt
@@ -252,12 +221,10 @@ ws-7d5090cc	Network Services Group (Saginaw)	United States	https://pless.github.
 ws-f0f3e88a	[LIVE] Webcam San Pietro, Isola del Gran Sasso d'Italia TE (802 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-f0f3e88a.txt
 ws-d1cd074e		United States	https://pless.github.io/contrails/cues/agent/ws-d1cd074e.txt
 ws-804e9b33	Hvar, Croatia ☀ LIVE 24/7 WebCam (YouTube)	Croatia	https://pless.github.io/contrails/cues/agent/ws-804e9b33.txt
-ws-6b84ea6f	RNLI Live Camera at Porthcawl Pier 2026-10-04 22:16 (YouTube)	UK	https://pless.github.io/contrails/cues/agent/ws-6b84ea6f.txt
 ws-94fbcc1e	Charlottesville (Barracks-Rugby) Weather Station - WS-5000 (Charlottesville)	United States	https://pless.github.io/contrails/cues/agent/ws-94fbcc1e.txt
 ws-fc30b75c	Rivercrest (Sterling)	United States	https://pless.github.io/contrails/cues/agent/ws-fc30b75c.txt
 ws-3283b8dd	Webcam Live Firenze - in diretta (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-3283b8dd.txt
 ws-91cfb44f	Ribnitz-Damgarten - Am Markt 1, Ribnitz-Damgarten	Germany	https://pless.github.io/contrails/cues/agent/ws-91cfb44f.txt
-ws-be3ba475	Cannon Mountain NH Live (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-be3ba475.txt
 ws-be0b0c53	laigueglia		https://pless.github.io/contrails/cues/agent/ws-be0b0c53.txt
 ws-fcd4fea4	Live Cam: Campus & Lake Ontario Weather | Shineman Science Center | SUNY Oswego (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-fcd4fea4.txt
 ws-40620047	Campo Maior (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-40620047.txt
@@ -273,15 +240,12 @@ ws-6e0773a5	Snake Hill Weather (Averill Park)	United States	https://pless.github
 ws-86f1ab02	Kluizen		https://pless.github.io/contrails/cues/agent/ws-86f1ab02.txt
 ws-fe7d39b6	Saint-Laurent-de-Neste		https://pless.github.io/contrails/cues/agent/ws-fe7d39b6.txt
 ws-d6445b05	Mühlhausen in Thüringen - Webcam Äußeres Frauentor Live Stream 2026-10-04 22:14 (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-d6445b05.txt
-ws-d42a1c30	Lobbes		https://pless.github.io/contrails/cues/agent/ws-d42a1c30.txt
 ws-6eda329e	WEBCAM EUS EN DIRECT – LE CANIGOU & L’UN DES PLUS BEAUX VILLAGES DE FRANCE | PYRÉNÉES LIVE 🏔 2026-10-04 22:02 (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-6eda329e.txt
-ws-6feb07be	Bad Pyrmont - Friedrichstraße 6, Bad Pyrmont	Germany	https://pless.github.io/contrails/cues/agent/ws-6feb07be.txt
 ws-494e5f39	WS-2902 Ou|In (Miamisburg)	United States	https://pless.github.io/contrails/cues/agent/ws-494e5f39.txt
 ws-fa051c98	Soufli › South-east	Greece	https://pless.github.io/contrails/cues/agent/ws-fa051c98.txt
 ws-d115032f	Mussidan		https://pless.github.io/contrails/cues/agent/ws-d115032f.txt
 ws-fc1bd370	Kassandria › East	Greece	https://pless.github.io/contrails/cues/agent/ws-fc1bd370.txt
 ws-4a8aa827	Simm's Hill Station (Dryden)	United States	https://pless.github.io/contrails/cues/agent/ws-4a8aa827.txt
-ws-d5a13269	Falkenkamera #2 Wanderfalken - Außenansicht, Spitalkirche, Weißenburg i. Bay. 2026-10-04 22:18 (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-d5a13269.txt
 ws-852394f9	Peristasi › South-west	Greece	https://pless.github.io/contrails/cues/agent/ws-852394f9.txt
 ws-782d8303	Holywood: Sydenham	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-782d8303.txt
 ws-c7139d90	Stralsund - Hafenstraße 8, Stralsund	Germany	https://pless.github.io/contrails/cues/agent/ws-c7139d90.txt
@@ -292,7 +256,6 @@ ws-71dac544	Popovi livadi (N155)	Bulgaria	https://pless.github.io/contrails/cues
 ws-ac0dac98	New Wing (Burlington)	United States	https://pless.github.io/contrails/cues/agent/ws-ac0dac98.txt
 ws-c946df75	Plateau d'Assy		https://pless.github.io/contrails/cues/agent/ws-c946df75.txt
 ws-6b10624e	Annot		https://pless.github.io/contrails/cues/agent/ws-6b10624e.txt
-ws-6ccc7cf6	La Bourgonce		https://pless.github.io/contrails/cues/agent/ws-6ccc7cf6.txt
 ws-5d85327f	Live Webcam Playas de Albufeira 🏖️ Hotel Sol e Mar ☀️ Albufeira ☀️ Algarve ☀️ Portugal 🌎 🅻🅸🆅🅴 (YouTube)	Portugal	https://pless.github.io/contrails/cues/agent/ws-5d85327f.txt
 ws-40389abc	Fevik › South-east	Norway	https://pless.github.io/contrails/cues/agent/ws-40389abc.txt
 ws-fd05654d	Tsada (Paphos)	Cyprus	https://pless.github.io/contrails/cues/agent/ws-fd05654d.txt
@@ -309,15 +272,11 @@ ws-34350865	Karpenisi › West: Kremasta	Greece	https://pless.github.io/contrail
 ws-6f18adc6	Bonn - Rheinaustraße 120, Bonn	Germany	https://pless.github.io/contrails/cues/agent/ws-6f18adc6.txt
 ws-5c33661b	53 Abner Point (Harpswell)	United States	https://pless.github.io/contrails/cues/agent/ws-5c33661b.txt
 ws-93c7c2a7	AVAMET Serra (332 m, el Camp de Túria) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-93c7c2a7.txt
-ws-75e29b69	Hamptons.com - LIVE! Pike's Beach, Westhampton , New York (YouTube)	USA	https://pless.github.io/contrails/cues/agent/ws-75e29b69.txt
 ws-0b0b0c1e	cuba	USA	https://pless.github.io/contrails/cues/agent/ws-0b0b0c1e.txt
-ws-e496bd80	Devin (N184)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-e496bd80.txt
-ws-77f631ac	Webcam Live Monterosso (SP) - Cinque Terre 2026-10-04 21:43 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-77f631ac.txt
 ws-e20d0957	GrassValley (Alpharetta)	United States	https://pless.github.io/contrails/cues/agent/ws-e20d0957.txt
 ws-e46f0b2b	Saint-Jeures		https://pless.github.io/contrails/cues/agent/ws-e46f0b2b.txt
 ws-f439264c	Møre og Romsdal › South-west	Norway	https://pless.github.io/contrails/cues/agent/ws-f439264c.txt
 ws-8a7de5f3	Saint-Martin-de-Londres		https://pless.github.io/contrails/cues/agent/ws-8a7de5f3.txt
-ws-99df6ad7	Øvstabø - Byrkjedal	Norway	https://pless.github.io/contrails/cues/agent/ws-99df6ad7.txt
 ws-69eea438	Live Sky View Lanzarote – How is the weather like today? (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-69eea438.txt
 ws-f7708c7b	🟢 GOMV.COM Menemsha Harbor Fishing Dock Martha's Vineyard Webcam 2026-10-04 23:10 (YouTube)	USA	https://pless.github.io/contrails/cues/agent/ws-f7708c7b.txt
 ws-79b1ef91	Porto di Pisa Webcam - Marina e Mar Tirreno 2026-10-04 21:36 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-79b1ef91.txt
@@ -326,20 +285,16 @@ ws-182cf6d3	Odemira (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/c
 ws-8b59ff02	albertville	USA	https://pless.github.io/contrails/cues/agent/ws-8b59ff02.txt
 ws-e7c364cf	Summit Cam At Stratton Mountain Resort (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-e7c364cf.txt
 ws-d24ffcd9	cooksmuseum	USA	https://pless.github.io/contrails/cues/agent/ws-d24ffcd9.txt
-ws-e867295a	Poppit Sands Live Webcam 2026-10-04 21:45 (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-e867295a.txt
 ws-90030dd1	WS5000 (Shaker Heights)	United States	https://pless.github.io/contrails/cues/agent/ws-90030dd1.txt
 ws-e30bccbf	AVAMET Alcoi (580 m, l′Alcoià) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-e30bccbf.txt
 ws-5b6461e0	Montpascal		https://pless.github.io/contrails/cues/agent/ws-5b6461e0.txt
 ws-1e5d6977	Sandillon		https://pless.github.io/contrails/cues/agent/ws-1e5d6977.txt
-ws-917a6156	SRIA - West Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-917a6156.txt
 ws-32d01f82	Roosevelt City/Harry Wright Blvd (Manchester Township)	United States	https://pless.github.io/contrails/cues/agent/ws-32d01f82.txt
 ws-a05a597d	Nils WS-5000 (Kennett Square)	United States	https://pless.github.io/contrails/cues/agent/ws-a05a597d.txt
 ws-d9e4b6aa	Ehingen - Kirchgasse 3, Ehingen	Germany	https://pless.github.io/contrails/cues/agent/ws-d9e4b6aa.txt
 ws-c3b7f02c	Orgelet		https://pless.github.io/contrails/cues/agent/ws-c3b7f02c.txt
 ws-2587c880	Braunsbedra - Hafenplatz Nr. 6, Braunsbedra	Germany	https://pless.github.io/contrails/cues/agent/ws-2587c880.txt
 ws-f3c1c2bf	Scharbeutz - Strandallee 124 A, Scharbeutz	Germany	https://pless.github.io/contrails/cues/agent/ws-f3c1c2bf.txt
-ws-c33d2f20	Webcam Grote Markt - Groningen 2026-10-04 22:00 (YouTube)	Netherlands	https://pless.github.io/contrails/cues/agent/ws-c33d2f20.txt
-ws-88e4a55f	Marine City HomeTown Cam | Marine City, MI | StreamTime LIVE (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-88e4a55f.txt
 ws-36b077a8	AVAMET Casas Bajas (685 m, el Racó d′Ademús) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-36b077a8.txt
 ws-1e40aa64	Pesaro: Hotel Nettuno - Spiaggia di Ponente	Italy	https://pless.github.io/contrails/cues/agent/ws-1e40aa64.txt
 ws-558fe338	Westelee (Shady Side)	United States	https://pless.github.io/contrails/cues/agent/ws-558fe338.txt
@@ -352,15 +307,12 @@ ws-f615980a	Alcácer do Sal (MeteoAlentejo)	Portugal	https://pless.github.io/con
 ws-55f62be5	My Weather Station (Summerton, SC)	United States	https://pless.github.io/contrails/cues/agent/ws-55f62be5.txt
 ws-87622946	Ludwigsburg - Posilipostraße 4, Ludwigsburg	Germany	https://pless.github.io/contrails/cues/agent/ws-87622946.txt
 ws-a091b880	Oak Street Weather (Haines City)	United States	https://pless.github.io/contrails/cues/agent/ws-a091b880.txt
-ws-f92c3275	King Pine Base Cam, New Hampshire USA (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-f92c3275.txt
 ws-1ea5b511	Monforte (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-1ea5b511.txt
 ws-40af690b	Wasserburg am Bodensee - Halbinselstraße 53, Wasserburg am Bodensee	Germany	https://pless.github.io/contrails/cues/agent/ws-40af690b.txt
 ws-3397774c	Évora (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-3397774c.txt
-ws-635cb637	Horseshoe Curve – Altoona, Pennsylvania, USA | LIVE Train Camera (PTZ) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-635cb637.txt
 ws-40e33b1a	Wilhelmshaven - Pazifik 1, Wilhelmshaven	Germany	https://pless.github.io/contrails/cues/agent/ws-40e33b1a.txt
 ws-da4fe348	Plovdiv Centre (N233)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-da4fe348.txt
 ws-6ac60276	Stade - Hansestraße 18, Stade	Germany	https://pless.github.io/contrails/cues/agent/ws-6ac60276.txt
-ws-66e97b52	Buevegen X/Undheimsveg - Bue	Norway	https://pless.github.io/contrails/cues/agent/ws-66e97b52.txt
 ws-f041e615	Amyndeo › South	Greece	https://pless.github.io/contrails/cues/agent/ws-f041e615.txt
 ws-3b72aad1	BPL (Bowmanstown)	United States	https://pless.github.io/contrails/cues/agent/ws-3b72aad1.txt
 ws-5b3b924e	Konigstein › South: Königstein Fortress	Germany	https://pless.github.io/contrails/cues/agent/ws-5b3b924e.txt
@@ -431,8 +383,6 @@ ws-0e4865df	Kepins (Murrysville)	United States	https://pless.github.io/contrails
 ws-ea4f6c70	NPS Boston Light (Little Brewster Island) - looking west	USA	https://pless.github.io/contrails/cues/agent/ws-ea4f6c70.txt
 ws-9b794cfc	Düsseldorf - Marktplatz 2, Düsseldorf	Germany	https://pless.github.io/contrails/cues/agent/ws-9b794cfc.txt
 ws-6ed9d24f	FOX 13 Weather Cameras (Tampa)	United States	https://pless.github.io/contrails/cues/agent/ws-6ed9d24f.txt
-ws-dd1ad2b3	LIVE 🔴 WEBCAM from TENERIFE AIRPORT - (Canary Islands, Spain) (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-dd1ad2b3.txt
-ws-e1029948	Live Cam From The Best Western In Jacksonville Beach, Fl. (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-e1029948.txt
 ws-54591fd3	Live Broad Haven Beach Pembrokeshire Webcam (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-54591fd3.txt
 ws-aaa0a856	Kolb Kastle Weather Station (The Villages)	United States	https://pless.github.io/contrails/cues/agent/ws-aaa0a856.txt
 ws-74041072	Norderney - Damenpfad 17 , Norderney	Germany	https://pless.github.io/contrails/cues/agent/ws-74041072.txt
@@ -455,12 +405,10 @@ ws-3f88bde3	Arsoli	Italy	https://pless.github.io/contrails/cues/agent/ws-3f88bde
 ws-edbf85a3	Kaycee 9SE - Panel (Looking East) (Wyoming Mesonet)	United States	https://pless.github.io/contrails/cues/agent/ws-edbf85a3.txt
 ws-706bbd62	Montecalvo in Foglia › West: Torre Cotogna	Italy	https://pless.github.io/contrails/cues/agent/ws-706bbd62.txt
 ws-e968175e	Katzenthal	France	https://pless.github.io/contrails/cues/agent/ws-e968175e.txt
-ws-ac3965cf	Webcam Arc-sous-Cicon (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-ac3965cf.txt
 ws-ec498b36	MeteoGalicia Aldea Nova (Narón, A Coruña)	Spain	https://pless.github.io/contrails/cues/agent/ws-ec498b36.txt
 ws-39911fcd	AVAMET Crevillent (838 m, el Baix Vinalopó) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-39911fcd.txt
 ws-5fb3f080	Aljustrel (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-5fb3f080.txt
 ws-8fecf517	Sturgis (SD Mesonet STMS2) camera 1	United States	https://pless.github.io/contrails/cues/agent/ws-8fecf517.txt
-ws-9e421f4e	Lake Tahoe, Nevada Live Cam | 24/7 Stream (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-9e421f4e.txt
 ws-3dedba88	Andorick Acres (Severn)	United States	https://pless.github.io/contrails/cues/agent/ws-3dedba88.txt
 ws-c9195ac0	Moura (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-c9195ac0.txt
 ws-72875de2	Lægreidstølen - Haugastøl	Norway	https://pless.github.io/contrails/cues/agent/ws-72875de2.txt
@@ -469,10 +417,8 @@ ws-1faa5754	Nisa (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues
 ws-e6f6fbc9	Plon: Schloß - Großer Plöner See	Germany	https://pless.github.io/contrails/cues/agent/ws-e6f6fbc9.txt
 ws-e89be925	Peace Lily Falls (Sylva)	United States	https://pless.github.io/contrails/cues/agent/ws-e89be925.txt
 ws-9d285841	Sant Martí de Canals	Spain	https://pless.github.io/contrails/cues/agent/ws-9d285841.txt
-ws-c3f3aa8b	🔴 Enjoy the live webcam  with beautiful sunsets in Zandvoort, The Netherlands. (YouTube)	Netherlands	https://pless.github.io/contrails/cues/agent/ws-c3f3aa8b.txt
 ws-32cb4373	Rome › East: Vatican City	Italy	https://pless.github.io/contrails/cues/agent/ws-32cb4373.txt
 ws-6a73e22e	Lutow › South-east: Neuendorfkrug	Germany	https://pless.github.io/contrails/cues/agent/ws-6a73e22e.txt
-ws-f522a184	🍊 WEBCAM EN #DIRECTO  #fallas2026  #LIVE 24h DESDE #VALENCIA #plaza Ayuntamiento Valencia (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-f522a184.txt
 ws-fa6dcd6b	AVAMET Sorita (626 m, els Ports) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-fa6dcd6b.txt
 ws-6eaea09b	MeteoGalicia Ríotorto (Riotorto, Lugo)	Spain	https://pless.github.io/contrails/cues/agent/ws-6eaea09b.txt
 ws-940f9ac3	Chesterfield Weather (Keeseville)	United States	https://pless.github.io/contrails/cues/agent/ws-940f9ac3.txt
@@ -488,7 +434,6 @@ ws-926fecb5	Cuba (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues
 ws-35c2f832	MeteoGalicia Penedo do Galo (Viveiro, Lugo)	Spain	https://pless.github.io/contrails/cues/agent/ws-35c2f832.txt
 ws-e0d97d9d	Webcam Live Lanildut 2026-10-04 22:00 (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-e0d97d9d.txt
 ws-d4c277f7	AVAMET Fontanars (628 m, la Vall d′Albaida) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-d4c277f7.txt
-ws-6ae90340	St. Augustine Beach Surf Cam  - Surf Station (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-6ae90340.txt
 ws-da5f4757	Sars-et-Rosi&egrave;res		https://pless.github.io/contrails/cues/agent/ws-da5f4757.txt
 ws-edab702d	The Rooftop Bar (Fixed Wide West) | Oceanside, CA | San Diego Web Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-edab702d.txt
 ws-129eb439	Lausanne - Centre ville		https://pless.github.io/contrails/cues/agent/ws-129eb439.txt
@@ -504,7 +449,6 @@ ws-afa99bfa	Susanj › South: Miejska Beach - Žukotrlica Beach - Šušanjska Pl
 ws-8716c079	Znojmo, Czech Republic - Panorama and Sky above the City - LIVE (YouTube)	Czechia	https://pless.github.io/contrails/cues/agent/ws-8716c079.txt
 ws-9c92bada	Smolyan (N065)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-9c92bada.txt
 ws-de9341a8	[LIVE] Webcam Castelvecchio Calvisio, AQ (1060 m) - Rocca Calascio e Santo Stefano di Sessanio (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-de9341a8.txt
-ws-cd1036b2	Loano		https://pless.github.io/contrails/cues/agent/ws-cd1036b2.txt
 ws-ef4fad24	Colwell Bay | Static Camera | Totland Bay | Isle of Wight Webcams UK 2026-10-04 22:49 (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-ef4fad24.txt
 ws-9285c97f	🟢 GOMV.COM Martha's Vineyard Edgartown Harbor & Lighthouse Webcam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-9285c97f.txt
 ws-4f2c7462	Mareuil		https://pless.github.io/contrails/cues/agent/ws-4f2c7462.txt
@@ -531,17 +475,13 @@ ws-1686eff3	Saint-Jean-du-Gard	France	https://pless.github.io/contrails/cues/age
 ws-de68e27a	Sestriere Live Cam - Grangesises, Sauze di Cesana 2026-10-04 22:10 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-de68e27a.txt
 ws-708a3eeb	Arronches (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-708a3eeb.txt
 ws-2a49f266	🟢 GOMV.COM Woods Hole Harbor & MV Ferry Live Webcam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-2a49f266.txt
-ws-c6724eb9	🔴 Live-Webcam Bad Kleinkirchheim | Landhaus Apartments Prägant – 24/7 Panoramablick (YouTube)	Austria	https://pless.github.io/contrails/cues/agent/ws-c6724eb9.txt
 ws-b0118e80	Bloom Drive (Damascus)	United States	https://pless.github.io/contrails/cues/agent/ws-b0118e80.txt
 ws-87315f79	Ourique (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-87315f79.txt
 ws-fc9c0242	Gilbert St 2000 (Springfield)	United States	https://pless.github.io/contrails/cues/agent/ws-fc9c0242.txt
 ws-6ece4c75	Hörnum - Rantumer Str. 23A, Hörnum	Germany	https://pless.github.io/contrails/cues/agent/ws-6ece4c75.txt
 ws-c6182321	BTS Rooftop Station (Bedminster)	United States	https://pless.github.io/contrails/cues/agent/ws-c6182321.txt
-ws-9ef35ed8	Pont-d'Ain		https://pless.github.io/contrails/cues/agent/ws-9ef35ed8.txt
 ws-b0a7637f	AVAMET Real (131 m, la Ribera Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-b0a7637f.txt
-ws-f82db81b	Attitash Mountain Village, New Hampshire - Live (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-f82db81b.txt
 ws-5ac48a1f	Webcam Fécamp (YouTube)	France	https://pless.github.io/contrails/cues/agent/ws-5ac48a1f.txt
-ws-714dcd66	LIVE Weather in King George County, VA (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-714dcd66.txt
 ws-b31d5100	Merville-Franceville-Plage		https://pless.github.io/contrails/cues/agent/ws-b31d5100.txt
 ws-bd76c392	Corny-sur-Moselle		https://pless.github.io/contrails/cues/agent/ws-bd76c392.txt
 ws-e552e981	My Weather (Pleasantville)	United States	https://pless.github.io/contrails/cues/agent/ws-e552e981.txt
@@ -568,7 +508,6 @@ ws-32732eb7	Navaquesera › South	Spain	https://pless.github.io/contrails/cues/a
 ws-975e1a13	FlaglerA1A Pier LIVE (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-975e1a13.txt
 ws-99c9053f	Sibenik-meteo primosten trg	Croatia	https://pless.github.io/contrails/cues/agent/ws-99c9053f.txt
 ws-1d997dd7	AVAMET Guadassuar (33 m, la Ribera Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-1d997dd7.txt
-ws-be92b5fb	[LIVE] Webcam Roccacaramanico, Piazza Callarone, PE (1050 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-be92b5fb.txt
 ws-563fab0d	Varel-Dangast - Edo-Wiemken-Str. 61, Varel-Dangast	Germany	https://pless.github.io/contrails/cues/agent/ws-563fab0d.txt
 ws-957fbaa2	AVAMET Sant Jordi (160 m, el Baix Maestrat) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-957fbaa2.txt
 ws-d439bf6a	Boretto › North-west: Porto turistico	Italy	https://pless.github.io/contrails/cues/agent/ws-d439bf6a.txt
@@ -579,8 +518,6 @@ ws-34910d32	AVAMET Requena (645 m, la Plana d′Utiel-Requena) webcam 1	Spain	ht
 ws-aa18958f	Vikeså døgnhvileplass - 3000881_1	Norway	https://pless.github.io/contrails/cues/agent/ws-aa18958f.txt
 ws-6d0e50b7	Karditsa: Titagion Boutique Hotel / Τιτάγιον Ξενοδοχείο - Lampero - Lake Plastiras - Agios Athanasios	Greece	https://pless.github.io/contrails/cues/agent/ws-6d0e50b7.txt
 ws-b6aef6de	Houston, Texas | Live Hobby Airport Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-b6aef6de.txt
-ws-d9a836f9	Live Noordwijk aan Zee Boulevard en Beach Camera (YouTube)	Netherlands	https://pless.github.io/contrails/cues/agent/ws-d9a836f9.txt
-ws-1d446720	Hamptons.com - LIVE! Tiana Beach, Hampton Bays, New York 2026-10-04 21:57 (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-1d446720.txt
 ws-ae901fd8	N1RCW-WX (Bluffton)	United States	https://pless.github.io/contrails/cues/agent/ws-ae901fd8.txt
 ws-07efb17c	Sibenik-meteo milna	Croatia	https://pless.github.io/contrails/cues/agent/ws-07efb17c.txt
 ws-caa54b16	Laboe - Strandstraße 92, Laboe	Germany	https://pless.github.io/contrails/cues/agent/ws-caa54b16.txt
@@ -590,8 +527,6 @@ ws-36fa30d3	Weymouth Harbour Live Webcam @ The George Bar & Grill (YouTube)	Unit
 ws-6605a520	Webcam CDF [OVEST] 2026-10-04 21:33 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-6605a520.txt
 ws-3da20f89	dittolanding	USA	https://pless.github.io/contrails/cues/agent/ws-3da20f89.txt
 ws-58555005	Rainbow Mountain	USA	https://pless.github.io/contrails/cues/agent/ws-58555005.txt
-ws-3cdbf9ca	Jasper, AR - Live Weather Camera - Sponsored by Reynolds Media - Internet Services (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-3cdbf9ca.txt
-ws-fc30bc4e	Chicago & North Western Power House Live Webcam (East) - Chicago, IL  #SteelHighway (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-fc30bc4e.txt
 ws-48bd5a0e	Kühlungsborn - Fulgen 5, Kühlungsborn	Germany	https://pless.github.io/contrails/cues/agent/ws-48bd5a0e.txt
 ws-80f2fb08	Vrondou › South-east: Foteina	Greece	https://pless.github.io/contrails/cues/agent/ws-80f2fb08.txt
 ws-139552a9	Berlin - Fürstenwalder Damm 838, Berlin	Germany	https://pless.github.io/contrails/cues/agent/ws-139552a9.txt
@@ -633,12 +568,10 @@ ws-e9b1072a	Webcam Live Frabosa (CN) - Monte Malanotte (YouTube)	Italy	https://p
 ws-21c26de1	AVAMET Ibi (705 m, l′Alcoià) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-21c26de1.txt
 ws-e91010c4	Ocean House Surf & Skate - Nahant, MA LIVE (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-e91010c4.txt
 ws-4b15123e	guntersvilledam	USA	https://pless.github.io/contrails/cues/agent/ws-4b15123e.txt
-ws-aa222590	Bran Vila Panorama - Bucegi mountain view 🔴  Live Webcam (YouTube)	Romania	https://pless.github.io/contrails/cues/agent/ws-aa222590.txt
 ws-414c1506	Estremoz (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-414c1506.txt
 ws-e5c39840	MeteoGalicia Cristosende (A Teixeira, Ourense)	Spain	https://pless.github.io/contrails/cues/agent/ws-e5c39840.txt
 ws-8b137f40	AVAMET Vilafamés (350 m, la Plana Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-8b137f40.txt
 ws-e9e21b23	Tain Weather (Smyrna)	United States	https://pless.github.io/contrails/cues/agent/ws-e9e21b23.txt
-ws-0d545d36	Beachhouse Webcam Miramar Beach, FL (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-0d545d36.txt
 ws-cefdfe10	Fronteira (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-cefdfe10.txt
 ws-32c4894c	MeteoGalicia Coruña-Dique (A Coruña, A Coruña)	Spain	https://pless.github.io/contrails/cues/agent/ws-32c4894c.txt
 ws-a8b6b510	Livecam Elbufer Dresden / Live from the river Elbe & Panorama of Dresden 2026-10-04 22:12 (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-a8b6b510.txt
@@ -673,8 +606,6 @@ ws-14a7ee08	Destin Water Users, Tower 3 webcam (YouTube)	United States	https://p
 ws-b258f7db	MeteoGalicia Baiona (Baiona, Pontevedra)	Spain	https://pless.github.io/contrails/cues/agent/ws-b258f7db.txt
 ws-e3f724fe	Live Outer Banks, NC Webcam from Twiddy & Company (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-e3f724fe.txt
 ws-54fa803a	drakemountain	USA	https://pless.github.io/contrails/cues/agent/ws-54fa803a.txt
-ws-ab9114a7	Big 10 Curve at Arvada, Colorado, USA | LIVE Train Camera (PTZ) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-ab9114a7.txt
-ws-ad830b93	Grimentz Live Cam (HD) (YouTube)	Switzerland	https://pless.github.io/contrails/cues/agent/ws-ad830b93.txt
 ws-58ddc431	trenkevens (Laurel)	United States	https://pless.github.io/contrails/cues/agent/ws-58ddc431.txt
 ws-3a9f7981	AVAMET la Pobla de Farnals (2 m, l′Horta Nord) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-3a9f7981.txt
 ws-4a1b4953	AVAMET Torreblanca (0 m, la Plana Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-4a1b4953.txt
@@ -691,9 +622,7 @@ ws-93cd7f39	Camellia Oaks (Tallahassee)	United States	https://pless.github.io/co
 ws-4aacd5f7	Cruiser Aurora St.Petersburg cam Tiandy Polar Day. Крейсер Аврора онлайн IP-камера Tiandy Polar Day (YouTube)	Russia	https://pless.github.io/contrails/cues/agent/ws-4aacd5f7.txt
 ws-baaed1cd	AVAMET Gandia (385 m, la Safor) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-baaed1cd.txt
 ws-8ffef390	Webcam Live Cerreto Laghi (RE) - Piste da Sci e Impianti di Risalita (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-8ffef390.txt
-ws-520f3189	Fort Lauderdale Beach LIVE: Surf, Wind & Golden Hour (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-520f3189.txt
 ws-13fb1a2e	AVAMET Gátova (578 m, el Camp de Túria) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-13fb1a2e.txt
-ws-de7b704d	🔴🚢 Vancouver LIVE Cam | Cruise Ship LiveStream 24/7 | City Views & Canada Place | Alaska Season 2026 (YouTube)	Canada	https://pless.github.io/contrails/cues/agent/ws-de7b704d.txt
 ws-23970b04	Portalegre (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-23970b04.txt
 ws-6fa7b376	AVAMET Utiel (813 m, la Plana d′Utiel-Requena) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-6fa7b376.txt
 ws-c1e24bc9	Lake Otay | San Diego Web Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-c1e24bc9.txt
@@ -708,7 +637,6 @@ ws-76841c71	Norden-Norddeich - Hafenstr. 1, Norden-Norddeich	Germany	https://ple
 ws-c3098f6d	AVAMET Quartell (45 m, el Camp de Morvedre) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-c3098f6d.txt
 ws-bbf40d15	Vidigueira (MeteoAlentejo)	Portugal	https://pless.github.io/contrails/cues/agent/ws-bbf40d15.txt
 ws-1e7cede3	Lempdes		https://pless.github.io/contrails/cues/agent/ws-1e7cede3.txt
-ws-aecf85f0	South Lake Tahoe Airport Live Webcam - South (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-aecf85f0.txt
 ws-a2eb9ef3	AVAMET Xert (447 m, el Baix Maestrat) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-a2eb9ef3.txt
 ws-c7200fe1	AVAMET Gavarda (80 m, la Ribera Alta) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-c7200fe1.txt
 ws-f45586c3	AVAMET l′Eliana (100 m, el Camp de Túria) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-f45586c3.txt
@@ -720,24 +648,19 @@ ws-978ac793	🔴 ERUZIONE ETNA - Nunziata di Mascali live webcam - Panoramica Et
 ws-2d01e33a	WebCam Hotel ChiemseePanorama | Gstadt am Chiemsee (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-2d01e33a.txt
 ws-a5fdcc6b	ishkooda	USA	https://pless.github.io/contrails/cues/agent/ws-a5fdcc6b.txt
 ws-6192a529	🌞 🌊 Mallorca Webcam 4K UHD Tora Beach Paguera 24/7 Mar y Mar Restaurant #Livestream #mallorcawebcam (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-6192a529.txt
-ws-6721b0a0	🔴 LIVE: Funchal Marina Webcam 1 Madeira Island | Madeira-Web (YouTube)	Portugal	https://pless.github.io/contrails/cues/agent/ws-6721b0a0.txt
 ws-59a15279	[LIVE] Webcam Passolanciano, PE - vista Impianti Sciistici (1320 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-59a15279.txt
 ws-6546090d	Webcam Live Riomaggiore (SP) - Cinque Terre 2026-10-04 21:59 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-6546090d.txt
 ws-b3459a8e	Dělostřelecká tvrz Stachelberg | Live Webcam 2026-10-04 22:26 (YouTube)	Czechia	https://pless.github.io/contrails/cues/agent/ws-b3459a8e.txt
 ws-0d811392	MeteoGalicia Aguete (Marín, Pontevedra)	Spain	https://pless.github.io/contrails/cues/agent/ws-0d811392.txt
-ws-ab6ef944	LIVE MALLORCA – PORT | AIRPORT | CITY | BEACH 2026-10-04 21:25 (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-ab6ef944.txt
 ws-accd7ad6	AVAMET El Toro (1005 m, l′Alt Palància) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-accd7ad6.txt
 ws-fe684121	Awareness Shop (New Paltz)	United States	https://pless.github.io/contrails/cues/agent/ws-fe684121.txt
 ws-1ee9680a	Torfhaus/Harz - Torfhaus 2, Torfhaus/Harz	Germany	https://pless.github.io/contrails/cues/agent/ws-1ee9680a.txt
-ws-26d0a9b9	UW Continuum College Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-26d0a9b9.txt
 ws-b4dac9e6	AVAMET Alacant (4 m, l′Alacantí) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-b4dac9e6.txt
 ws-370b307d	AVAMET Cabanes (187 m, la Plana Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-370b307d.txt
 ws-74dee9e4		United States	https://pless.github.io/contrails/cues/agent/ws-74dee9e4.txt
 ws-632edcee	Summerlin / Fatboy (Clearwater)	United States	https://pless.github.io/contrails/cues/agent/ws-632edcee.txt
 ws-bb94bebd	CIYC Weather  (Captiva)	United States	https://pless.github.io/contrails/cues/agent/ws-bb94bebd.txt
-ws-77e49a61	O'Fallon Weather (West)		https://pless.github.io/contrails/cues/agent/ws-77e49a61.txt
 ws-d2f63f6f	Vilano Boat Ramp LIVE 24/7 | St. Augustine, Florida (YouTube)	USA	https://pless.github.io/contrails/cues/agent/ws-d2f63f6f.txt
-ws-e884800e	Tarpon Feeding Dock at Robbie's Marina in Islamorada - LIVE (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-e884800e.txt
 ws-34e675e2	AVAMET el Poble Nou de Benitatxell (433 m, la Marina Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-34e675e2.txt
 ws-c7ca9e69	Neuharlingersiel - Am Hafen Ost, Neuharlingersiel	Germany	https://pless.github.io/contrails/cues/agent/ws-c7ca9e69.txt
 ws-59fb36c5	AVAMET Carlet (100 m, la Ribera Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-59fb36c5.txt
@@ -746,8 +669,6 @@ ws-daa55f35	Weather Daddy Live (Ormond Beach)	United States	https://pless.github
 ws-c08540a4	AVAMET Alcoleja (745 m, el Comtat) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-c08540a4.txt
 ws-b019f1bd	AVAMET Oliva (1 m, la Safor) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-b019f1bd.txt
 ws-a521ffaa	Webcam Live Lerici Venere Azzurra (SP) - Panorama dall'Hotel Florida Lerici 2026-10-04 21:36 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-a521ffaa.txt
-ws-ffe45b0f	Jupiter Reef Club Live Webcam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-ffe45b0f.txt
-ws-d6920d1a	Gearhed 2 (Raymond)	United States	https://pless.github.io/contrails/cues/agent/ws-d6920d1a.txt
 ws-6dd528e6	AVAMET Puçol (100 m, l′Horta Nord) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-6dd528e6.txt
 ws-a882313f	Lakes Region Mobile Home Village (Gilford)	United States	https://pless.github.io/contrails/cues/agent/ws-a882313f.txt
 ws-6a9e009c	EarthCam Live:  Terminal Tower Cam (Cleveland, OH) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-6a9e009c.txt
@@ -763,7 +684,6 @@ ws-50e17bdf	AVAMET Senija (234 m, la Marina Alta) webcam 1	Spain	https://pless.g
 ws-fb5d8631	AVAMET Eslida (342 m, la Plana Baixa) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-fb5d8631.txt
 ws-388f48b2	Kuklen Centre (N219)	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-388f48b2.txt
 ws-463db9a3	AVAMET la Salzadella (339 m, el Baix Maestrat) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-463db9a3.txt
-ws-bc7b1519	Boulder Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-bc7b1519.txt
 ws-4b4b333f	AVAMET Montán (535 m, l′Alt Millars) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-4b4b333f.txt
 ws-c811e3ae	Arlins weather station  (Denver)	United States	https://pless.github.io/contrails/cues/agent/ws-c811e3ae.txt
 ws-250b186a	Toccoa 0.6 ESE (Toccoa)	United States	https://pless.github.io/contrails/cues/agent/ws-250b186a.txt
@@ -777,9 +697,6 @@ ws-d831919e	AVAMET Castellfort (1181 m, els Ports) webcam 3	Spain	https://pless.
 ws-43f1dcba	AVAMET la Vall d′Ebo (394 m, la Marina Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-43f1dcba.txt
 ws-6082381e	AVAMET Balones (730 m, el Comtat) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-6082381e.txt
 ws-a0908606	AVAMET Montserrat (225 m, la Ribera Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-a0908606.txt
-ws-93847aa2	San Diego Shelter Island Live Web Cam 4K (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-93847aa2.txt
-ws-713dc39c	🔵 LIVE from Malaga Airport (AGP/LEMG) - Costa del Sol - Andalucía - Spain - 24/7 (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-713dc39c.txt
-ws-5c72511d	[LIVE] Webcam Campo di Giove - centro storico, AQ (1070 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-5c72511d.txt
 ws-388ca22e	North Conway, New Hampshire - LIVE CAM (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-388ca22e.txt
 ws-87a8cfc9	Berlin - Alexanderplatz 7, Berlin	Germany	https://pless.github.io/contrails/cues/agent/ws-87a8cfc9.txt
 ws-1c463e53	Allison’s weather station (Prudenville)	United States	https://pless.github.io/contrails/cues/agent/ws-1c463e53.txt
@@ -788,7 +705,6 @@ ws-da973fd7	🟢  GOMV.COM Aquinnah Gay Head Lighthouse Webcam (YouTube)	United 
 ws-1301eb89	AVAMET Cortes de Pallás (665 m, la Vall de Cofrents-Aiora) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-1301eb89.txt
 ws-269b6028	Alonia	Greece	https://pless.github.io/contrails/cues/agent/ws-269b6028.txt
 ws-680ac2ff	AVAMET Alcoi (1352 m, l′Alcoià) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-680ac2ff.txt
-ws-30345c40	Rhodes › North-west: Triánta - Égée-Méridionale, Grèce	Greece	https://pless.github.io/contrails/cues/agent/ws-30345c40.txt
 ws-266b9622	AVAMET Carcaixent (30 m, la Ribera Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-266b9622.txt
 ws-43dfb841	AVAMET Catarroja (15 m, l′Horta Sud) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-43dfb841.txt
 ws-de4b18fc	tuscaloosa	USA	https://pless.github.io/contrails/cues/agent/ws-de4b18fc.txt
@@ -873,7 +789,6 @@ ws-58fd8d68	AVAMET la Pobla de Farnals (20 m, l′Horta Nord) webcam 1	Spain	htt
 ws-c88e9b66	AVAMET Chóvar (390 m, l′Alt Palància) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-c88e9b66.txt
 ws-9409a995	AVAMET Alboraia (7 m, l′Horta Nord) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-9409a995.txt
 ws-32fdb12f	AVAMET Albocàsser (525 m, l′Alt Maestrat) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-32fdb12f.txt
-ws-9e4c8581	West Base Live Webcam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-9e4c8581.txt
 ws-3a1922bf	AVAMET Agullent (434 m, la Vall d′Albaida) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-3a1922bf.txt
 ws-8e0ba4f6	AVAMET València (8 m, València) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-8e0ba4f6.txt
 ws-7159d575	AVAMET l′Alcora (328 m, l′Alcalatén) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-7159d575.txt
@@ -908,14 +823,11 @@ ws-4ec1e1e9	AVAMET Benillup (565 m, el Comtat) webcam 1	Spain	https://pless.gith
 ws-db01870a	AVAMET l′Atzúbia (96 m, la Marina Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-db01870a.txt
 ws-ae823e8b	AVAMET Pilar de la Horadada (29 m, el Baix Segura) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-ae823e8b.txt
 ws-b7e7191f	AVAMET l′Alfàs del Pi (435 m, la Marina Baixa) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-b7e7191f.txt
-ws-5f02ebff	🔴 LIVE CAM: Bankhead Tunnel in Downtown Mobile, AL (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-5f02ebff.txt
 ws-83069878	AVAMET València (1 m, València) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-83069878.txt
 ws-5c83774d	🔴 LIVE: Borkum – Nordsee, Dünen & Wattenmeer | Webcam 24/7 (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-5c83774d.txt
 ws-20cab4eb	AVAMET Benigembla (313 m, la Marina Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-20cab4eb.txt
-ws-8450a087	🟢  GOMV.COM Aquinnah / Gay Head Beach Martha's Vineyard Live Surf Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-8450a087.txt
 ws-b3451f12	AVAMET l′Alcora (248 m, l′Alcalatén) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-b3451f12.txt
 ws-ba6902f4	AVAMET Teulada (226 m, la Marina Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-ba6902f4.txt
-ws-2340e32f	Southernmost Point Live Camera - Key West, Florida LIVE Stream by The Southernmost Point Bar (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-2340e32f.txt
 ws-f810555b	🌞 LIVE Mallorca Webcam Santa Ponsa & Tramuntana | 24/7 4K #urlaub #santaponsa #beach (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-f810555b.txt
 ws-411892b8	Norderney - Am Hafen 1, Norderney	Germany	https://pless.github.io/contrails/cues/agent/ws-411892b8.txt
 ws-8aeadbe0	AVAMET Alfafara (583 m, el Comtat) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-8aeadbe0.txt
@@ -946,7 +858,6 @@ ws-d2d5ec1f		United States	https://pless.github.io/contrails/cues/agent/ws-d2d5e
 ws-b1c8ae49	Chioggia Laguna Livestreaming HD 2026-10-04 21:45 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-b1c8ae49.txt
 ws-6d901371	AVAMET Castelló de la Plana (28 m, la Plana Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-6d901371.txt
 ws-b233bf59	AVAMET el Ràfol de Salem (298 m, la Vall d′Albaida) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-b233bf59.txt
-ws-ade51b3e	Livecam Kristiansund N 2026-10-04 22:39 (YouTube)	Norway	https://pless.github.io/contrails/cues/agent/ws-ade51b3e.txt
 ws-ee4aadde	Cedar Roof (Pittsburgh)	United States	https://pless.github.io/contrails/cues/agent/ws-ee4aadde.txt
 ws-214f97be	Miami International Airport (MIA) Live Cam | Embassy Suites by Hilton Miami International Airport (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-214f97be.txt
 ws-13bb6254	AVAMET València (19 m, València) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-13bb6254.txt
@@ -957,7 +868,6 @@ ws-f2b9c4ca	My Weather Station (Melbourne)	United States	https://pless.github.io
 ws-1f486bc2	Cuxhaven - Nordfeldstrasse 1, Cuxhaven	Germany	https://pless.github.io/contrails/cues/agent/ws-1f486bc2.txt
 ws-0845973a	Damp - Wohnmobilpark Damp, Damp	Germany	https://pless.github.io/contrails/cues/agent/ws-0845973a.txt
 ws-afaca652	Cedar Key Bayou (Cedar Key)	United States	https://pless.github.io/contrails/cues/agent/ws-afaca652.txt
-ws-74383ed1	Key West Bight Marina Live WebCam - Key West, Florida Keys (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-74383ed1.txt
 ws-be60a3f7	AVAMET Dénia (2 m, la Marina Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-be60a3f7.txt
 ws-e083379f	🔴 24x7 Boston Weather 180° 4k Sky Cam 🌠 (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-e083379f.txt
 ws-aba59b76	Heiligenhafen - Am Hafen, Heiligenhafen	Germany	https://pless.github.io/contrails/cues/agent/ws-aba59b76.txt
@@ -970,8 +880,6 @@ ws-96d33b46	WKU Disaster Science Operations Center (DSOC) Weather Camera (YouTub
 ws-9fb939c3	AVAMET Bocairent (645 m, la Vall d′Albaida) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-9fb939c3.txt
 ws-e74f430f	Doug's Olde Farm's Weather (Grantham)	United States	https://pless.github.io/contrails/cues/agent/ws-e74f430f.txt
 ws-57602017	AVAMET Xàtiva (100 m, la Costera) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-57602017.txt
-ws-841560dc	Overcombe Beach (Weymouth, UK) Live Webcam (YouTube)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-841560dc.txt
-ws-02616abd	Rostock - Am Bahnhof 1A,  Rostock	Germany	https://pless.github.io/contrails/cues/agent/ws-02616abd.txt
 ws-f2732697	AVAMET Alcoi (588 m, l′Alcoià) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-f2732697.txt
 ws-8f6909f3	🔴 Live Webcam Egmond aan Zee – Vuurtoren J.C.J. van Speijk | Zee, Strand & Weer 24/7 (YouTube)	Netherlands	https://pless.github.io/contrails/cues/agent/ws-8f6909f3.txt
 ws-59c43597	Damp - Zur Niebymole 1, Damp	Germany	https://pless.github.io/contrails/cues/agent/ws-59c43597.txt
@@ -990,7 +898,6 @@ ws-8f6a4869	AVAMET Castell de Castells (521 m, la Marina Alta) webcam 1	Spain	ht
 ws-e8e33b44	AVAMET El Toro (1000 m, l′Alt Palància) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-e8e33b44.txt
 ws-719afa77	Rostock - Am Leuchtturm 9, Rostock	Germany	https://pless.github.io/contrails/cues/agent/ws-719afa77.txt
 ws-bece0719	Roma Webcam Live - Monte Mario 2026-10-04 21:33 (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-bece0719.txt
-ws-3143c75d	[LIVE] La Trattoria Duval Street Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-3143c75d.txt
 ws-462c5481	Düsseldorf - Düsseldorf-Stadtbezirk 1, Düsseldorf	Germany	https://pless.github.io/contrails/cues/agent/ws-462c5481.txt
 ws-8fd0f36d	AVAMET Xixona (535 m, l′Alacantí) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-8fd0f36d.txt
 ws-e476a536	Scharbeutz - Seebrücke Haffkrug, Scharbeutz	Germany	https://pless.github.io/contrails/cues/agent/ws-e476a536.txt
@@ -998,7 +905,6 @@ ws-8f79d95c		United States	https://pless.github.io/contrails/cues/agent/ws-8f79d
 ws-9b021db0	🔴 LIVE: Hamburg Michel – Webcam mit Panoramablick auf Hafen (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-9b021db0.txt
 ws-a64b5aad	Skycam Groningen 2026-10-04 22:57 (YouTube)	Netherlands	https://pless.github.io/contrails/cues/agent/ws-a64b5aad.txt
 ws-e0438530	AVAMET les Coves de Vinromà (186 m, la Plana Alta) webcam 1	Spain	https://pless.github.io/contrails/cues/agent/ws-e0438530.txt
-ws-72288d36	🔴 LIVE: Berlin Alexanderplatz – Panorama-Webcam mit Blick über die Hauptstadt (YouTube)	Germany	https://pless.github.io/contrails/cues/agent/ws-72288d36.txt
 ws-e0f3730d	Piobbico › North	Italy	https://pless.github.io/contrails/cues/agent/ws-e0f3730d.txt
 ws-a88b861d	Truxton Row Station (Washington)	United States	https://pless.github.io/contrails/cues/agent/ws-a88b861d.txt
 ws-cab335ca	La Bourgonce		https://pless.github.io/contrails/cues/agent/ws-cab335ca.txt
@@ -1015,7 +921,6 @@ ws-1f9e7c7a	Kaycee 9SE - Tower (Looking West) (Wyoming Mesonet)	United States	ht
 ws-0aa8150c	Vollmer Peak, California Live Camera | 24/7 Stream (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-0aa8150c.txt
 ws-cd9716c4	Sant Feliu de Pallerols		https://pless.github.io/contrails/cues/agent/ws-cd9716c4.txt
 ws-c0903be1	Pyrgos › South-east	Greece	https://pless.github.io/contrails/cues/agent/ws-c0903be1.txt
-ws-5428f8f5	Valencia Isles Wx Station2WS-5000 (Boynton Beach)	United States	https://pless.github.io/contrails/cues/agent/ws-5428f8f5.txt
 ws-2de05618	Gilbert St 2902c (Springfield)	United States	https://pless.github.io/contrails/cues/agent/ws-2de05618.txt
 ws-c94937d2	Arvada 15NE - Tower (Looking West) (Wyoming Mesonet)	United States	https://pless.github.io/contrails/cues/agent/ws-c94937d2.txt
 ws-40d40192	Banner 7N - Tower (Looking West) (Wyoming Mesonet)	United States	https://pless.github.io/contrails/cues/agent/ws-40d40192.txt
@@ -1031,36 +936,25 @@ ws-b5fe3213	Montgomery Regional Airport (WSFA)	United States	https://pless.githu
 ws-9b412f7b	Montgomery Whitewater (WSFA)	United States	https://pless.github.io/contrails/cues/agent/ws-9b412f7b.txt
 ws-c7aa8bf0	Shelter Island Pier | San Diego Web Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-c7aa8bf0.txt
 ws-2d0274c8	Webcam Semmering - Passhöhe (YouTube)	Austria	https://pless.github.io/contrails/cues/agent/ws-2d0274c8.txt
-ws-12c79df3	EEOR - East Hampton, NY Main Beach Surf and Weather Webcam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-12c79df3.txt
-ws-8705e03d	SRIA - East Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-8705e03d.txt
 ws-5e73a59f	Galveston, Texas | Live Beach Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-5e73a59f.txt
 ws-ae321c52	Harrison, AR - Live Weather Camera | Sponsored by Estes Ace Hardware (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-ae321c52.txt
-ws-e0a970ce	Hemlock: Boyne Mountain Resort (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-e0a970ce.txt
 ws-5b74ce63	🔴 24x7 Boston Weather 180° 4k Street Cam 🏙️ (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-5b74ce63.txt
 ws-e4c561a7	[LIVE] Webcam Guado di Coccia - Impianti Sciistici di Campo di Giove, AQ (1674 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-e4c561a7.txt
 ws-bbfcabba	🔴 LIVE CAM: Orange Beach, Alabama and the Gulf (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-bbfcabba.txt
 ws-53a3f58a	[LIVE] Webcam Passolanciano, CH - vista verso Nord (1320 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-53a3f58a.txt
 ws-032d4d70	Live HD Stream - Courtyard by Marriott South Padre Island Live Beach Webcam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-032d4d70.txt
-ws-92cc9826	Leavenworth Washington Live Webcam from the Leavenworth Adventure Park (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-92cc9826.txt
-ws-c137a905	Jimmy's on the Edge - Sunset (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-c137a905.txt
 ws-7eac25b4	Live Cam: Lake-Effect Snow & Sunset | Lake Ontario (Hart Hall) | SUNY Oswego (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-7eac25b4.txt
-ws-173014d2	Bayfront Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-173014d2.txt
 ws-39c7081c	South Padre Island LIVE - North Beach Webcam at Sand Rose Beach Resort South Padre Island (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-39c7081c.txt
-ws-857d7bdb	LIVE - Fort Lauderdale Beach (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-857d7bdb.txt
 ws-aa9d3283	San Diego Harbor Island (S) Live Web Cam 4K (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-aa9d3283.txt
 ws-6ee495a5	[LIVE] Webcam Casale San Nicola, Isola del Gran Sasso d'Italia, TE (870 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-6ee495a5.txt
 ws-7db113c5	[LIVE] Webcam Isola del Gran Sasso D'Italia (centro storico), TE (420 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-7db113c5.txt
 ws-7a16f748	MURDOCHS CAM: Live from the Galveston Seawall (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-7a16f748.txt
 ws-2c5b2628	🌞Mallorca Webcam Paguera Cala Fornells | 24/7 Stream | 4K UHD #mallorca  #calvia  #balearic #weather (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-2c5b2628.txt
-ws-a3a645db	🔴 Los Angeles Live Cam · Venice Beach · Venice V Hotel · Live Camera Stream (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-a3a645db.txt
 ws-04c24d51	Beach Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-04c24d51.txt
 ws-474d326d	Houston, Texas | Live Downtown Skyline Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-474d326d.txt
 ws-6df27af8	Houston, Texas | 24/7 Live Downtown Skyline Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-6df27af8.txt
 ws-c74641e1	🔴Live webcam of the skyline of Zandvoort, The Netherlands. (YouTube)	Netherlands	https://pless.github.io/contrails/cues/agent/ws-c74641e1.txt
 ws-5f93f0d4	Snow King Mid Mountain - SeeJH.ai (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-5f93f0d4.txt
-ws-6cf3ad5c	🔴 LIVE: Funchal Marina Webcam 2 Madeira Island | Madeira-Web (YouTube)	Portugal	https://pless.github.io/contrails/cues/agent/ws-6cf3ad5c.txt
-ws-0967e65f	The Rooftop Bar | Oceanside, CA | San Diego Web Cam (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-0967e65f.txt
-ws-305870f6	🔴Live Railcam: Boone Iowa - Cam 2 (East) with Radio Audio - Trains On Demand (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-305870f6.txt
 ws-5218f5a5	Linch - Tower (Looking West) (Wyoming Mesonet)	United States	https://pless.github.io/contrails/cues/agent/ws-5218f5a5.txt
 ws-243c0d17	Arolla - Ski Slopes / Mont-Collon (Kurhaus)	Switzerland	https://pless.github.io/contrails/cues/agent/ws-243c0d17.txt
 ws-fab0c23c	AVAMET Castellfort (1181 m, els Ports) webcam 4	Spain	https://pless.github.io/contrails/cues/agent/ws-fab0c23c.txt
@@ -1114,7 +1008,6 @@ ws-d1dfd854	AVAMET Caudete de las Fuentes (771 m, la Plana d′Utiel-Requena) we
 ws-afb2e5ae	AVAMET Montserrat (225 m, la Ribera Alta) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-afb2e5ae.txt
 ws-bf7a44ac	AVAMET Montserrat (225 m, la Ribera Alta) webcam 3	Spain	https://pless.github.io/contrails/cues/agent/ws-bf7a44ac.txt
 ws-7ea5deeb	AVAMET Real (131 m, la Ribera Alta) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-7ea5deeb.txt
-ws-01af8b93	AVAMET Cullera (26 m, la Ribera Baixa) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-01af8b93.txt
 ws-3db51a94	AVAMET Cullera (26 m, la Ribera Baixa) webcam 3	Spain	https://pless.github.io/contrails/cues/agent/ws-3db51a94.txt
 ws-4de2e8ab	AVAMET Albaida (327 m, la Vall d′Albaida) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-4de2e8ab.txt
 ws-b035211d	AVAMET Albaida (327 m, la Vall d′Albaida) webcam 3	Spain	https://pless.github.io/contrails/cues/agent/ws-b035211d.txt
@@ -1238,7 +1131,6 @@ ws-14dddd0d	FAA weather camera Karluk East (USGS AshCam copy)	USA	https://pless.
 ws-14f26e83	Greenacres (adriansweatherstation.com)	United States	https://pless.github.io/contrails/cues/agent/ws-14f26e83.txt
 ws-14fb31e3	St. Marie (MT-24 MP 18.0): Horizon (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-14fb31e3.txt
 ws-15de5b63	FAA weather camera Chignik Lake - E (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-15de5b63.txt
-ws-1628fec3	I-5 at MP 183.9: 164th St SW (I-5, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-1628fec3.txt
 ws-1713e973	AVO Spurr [SPCR, 3199 ft] (USGS AshCam)	USA	https://pless.github.io/contrails/cues/agent/ws-1713e973.txt
 ws-172b52b6	NDDOT Minot NB - West (US 83 MP 204)	USA	https://pless.github.io/contrails/cues/agent/ws-172b52b6.txt
 ws-177feaab	Beacon Hill (US-87 MP 35.0): West (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-177feaab.txt
@@ -1302,7 +1194,6 @@ ws-27050b4d	NPS air-quality webcam, Hawai'i Volcanoes National Park: View of Hal
 ws-270d2672	USGS HVO KPcam: Kīlauea summit from Mauna Loa Strip Road	USA	https://pless.github.io/contrails/cues/agent/ws-270d2672.txt
 ws-276715c7	ISU Curtis Hall - Center (IEM camera ISUC-005)	USA	https://pless.github.io/contrails/cues/agent/ws-276715c7.txt
 ws-27d843d8	FAA weather camera Knik NorthEast (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-27d843d8.txt
-ws-28d5c914	I-5 at MP 276.2: D St (I-5, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-28d5c914.txt
 ws-2920d73c	Rock Springs (MT-59 MP 36.5): Roadway (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-2920d73c.txt
 ws-2972bec5	VLBA Mauna Kea site camera	United States	https://pless.github.io/contrails/cues/agent/ws-2972bec5.txt
 ws-29a69c72	Santa Cruz (weathercat.net)	United States	https://pless.github.io/contrails/cues/agent/ws-29a69c72.txt
@@ -1390,7 +1281,6 @@ ws-429bf302	Auburn Municipal Airport North (Airports, Northbound) (WSDOT)	USA	ht
 ws-429f7a57	Bearmouth (I-90 MP 145.8): East (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-429f7a57.txt
 ws-432d1d51	Pheasant City (SD-28): Camera Looking North (SDDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-432d1d51.txt
 ws-4336b902	FAA weather camera Anchorage, East (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-4336b902.txt
-ws-44008590	I-5 at MP 72.8: Rush Rd (I-5, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-44008590.txt
 ws-44172ec8	Rýmařov (SZ) (ČHMÚ webcam)	Czechia	https://pless.github.io/contrails/cues/agent/ws-44172ec8.txt
 ws-443e03da	Action News Jax First Alert Skycam, Jax Beach (WetMet)	USA	https://pless.github.io/contrails/cues/agent/ws-443e03da.txt
 ws-4542a64c	NPS webcam North Shore Webcam (Isle Royale National Park)	USA	https://pless.github.io/contrails/cues/agent/ws-4542a64c.txt
@@ -1417,7 +1307,6 @@ ws-4a1cc369	WTKR News 3 Hampton University Cam, Hampton VA	USA	https://pless.git
 ws-4a8e42b0	FAA weather camera Knik South (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-4a8e42b0.txt
 ws-4a9bc6b0	USGS HVO K2cam: Kīlauea caldera from Uēkahuna bluff	USA	https://pless.github.io/contrails/cues/agent/ws-4a9bc6b0.txt
 ws-4ae4667c	Beacon Hill (US-87 MP 35.0): East Horizon (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-4ae4667c.txt
-ws-4b28ecaf	I-90 at MP 11.5: 150th Ave SE (I-90, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-4b28ecaf.txt
 ws-4b49dc38	Jizerka (V) (ČHMÚ webcam)	Czechia	https://pless.github.io/contrails/cues/agent/ws-4b49dc38.txt
 ws-4b5f2604	Hekla (Live from Iceland)	Iceland	https://pless.github.io/contrails/cues/agent/ws-4b5f2604.txt
 ws-4be43c8c	Pohjoisrinteet (PanoCloud pyha2)	Finland	https://pless.github.io/contrails/cues/agent/ws-4be43c8c.txt
@@ -1430,7 +1319,6 @@ ws-4d8c5db0	Radar Brdy (JV) (ČHMÚ webcam)	Czechia	https://pless.github.io/cont
 ws-4dd73bf9	Prosser Airport Southwest (Airports, Southbound) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-4dd73bf9.txt
 ws-4dfe8cb5	FAA weather camera Chignik Lake - S (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-4dfe8cb5.txt
 ws-4e25b9eb	FAA weather camera Chignik Lagoon - SW (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-4e25b9eb.txt
-ws-4e533054	SR 520 at MP 9.7: NE 36th St (SR 520, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-4e533054.txt
 ws-4f1eab94	Chinook (US-2 MP 403.5): East (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-4f1eab94.txt
 ws-4f2e1d18	DWD Hamburg (DWD office, St. Pauli), looking south-east (Deutscher Wetterdienst)	Germany	https://pless.github.io/contrails/cues/agent/ws-4f2e1d18.txt
 ws-4f2ec4d4	Arlington Municipal Airport West (Airports, Westbound) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-4f2ec4d4.txt
@@ -1442,7 +1330,6 @@ ws-50cb7092	Subaru catwalk cam (aimed SE)	United States	https://pless.github.io/
 ws-5129e113	CAMNET New York, New York - View	USA	https://pless.github.io/contrails/cues/agent/ws-5129e113.txt
 ws-51a3e228	Sweeney (I-94 MP 112.6): Hathaway Rest Area (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-51a3e228.txt
 ws-51b3ff6e	CAMNET Baltimore, Maryland - Northeast View	USA	https://pless.github.io/contrails/cues/agent/ws-51b3ff6e.txt
-ws-51c7c27f	I-5 at MP 200.7: 88th St NE (I-5, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-51c7c27f.txt
 ws-51e7b85d	US-2 Stateline (US-2 MP 667.1): East (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-51e7b85d.txt
 ws-52736abf	Savage (MT-16 MP 29.5): East (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-52736abf.txt
 ws-5297f000	NPS webcam Bunker Hill Monument - Looking North (Boston National Historical Park)	USA	https://pless.github.io/contrails/cues/agent/ws-5297f000.txt
@@ -1471,7 +1358,6 @@ ws-57dcdc0a	Lakewood (travelingrvwx.com)	United States	https://pless.github.io/c
 ws-594fe93c	Hoover (SD-79): Camera Looking West (SDDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-594fe93c.txt
 ws-596b59af	FAA weather camera Gulkana - SE (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-596b59af.txt
 ws-59ba069f	Gemini North cloud cam (Up)	United States	https://pless.github.io/contrails/cues/agent/ws-59ba069f.txt
-ws-5b2da555	I-5 at MP 168.8: Ship Canal Bridge (I-5, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-5b2da555.txt
 ws-5b532178	FAA weather camera Nondalton NorthEast (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-5b532178.txt
 ws-5c16907d	Chehalis-Centralia Airport South (Airports, Southbound) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-5c16907d.txt
 ws-5c185bad	Keeler V2 dust camera, Owens Lake (Great Basin Unified APCD)	USA	https://pless.github.io/contrails/cues/agent/ws-5c185bad.txt
@@ -1764,6 +1650,7 @@ ws-ad794f47	Aparthotel Mountain Living - St. Valentin a.d.H. (PanoCloud stvalent
 ws-ad7fa238	CVO St. Helens (JRO, North Full View) (USGS AshCam)	USA	https://pless.github.io/contrails/cues/agent/ws-ad7fa238.txt
 ws-ada6d147	Portgordon (portgordon.net)	United Kingdom	https://pless.github.io/contrails/cues/agent/ws-ada6d147.txt
 ws-adc62612	AVO Pavlof [BLHA, 1309 ft] (USGS AshCam)	USA	https://pless.github.io/contrails/cues/agent/ws-adc62612.txt
+ws-ae08f638	FAA weather camera Chistochina - SE (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-ae08f638.txt
 ws-ae27c0c3	Ziri (vreme-ziri.si)	Slovenia	https://pless.github.io/contrails/cues/agent/ws-ae27c0c3.txt
 ws-ae569b08	AEMET Izana camera guimar (atmospheric observatory next to Teide Obs.)	Spain	https://pless.github.io/contrails/cues/agent/ws-ae569b08.txt
 ws-ae5b734c	VLBA North Liberty site camera	United States	https://pless.github.io/contrails/cues/agent/ws-ae5b734c.txt
@@ -1802,7 +1689,6 @@ ws-b8cadb7b	Pullman-Moscow Regional Airport Southwest (Airports, Westbound) (WSD
 ws-b916dc44	Baker (MT-7 MP 14.2): North (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-b916dc44.txt
 ws-b9ade42b	Home Creek Divide (US-212 MP 81.5): North (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-b9ade42b.txt
 ws-b9f86ad0	Ekalaka (MT-323 MP 46.8): South (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-b9f86ad0.txt
-ws-ba54a2ea	SR 221 at MP 13.4: Sellards Road (SR 221, Northbound) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-ba54a2ea.txt
 ws-ba9f5eec	AVO Katmai [KAKN, 3442 ft] (USGS AshCam)	USA	https://pless.github.io/contrails/cues/agent/ws-ba9f5eec.txt
 ws-bada1143	WeatherBug (Earth Networks) camera LAMPL: The Lamplighter School, Dallas, TX	USA	https://pless.github.io/contrails/cues/agent/ws-bada1143.txt
 ws-bb05b4f1	Osoblaha (JZ) (ČHMÚ webcam)	Czechia	https://pless.github.io/contrails/cues/agent/ws-bb05b4f1.txt
@@ -1888,7 +1774,6 @@ ws-d046a58b	San Juan de Aznalfarache cam 2 (meteoensevilla.es)	Spain	https://ple
 ws-d0efa361	FAA weather camera Anchor Point - N (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-d0efa361.txt
 ws-d17a5800	Anacortes Airport South (Airports, Southbound) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-d17a5800.txt
 ws-d1b25799	FAA weather camera Cold Bay - SW (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-d1b25799.txt
-ws-d25da0f8	I-5 at MP 253.6: Iowa St (I-5, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-d25da0f8.txt
 ws-d296920c	NDDOT Bowman - North (US 85 MP 12.2)	USA	https://pless.github.io/contrails/cues/agent/ws-d296920c.txt
 ws-d29eb190	Livadeia town (meteoLivadia station)	Greece	https://pless.github.io/contrails/cues/agent/ws-d29eb190.txt
 ws-d2c3881b	Polom (Z) (ČHMÚ webcam)	Czechia	https://pless.github.io/contrails/cues/agent/ws-d2c3881b.txt
@@ -1913,7 +1798,6 @@ ws-d641f1b1	FAA weather camera False Pass - NE (USGS AshCam copy)	USA	https://pl
 ws-d68f6d2b	FAA weather camera Anchorage, South (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-d68f6d2b.txt
 ws-d6a837db	Carlow Weather East camera, near Tullow, Co. Carlow	Ireland	https://pless.github.io/contrails/cues/agent/ws-d6a837db.txt
 ws-d6cc0bf7	Vivian (US-83): Camera Looking South (SDDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-d6cc0bf7.txt
-ws-d6d6fc49	I-205 at MP 28.3: Mill Plain Blvd Camera 1 (I-205, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-d6d6fc49.txt
 ws-d74b4cda	Cala de Bou - Sant Josep, Ibiza (Balears Meteo)	Spain	https://pless.github.io/contrails/cues/agent/ws-d74b4cda.txt
 ws-d8319099	CAMNET Acadia National Park, Maine - Southwest View	USA	https://pless.github.io/contrails/cues/agent/ws-d8319099.txt
 ws-d89ab716	Konkoly Piszkesteto giccs webcam (ccdsh host; 1 ccdsh cam already in registry)	Hungary	https://pless.github.io/contrails/cues/agent/ws-d89ab716.txt
@@ -2009,7 +1893,6 @@ ws-f06ae436	I-90 at MP 189: Warden Exit (I-90, Westbound) (WSDOT)	USA	https://pl
 ws-f0f8f3b1	NDDOT Denhoff - West (ND 200 MP 236.225)	USA	https://pless.github.io/contrails/cues/agent/ws-f0f8f3b1.txt
 ws-f12ab726	Warwick La Palma observatory camera ext1	Spain	https://pless.github.io/contrails/cues/agent/ws-f12ab726.txt
 ws-f1638f03	NPS webcam Dorchester Heights Monument - Looking North (Boston National Historical Park)	USA	https://pless.github.io/contrails/cues/agent/ws-f1638f03.txt
-ws-f1b359a2	I-5 at MP 150.0: SR 509 (I-5, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-f1b359a2.txt
 ws-f1e9651f	Bozeman (I-90 MP 302.0): West (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-f1e9651f.txt
 ws-f1fa60b9	Lame Deer Divide (US-212 MP 50.1): West (MDT)	USA	https://pless.github.io/contrails/cues/agent/ws-f1fa60b9.txt
 ws-f22bcb45	Perlan over Reykjavík – West (Live from Iceland)	Iceland	https://pless.github.io/contrails/cues/agent/ws-f22bcb45.txt
@@ -2048,7 +1931,6 @@ ws-fb96094a	AOSS rooftop camera Northwest (UW-Madison SSEC/AOS)	USA	https://ples
 ws-fbb66edc	Selvogur (Live from Iceland)	Iceland	https://pless.github.io/contrails/cues/agent/ws-fbb66edc.txt
 ws-fbcd901d	U.S.2 (East Grand Forks - MP 9): U.S.2 (East Grand Forks - MP 9) View 3 (MnDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-fbcd901d.txt
 ws-fc7ed2d7	AVO Shishaldin [BRPK, 1320 ft] (USGS AshCam)	USA	https://pless.github.io/contrails/cues/agent/ws-fc7ed2d7.txt
-ws-fcae22eb	SR 303 at MP 8.7: SR 3 Interchange (SR 303, Both directions) (WSDOT)	USA	https://pless.github.io/contrails/cues/agent/ws-fcae22eb.txt
 ws-fcbc28c0	FAA weather camera Lake Clark Pass East - SE (USGS AshCam copy)	USA	https://pless.github.io/contrails/cues/agent/ws-fcbc28c0.txt
 ws-fcc95732	AVO Cleveland [CLCO, 449 ft] (USGS AshCam)	USA	https://pless.github.io/contrails/cues/agent/ws-fcc95732.txt
 ws-fcd2d6d3	Lake Hood North View (Borealis Broadband)	USA	https://pless.github.io/contrails/cues/agent/ws-fcd2d6d3.txt
