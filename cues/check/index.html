@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en">
 <!-- The check page (tools/build_agent_checks.py writes it as cues/check/index.html beside the cue page): the cues AI agents
-     made, drawn on each camera's picture and on the map, for a person to look over camera by camera and leave a note where
-     something is off (Robert, 2026-10-22: "I don't want to check each cue, I just want to look at the overall system, and
+     made, drawn on each camera's picture and on the map (people's own marks in grey beside them, 2026-10-22), for a person to
+     look over camera by camera and leave a note where something is off (Robert, 2026-10-22: "I don't want to check each cue, I just want to look at the overall system, and
      then type a note if necessary"). What a person did is kept in this browser and sent to the cue page's submit URL
      (../config.js); tools/agent_checks_import.py takes it in. -->
 <head>
 <meta charset="utf-8">
 <title>Agent cue checks</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="../config.js?v=2026-10-22T132845Z"></script>
+<script src="../config.js?v=2026-10-22T174829Z"></script>
 <style>
   :root { color-scheme: dark; --bg:#111; --panel:#1b1b1f; --line:#333; --text:#ddd; --muted:#8a8a92; --accent:#4cc9f0;
           --ok:#80ed99; --wait:#ffb703; --bad:#ff6b6b; }
@@ -52,6 +52,7 @@
   .camdot { width:14px; height:14px; border-radius:50%; background:#e63946; border:2px solid #fff; }
   .camring { width:16px; height:16px; border-radius:50%; border:3px dashed #ff9f1c; background:#ffffff55; }
   #legend span { margin-right:10px; white-space:nowrap; }
+  .pdot { width:9px; height:9px; border-radius:50%; background:#c8c8c8; border:1.5px solid #000; }
 </style>
 </head>
 <body>
@@ -77,6 +78,7 @@
       <span id="saveState" class="muted" style="float:right"></span></div>
     <div id="fnote" class="muted"></div>
     <div style="margin-top:4px"><label><input type="checkbox" id="showModel" checked> where the camera's model puts each landmark</label>
+      <label style="margin-left:12px"><input type="checkbox" id="showPeople" checked> people's marks (grey)</label>
       <label style="margin-left:12px"><input type="checkbox" id="onlySel"> only the selected cue</label>
       <span class="muted" style="margin-left:12px">keys: ] looked at, next camera · N next cue</span></div>
   </div>
@@ -92,6 +94,7 @@
     <div id="legend" class="muted" style="margin-top:8px"></div>
     <h3>The agents' cues</h3>
     <div id="items"></div>
+    <div id="people" class="muted" style="margin-top:6px"></div>
     <div class="muted" style="margin-top:8px;font-size:11px">Each cue should mark what it says: the point where the named thing is in the
       picture, and the same place on the map. A dashed white line runs from a landmark to where the camera's calibrated model
       puts it; the miss in degrees is beside it in the list. Click a cue (in the picture or the list) to see its details.</div>
@@ -102,6 +105,7 @@
 const $=id=>document.getElementById(id);
 const COLORS={"agent":"#ff9f1c","agent-click":"#f72585","claude":"#4cc9f0","contrailscience":"#ffd60a"};
 const NAMES={"agent":"AI agent answer","agent-click":"browser agent click","claude":"Claude","contrailscience":"aircraft (day evidence)"};
+const GREY="#c8c8c8";                                   // people's own marks (cue page clicks), for comparison
 const KIND={landmark:"landmark", point:"point", edge:"vertical edge", horizon:"horizon", aircraft:"aircraft", answer:"answer"};
 let data=null, cams=[], cam=null, img=null, sel=-1, view={s:1,ox:0,oy:0}, map=null, overlay=[], saveTimer=null, sendTimer=null;
 const who=()=>$("who").value.trim()||"anonymous";
@@ -126,7 +130,8 @@ function drawList(){ const L=$("list"), top=L.scrollTop, vis=visible(); L.innerH
     d.onclick=()=>openCam(c.camera_id); L.appendChild(d); });
   L.scrollTop=top; const done=cams.filter(c=>stateOf(c)).length, noted=cams.filter(c=>stateOf(c)==="noted").length;
   $("count").textContent=`${vis.length} shown · ${done} of ${cams.length} looked at · ${noted} with a note`; }
-function legend(){ $("legend").innerHTML=Object.keys(COLORS).map(k=>`<span><span class="sw" style="background:${COLORS[k]}"></span> ${NAMES[k]}</span>`).join(""); }
+function legend(){ $("legend").innerHTML=Object.keys(COLORS).map(k=>`<span><span class="sw" style="background:${COLORS[k]}"></span> ${NAMES[k]}</span>`).join("")
+  +`<span><span class="sw" style="background:${GREY}"></span> a person's mark (cue page)</span>`; }
 
 /* ---------- a camera ---------- */
 function openCam(id){
@@ -166,7 +171,10 @@ $("dl").onclick=()=>{ const out={schema:"agent-checks-export", exported_utc:now(
 
 /* ---------- the list of cues (for reference) ---------- */
 function esc(s){ return String(s??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-function drawItems(){ const box=$("items"); box.innerHTML=""; if (!cam) return;
+function drawPeople(){ const by={}; (cam&&cam.people||[]).forEach(p=>{ const k=p.who||"a person"; (by[k]=by[k]||{})[p.kind]=((by[k]||{})[p.kind]||0)+(p.kind==="horizon"?p.pixels.length:1); });
+  const s=Object.entries(by).map(([w,k])=>`${esc(w)}: `+Object.entries(k).map(([kind,n])=>`${n} ${KIND[kind]}${n>1&&kind!=="horizon"?"s":kind==="horizon"?" points":""}`).join(", ")).join(" · ");
+  $("people").innerHTML=s?`<span class="sw" style="background:${GREY}"></span> People's marks (grey, for comparison): ${s}`:"No marks by people on this camera."; }
+function drawItems(){ drawPeople(); const box=$("items"); box.innerHTML=""; if (!cam) return;
   cam.items.forEach((it,i)=>{ const d=document.createElement("div"); d.className="it"+(i===sel?" sel":"");
     const miss=it.model_miss_deg!=null?` · model ${it.model_miss_deg.toFixed(1)}°`:"";
     d.innerHTML=`<div class="l"><span class="sw" style="background:${COLORS[it.src]}"></span><b>${i+1}</b>
@@ -192,6 +200,10 @@ function anchor(it){ return it.pixel||(it.pixels&&it.pixels[0])||null; }
 function draw(){ ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); ctx.clearRect(0,0,cv.clientWidth,cv.clientHeight);
   if (!cam) return; if (img) ctx.drawImage(img, view.ox, view.oy, W()*view.s, H()*view.s);
   else { ctx.strokeStyle="#444"; ctx.strokeRect(view.ox, view.oy, W()*view.s, H()*view.s); }
+  if ($("showPeople").checked && !$("onlySel").checked) (cam.people||[]).forEach(p=>{ ctx.strokeStyle=GREY; ctx.fillStyle=GREY; ctx.lineWidth=1.5;
+    if (p.pixels&&p.pixels.length){ ctx.setLineDash(p.kind==="horizon"?[4,3]:[]); ctx.beginPath(); p.pixels.forEach((q,k)=>{ const s=scr(...q); k?ctx.lineTo(...s):ctx.moveTo(...s); }); ctx.stroke(); ctx.setLineDash([]);
+      p.pixels.forEach(q=>{ const s=scr(...q); ctx.fillRect(s[0]-2.5,s[1]-2.5,5,5); }); }
+    else if (p.pixel){ const [x,y]=scr(...p.pixel); ctx.beginPath(); ctx.arc(x,y,5,0,7); ctx.stroke(); ctx.beginPath(); ctx.arc(x,y,1.5,0,7); ctx.fill(); } });
   cam.items.forEach((it,i)=>{ if ($("onlySel").checked && i!==sel) return; const c=COLORS[it.src], on=i===sel, lw=on?3.5:2;
     ctx.strokeStyle=c; ctx.fillStyle=c; ctx.lineWidth=lw;
     if (it.pixels&&it.pixels.length){ ctx.beginPath(); it.pixels.forEach((p,k)=>{ const s=scr(...p); k?ctx.lineTo(...s):ctx.moveTo(...s); }); ctx.stroke();
@@ -211,6 +223,8 @@ cv.addEventListener("mousemove", e=>{ if (!drag) return; const dx=e.offsetX-drag
   if (drag.moved){ view.ox=drag.ox+dx; view.oy=drag.oy+dy; draw(); } });
 cv.addEventListener("mouseup", e=>{ const d=drag; drag=null; if (!d||d.moved||!cam) return;      // a click: the nearest cue within 15 px
   let best=-1, bd=15; cam.items.forEach((it,i)=>{ (it.pixels||[it.pixel]).forEach(p=>{ if (!p) return; const [x,y]=scr(...p), dd=Math.hypot(x-e.offsetX,y-e.offsetY); if (dd<bd){ bd=dd; best=i; } }); });
+  if (best<0 && $("showPeople").checked){ let pb=null, pd=12; (cam.people||[]).forEach(p=>{ (p.pixels||[p.pixel]).forEach(q=>{ if (!q) return; const [x,y]=scr(...q), dd=Math.hypot(x-e.offsetX,y-e.offsetY); if (dd<pd){ pd=dd; pb=p; } }); });
+    if (pb){ select(-1); $("hud").textContent=`a person's mark (${pb.who}): ${pb.label||KIND[pb.kind]}`+(pb.lat!=null?`, at ${pb.lat.toFixed(6)}, ${pb.lon.toFixed(6)} on the map`:""); return; } }
   select(best); });
 cv.addEventListener("wheel", e=>{ e.preventDefault(); const k=Math.exp(-e.deltaY*0.0015), [ix,iy]=toImg(e.offsetX,e.offsetY);
   view.s*=k; view.ox=e.offsetX-ix*view.s; view.oy=e.offsetY-iy*view.s; draw(); }, {passive:false});
@@ -233,6 +247,8 @@ function drawMap(){ if (!map||!cam) return; overlay.forEach(o=>{ if (o.setMap) o
   const b=new google.maps.LatLngBounds(), c0=cam.camera; if (c0.lat==null) return;
   const camLL={lat:+c0.lat, lng:+c0.lon}; b.extend(camLL);
   const d=document.createElement("div"); d.className="camdot"; marker(camLL.lat, camLL.lng, d, "camera ("+(c0.source||"registry")+")");
+  if ($("showPeople").checked) (cam.people||[]).forEach(p=>{ if (p.lat==null) return; const g=document.createElement("div"); g.className="pdot";
+    marker(p.lat, p.lon, g, `a person's mark (${p.who}): ${p.label||KIND[p.kind]}`); b.extend({lat:p.lat,lng:p.lon}); });
   cam.items.forEach((it,i)=>{
     if (it.cam_lat!=null){ const r=document.createElement("div"); r.className="camring"; marker(+it.cam_lat, +it.cam_lon, r, "the camera, by the agent", ()=>select(i));
       overlay.push(new google.maps.Polyline({path:[camLL,{lat:+it.cam_lat,lng:+it.cam_lon}], strokeColor:COLORS.agent, strokeWeight:2, strokeOpacity:.9, map}));
@@ -250,7 +266,7 @@ document.addEventListener("keydown", e=>{ if (/^(INPUT|TEXTAREA|SELECT)$/.test(d
   if (k==="n"&&cam) select((sel+1)%cam.items.length);
   else if (k==="]") nextCamera(); });
 ["state","src","search"].forEach(id=>$(id).addEventListener("input", drawList));
-$("showModel").onchange=draw; $("onlySel").onchange=draw;
+$("showModel").onchange=draw; $("onlySel").onchange=draw; $("showPeople").onchange=()=>{ draw(); drawMap(); };
 $("who").value=(()=>{ try { return localStorage.getItem("cueName")||""; } catch { return ""; } })();
 $("who").addEventListener("input", ()=>{ try { localStorage.setItem("cueName",$("who").value); } catch {} });
 window.addEventListener("beforeunload", flush);
