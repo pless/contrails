@@ -1,0 +1,67 @@
+Instructions for agents: WorldScope camera calibration, camera ws-fa04960a
+Camera ws-fa04960a: Gunnison/Crested Butte South (FAA WeatherCams; CDOT Aero) (USA, USA; camera type rectilinear)
+Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
+
+1. The picture: https://pless.github.io/contrails/cues/frames/ws-fa04960a.jpg
+   taken 2026-10-21T16:32:54 UTC; 640x480 pixels as linked; x runs right from the left edge, y down from the top edge.
+   Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
+2. Links: image feed https://weathercams.faa.gov/api/cameras/11962/images/last/1 (the camera's picture now, if it is still live); camera page https://weathercams.faa.gov/map/-109.57301,37.66750,-104.29301,39.40750/cameraSite/540/details/camera; the cue page https://pless.github.io/contrails/cues/#ws-fa04960a (it needs a browser with JavaScript; everything on it about this camera is in this text)
+   what the camera shows: FAA weather camera at Gunnison/Crested Butte, looking South (178 deg); about 39% sky
+3. Camera position now: 38.537502, -106.933014, 2462 m above sea level; accuracy: exact; source: FAA WeatherCams API site record (latitude, longitude, elevation in feet)
+4. Calibration now: slow (<1 image/min)
+   heading 178.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
+   based on: FAA camera bearing (API cameraBearing), not checked
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   what would help most here: name a peak (slow camera (after the fast ones); a calibrated camera is 22 km away; mountain view: name one peak or pass on the skyline)
+
+Please return what you can find with high confidence:
+1. Map points: things you can find both in the picture and on a map (a building corner at ground level, the foot of a tower, mast or post, a road junction, a pier end, a mountain summit). For each: the pixel; the latitude and longitude (6 decimals) of that exact spot, not of a nearby road node; and height_above_ground_m: 0 for a point on the ground (a summit too), else its height above the ground there (a roof edge, a mast top). Measure each position on a map or satellite view; if you cannot place the spot to about 10 m, leave lat and lon out (the pixel and what it is still help). Prefer points 100 m or more away, spread left to right and near to far; skip anything within 20 m of the camera.
+2. The camera's own position, if you can identify it (the building, mast or address it is on), and its height above the ground.
+3. Vertical edges (a building corner, a pole): the top and the bottom pixel of one plumb line. A sea or lake horizon: pixels along it.
+4. The sun or the moon in a picture whose time you know (pixel and UTC time).
+5. Anything showing that the camera moved, zoomed, or does not look where this text says.
+
+Rules: pixels are [x, y] in the picture you looked at, with its size in picture_size. Do not guess: a wrong point does more harm than a missing one. Do not estimate heading, tilt or field of view yourself; they are fitted from your points. If nothing qualifies, say so in one sentence.
+How to answer: do not type into the cue page. Give the person who sent you one JSON block in exactly this shape (leave out what you do not have), then a few sentences on how you found each point.
+{
+ "camera_id": "ws-fa04960a",
+ "agent": "your name and model",
+ "picture": "https://pless.github.io/contrails/cues/frames/ws-fa04960a.jpg",
+ "picture_size": [640, 480],
+ "camera_position": {
+  "lat": 0,
+  "lon": 0,
+  "height_above_ground_m": 0,
+  "how": "how you know"
+ },
+ "landmarks": [
+  {
+   "pixel": [0, 0],
+   "lat": 0,
+   "lon": 0,
+   "height_above_ground_m": 0,
+   "what": "what it is",
+   "how": "how you identified it",
+   "confidence": "high"
+  }
+ ],
+ "vertical_edges": [
+  {
+   "top": [0, 0],
+   "bottom": [0, 0],
+   "what": "building corner"
+  }
+ ],
+ "horizon": {
+  "kind": "sea | lake",
+  "pixels": [[0, 0], [0, 0]]
+ },
+ "sun_or_moon": [
+  {
+   "body": "sun",
+   "pixel": [0, 0],
+   "time_utc": "2026-10-16T18:00:00Z"
+  }
+ ],
+ "notes": "anything else"
+}

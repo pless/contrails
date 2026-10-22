@@ -12,7 +12,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
    heading 356.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: operator's camera list (USGS AshCam bearing), not checked
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
-   what would help most here: horizon + landmark (no calibrated camera within 207 km; flat or coastal view: click the horizon and one landmark)
+   what would help most here: horizon + landmark (slow camera (after the fast ones); no calibrated camera within 87 km; flat or coastal view: click the horizon and one landmark)
 
 Please return what you can find with high confidence:
 1. Map points: things you can find both in the picture and on a map (a building corner at ground level, the foot of a tower, mast or post, a road junction, a pier end, a mountain summit). For each: the pixel; the latitude and longitude (6 decimals) of that exact spot, not of a nearby road node; and height_above_ground_m: 0 for a point on the ground (a summit too), else its height above the ground there (a roof edge, a mast top). Measure each position on a map or satellite view; if you cannot place the spot to about 10 m, leave lat and lon out (the pixel and what it is still help). Prefer points 100 m or more away, spread left to right and near to far; skip anything within 20 m of the camera.
