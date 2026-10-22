@@ -21,10 +21,11 @@ Please return what you can find with high confidence:
 5. Anything showing that the camera moved, zoomed, or does not look where this text says.
 
 Rules: pixels are [x, y] in the picture you looked at, with its size in picture_size. Do not guess: a wrong point does more harm than a missing one. Do not estimate heading, tilt or field of view yourself; they are fitted from your points. If nothing qualifies, say so in one sentence.
+Please report which agent made these constraints: the model and its version (for example Gemini 3.8, Opus 4.8), and the app or tool it ran in (for example Antigravity, claude.ai), in the "agent" field.
 How to answer: do not type into the cue page. Give the person who sent you one JSON block in exactly this shape (leave out what you do not have), then a few sentences on how you found each point.
 {
  "camera_id": "ws-12e9a88f",
- "agent": "your name and model",
+ "agent": "model and version, and the app or tool it ran in (e.g. Gemini 3.8 Flash in Antigravity)",
  "picture": "https://pless.github.io/contrails/cues/frames/ws-12e9a88f.jpg",
  "picture_size": [1280, 720],
  "camera_position": {

@@ -203,7 +203,7 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261022T042704Z"></script>
+<script src="config.js?v=20261022T132622Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -541,6 +541,8 @@ function agentParsed(){             // tell the person what the importer will re
   const cid=(C&&C.camera_id)||(row&&row.camera_id);
   if (j.camera_id&&cid&&j.camera_id!==cid) warn.push(`it names camera ${j.camera_id}, not this one`);
   if (!Array.isArray(j.picture_size)) warn.push("no picture_size, so its pixels are taken to be in the picture shown here");
+  if (!j.agent || /^model and version/.test(j.agent)) warn.push("it does not say which agent made it (ask it for the model and its version)");
+  else if (!/\d/.test(String(j.agent))) warn.push(`its agent, "${String(j.agent).slice(0,60)}", names no model version (ask it which model it is)`);
   el.textContent="Read: "+parts.join(", ")+"."+(warn.length?" Note: "+warn.join("; ")+".":"")+" Saved with your cues.";
 }
 function copyText(t, say){          // the clipboard where the browser allows it, else the older copy command, else select the text

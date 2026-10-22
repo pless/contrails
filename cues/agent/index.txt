@@ -1,6 +1,6 @@
 WorldScope cue page: one plain-text file per camera with everything an AI agent needs to help calibrate it
 (its picture, position, current calibration and what to return). The page itself, https://pless.github.io/contrails/cues/, needs JavaScript.
-3341 cameras, most useful first; built 2026-10-22T04:27:24Z.
+3341 cameras, most useful first; built 2026-10-22T13:26:21Z.
 
 camera_id	name	country	instructions
 ws-ed6a2172	Galveston, Texas | 24/7 Live Beach Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-ed6a2172.txt
