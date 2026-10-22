@@ -1,17 +1,18 @@
 <!doctype html>
 <html lang="en">
 <!-- The check page (tools/build_agent_checks.py writes it as cues/check/index.html beside the cue page): the cues AI agents
-     made, drawn on each camera's picture and on the map, for a person to mark right, wrong or unsure. Verdicts are kept in
-     this browser and sent to the cue page's submit URL (../config.js); tools/agent_checks_import.py takes them in. -->
+     made, drawn on each camera's picture and on the map, for a person to look over camera by camera and leave a note where
+     something is off (Robert, 2026-10-22: "I don't want to check each cue, I just want to look at the overall system, and
+     then type a note if necessary"). What a person did is kept in this browser and sent to the cue page's submit URL
+     (../config.js); tools/agent_checks_import.py takes it in. -->
 <head>
 <meta charset="utf-8">
 <title>Agent cue checks</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="../config.js?v=2026-10-22T132017Z"></script>
+<script src="../config.js?v=2026-10-22T132845Z"></script>
 <style>
   :root { color-scheme: dark; --bg:#111; --panel:#1b1b1f; --line:#333; --text:#ddd; --muted:#8a8a92; --accent:#4cc9f0;
-          --ok:#80ed99; --wait:#ffb703; --bad:#ff6b6b;
-          --agent:#ff9f1c; --click:#f72585; --claude:#4cc9f0; --cs:#ffd60a; }
+          --ok:#80ed99; --wait:#ffb703; --bad:#ff6b6b; }
   * { box-sizing:border-box; }
   body { margin:0; height:100vh; min-width:1000px; display:grid; grid-template-columns:260px minmax(0,1fr) max(34vw,420px);
          font:13px/1.4 -apple-system, system-ui, sans-serif; background:var(--bg); color:var(--text); }
@@ -29,7 +30,7 @@
   .cam:hover { background:#222228; } .cam.cur { background:#123; }
   .cam .n { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .cam .s { font-size:11px; color:var(--muted); }
   .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; background:#555; }
-  .dot.part { background:var(--wait); } .dot.done { background:var(--ok); } .dot.bad { background:var(--bad); }
+  .dot.seen { background:var(--ok); } .dot.noted { background:var(--wait); }
   #mid { display:flex; flex-direction:column; min-width:0; min-height:0; }
   #head { padding:6px 10px; border-bottom:1px solid var(--line); background:var(--panel); }
   #title { font-size:15px; font-weight:600; } #sub { margin-left:8px; }
@@ -39,18 +40,17 @@
   #right { display:flex; flex-direction:column; border-left:1px solid var(--line); background:var(--panel); min-height:0; }
   #map { flex:0 0 40%; min-height:200px; background:#191919; } #map .nomap { padding:10px; color:var(--muted); }
   #panel { flex:1; overflow-y:auto; padding:8px 10px; min-height:0; }
-  .it { padding:4px 6px; border-bottom:1px solid #2a2a2a; cursor:pointer; }
+  #look { display:flex; gap:6px; align-items:center; margin-top:6px; }
+  #next { flex:1; background:#1d3b2a; border-color:var(--ok); }
+  .it { padding:3px 6px; border-bottom:1px solid #2a2a2a; cursor:pointer; }
   .it.sel { background:#123; } .it .l { display:flex; gap:6px; align-items:center; }
   .it .t { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .it .v { display:flex; gap:3px; } .it .v button { padding:1px 7px; }
-  .it .v button.r.on { background:#1d4d2b; border-color:var(--ok); } .it .v button.w.on { background:#5a1e1e; border-color:var(--bad); }
-  .it .v button.u.on { background:#4a3d10; border-color:var(--wait); }
   .it .more { display:none; margin-top:4px; font-size:12px; } .it.sel .more { display:block; }
   .it pre { white-space:pre-wrap; font-size:11px; max-height:260px; overflow:auto; background:rgba(127,127,127,.08); padding:6px; margin:4px 0; }
   .sw { display:inline-block; width:10px; height:10px; border-radius:2px; flex:0 0 10px; }
   .num { background:#fff; color:#000; border-radius:50%; width:18px; height:18px; line-height:18px; text-align:center; font-size:11px; font-weight:700; border:2px solid #000; }
   .camdot { width:14px; height:14px; border-radius:50%; background:#e63946; border:2px solid #fff; }
-  .camring { width:16px; height:16px; border-radius:50%; border:3px dashed var(--agent); background:#ffffff55; }
+  .camring { width:16px; height:16px; border-radius:50%; border:3px dashed #ff9f1c; background:#ffffff55; }
   #legend span { margin-right:10px; white-space:nowrap; }
 </style>
 </head>
@@ -58,15 +58,16 @@
 <div id="left">
   <div class="top">
     <b>Agent cue checks</b>
-    <div class="muted" style="font-size:11px">Cues AI agents made: is each one right? Your marks stay in this browser and are sent in.</div>
-    <input id="who" placeholder="your name (saved with each mark)">
-    <select id="state"><option value="todo">to check</option><option value="done">checked</option><option value="all">all cameras</option></select>
+    <div class="muted" style="font-size:11px">Cues AI agents made, camera by camera: look them over and leave a note where something is off.
+      What you do stays in this browser and is sent in.</div>
+    <input id="who" placeholder="your name (saved with each note)">
+    <select id="state"><option value="todo">to look at</option><option value="done">looked at</option><option value="all">all cameras</option></select>
     <select id="src"><option value="">every kind of agent</option><option value="agent">AI agent answers (pasted)</option>
       <option value="agent-click">clicked by a browser agent</option><option value="claude">made by Claude</option>
       <option value="contrailscience">aircraft (day evidence)</option></select>
     <input id="search" placeholder="search name, country, id">
     <div class="muted" id="count" style="margin-top:4px"></div>
-    <button id="dl" title="every mark made in this browser, as one file">download my marks</button>
+    <button id="dl" title="every note made in this browser, as one file">download my notes</button>
   </div>
   <div id="list"></div>
 </div>
@@ -77,21 +78,23 @@
     <div id="fnote" class="muted"></div>
     <div style="margin-top:4px"><label><input type="checkbox" id="showModel" checked> where the camera's model puts each landmark</label>
       <label style="margin-left:12px"><input type="checkbox" id="onlySel"> only the selected cue</label>
-      <span class="muted" style="margin-left:12px">keys: R right · W wrong · U unsure · N next cue · ] next camera</span></div>
+      <span class="muted" style="margin-left:12px">keys: ] looked at, next camera · N next cue</span></div>
   </div>
   <div id="wrap"><canvas id="cv"></canvas><div id="hud">Pick a camera on the left.</div></div>
 </div>
 <div id="right">
   <div id="map"></div>
   <div id="panel">
-    <div id="legend" class="muted"></div>
-    <h3>Cues to check</h3>
-    <div id="items"></div>
     <h3>Note on this camera</h3>
-    <textarea id="camNote" rows="2" placeholder="anything about this camera's cues as a whole"></textarea>
-    <div class="muted" style="margin-top:8px;font-size:11px">Right: the cue marks what it says (the point is where the named thing is in the picture,
-      and on the map). Wrong: it does not. Unsure: cannot tell from the picture. A dashed white line runs from a landmark
-      to where the camera's calibrated model puts it; the miss in degrees is beside it in the list.</div>
+    <textarea id="camNote" rows="3" placeholder="only if something is off: which cue, and what is wrong with it"></textarea>
+    <div id="look"><button id="next" title="]">looked at · next camera ▶</button>
+      <label class="muted"><input type="checkbox" id="seen"> looked at</label></div>
+    <div id="legend" class="muted" style="margin-top:8px"></div>
+    <h3>The agents' cues</h3>
+    <div id="items"></div>
+    <div class="muted" style="margin-top:8px;font-size:11px">Each cue should mark what it says: the point where the named thing is in the
+      picture, and the same place on the map. A dashed white line runs from a landmark to where the camera's calibrated model
+      puts it; the miss in degrees is beside it in the list. Click a cue (in the picture or the list) to see its details.</div>
   </div>
 </div>
 <script>
@@ -102,28 +105,27 @@ const NAMES={"agent":"AI agent answer","agent-click":"browser agent click","clau
 const KIND={landmark:"landmark", point:"point", edge:"vertical edge", horizon:"horizon", aircraft:"aircraft", answer:"answer"};
 let data=null, cams=[], cam=null, img=null, sel=-1, view={s:1,ox:0,oy:0}, map=null, overlay=[], saveTimer=null, sendTimer=null;
 const who=()=>$("who").value.trim()||"anonymous";
+const now=()=>new Date().toISOString().slice(0,19)+"Z";
 const store={get(id){ try { return JSON.parse(localStorage.getItem("checks:"+id)||"null"); } catch { return null; } },
              put(id,c){ try { localStorage.setItem("checks:"+id, JSON.stringify(c)); } catch {} },
              ids(){ try { return Object.keys(localStorage).filter(k=>k.startsWith("checks:")).map(k=>k.slice(7)); } catch { return []; } }};
-function marks(id){ return store.get(id)||{camera_id:id, items:{}, note:""}; }
-function stateOf(c){ const m=marks(c.camera_id), v=c.items.map(it=>(m.items[it.id]||{}).verdict).filter(Boolean);
-  if (v.includes("wrong")) return "bad"; if (!v.length) return ""; return v.length===c.items.length?"done":"part"; }
+function marks(id){ return store.get(id)||{camera_id:id, seen:null, note:""}; }
+function stateOf(c){ const m=marks(c.camera_id); return (m.note||"").trim()?"noted":m.seen?"seen":""; }
 function visible(){ const st=$("state").value, sr=$("src").value, q=$("search").value.trim().toLowerCase();
-  return cams.filter(c=>{ const s=stateOf(c);
-    if (st==="todo" && (s==="done"||s==="bad") && !(cam&&c.camera_id===cam.camera_id)) return false;
-    if (st==="done" && !(s==="done"||s==="bad")) return false;
+  return cams.filter(c=>{ const s=stateOf(c), cur=cam&&c.camera_id===cam.camera_id;
+    if (st==="todo" && s && !cur) return false;
+    if (st==="done" && !s) return false;
     if (sr && !c.items.some(it=>it.src===sr)) return false;
     return !q || (c.row.name+" "+c.row.country+" "+c.camera_id).toLowerCase().includes(q); }); }
 function drawList(){ const L=$("list"), top=L.scrollTop, vis=visible(); L.innerHTML="";
   vis.forEach(c=>{ const d=document.createElement("div"); d.className="cam"+(cam&&cam.camera_id===c.camera_id?" cur":"");
-    const by={}; c.items.forEach(it=>by[it.src]=(by[it.src]||0)+1); const m=marks(c.camera_id);
-    const n=c.items.filter(it=>(m.items[it.id]||{}).verdict).length;
-    d.innerHTML=`<div class="n"><span class="dot ${stateOf(c)}"></span></div><div class="s"></div>`;
+    const by={}; c.items.forEach(it=>by[it.src]=(by[it.src]||0)+1); const s=stateOf(c);
+    d.innerHTML=`<div class="n"><span class="dot ${s}"></span></div><div class="s"></div>`;
     d.firstChild.append(c.row.name||c.camera_id);
-    d.lastChild.textContent=[c.row.country, Object.entries(by).map(([k,v])=>`${v} ${NAMES[k]}`).join(", "), `${n}/${c.items.length} checked`, c.frame?"":"no picture"].filter(Boolean).join(" · ");
+    d.lastChild.textContent=[c.row.country, Object.entries(by).map(([k,v])=>`${v} ${NAMES[k]}`).join(", "), s==="noted"?"note":s==="seen"?"looked at":"", c.frame?"":"no picture"].filter(Boolean).join(" · ");
     d.onclick=()=>openCam(c.camera_id); L.appendChild(d); });
-  L.scrollTop=top; const done=cams.filter(c=>stateOf(c)==="done"||stateOf(c)==="bad").length;
-  $("count").textContent=`${vis.length} shown · ${done} of ${cams.length} cameras checked`; }
+  L.scrollTop=top; const done=cams.filter(c=>stateOf(c)).length, noted=cams.filter(c=>stateOf(c)==="noted").length;
+  $("count").textContent=`${vis.length} shown · ${done} of ${cams.length} looked at · ${noted} with a note`; }
 function legend(){ $("legend").innerHTML=Object.keys(COLORS).map(k=>`<span><span class="sw" style="background:${COLORS[k]}"></span> ${NAMES[k]}</span>`).join(""); }
 
 /* ---------- a camera ---------- */
@@ -136,56 +138,47 @@ function openCam(id){
   if (cam.crops){ const a=document.createElement("a"); a.href=cam.crops; a.target="_blank"; a.rel="noopener"; a.textContent="the aircraft dots, cropped from their own pictures";
     a.title="each aircraft lies on its own picture, not on the one drawn here: the sheet shows every detection with its time and flight"; $("links").append(" · ", a); }
   $("fnote").textContent=(cam.frame?"Picture: "+cam.frame_note:"No picture here: "+cam.frame_note)+". "+(r.view_description||"");
-  const m=marks(id); $("camNote").value=m.note||"";
+  const m=marks(id); $("camNote").value=m.note||""; $("seen").checked=!!m.seen; $("saveState").textContent="";
   img=null; draw(); drawItems(); drawList(); drawMap();
   if (cam.frame){ const im=new Image(); im.onload=()=>{ if (cam&&cam.camera_id===id){ img=im; fit(); draw(); } }; im.src=cam.frame; }
-  else $("hud").textContent="No picture for this camera here: check its cues in the list and on the map.";
+  else $("hud").textContent="No picture for this camera here: look at its cues in the list and on the map.";
 }
-function setVerdict(i, v){ if (!cam||i<0) return; const it=cam.items[i], m=marks(cam.camera_id), old=m.items[it.id]||{};
-  m.items[it.id]=Object.assign({}, old, {verdict:old.verdict===v?null:v, utc:new Date().toISOString().slice(0,19)+"Z", by:who(),
-    key:it.key, label:it.label, source:it.source, pixel:it.pixel||null});
-  if (!m.items[it.id].verdict && !m.items[it.id].note) delete m.items[it.id];
-  save(m); drawItems(); draw(); drawList(); }
-function setNote(i, t){ const it=cam.items[i], m=marks(cam.camera_id);
-  m.items[it.id]=Object.assign({}, m.items[it.id]||{key:it.key, label:it.label, source:it.source, pixel:it.pixel||null}, {note:t, by:who(), utc:new Date().toISOString().slice(0,19)+"Z"});
-  save(m); }
-function save(m){ m.by=who(); m.utc=new Date().toISOString().slice(0,19)+"Z"; m.built_utc=data.built_utc; store.put(m.camera_id, m);
-  $("saveState").textContent="kept in this browser "+new Date().toTimeString().slice(0,8); clearTimeout(sendTimer); const id=m.camera_id; sendTimer=setTimeout(()=>send(id), 3000); }
-function flush(){ if (sendTimer&&cam){ clearTimeout(sendTimer); send(cam.camera_id); } }
+function save(m){ m.by=who(); m.utc=now(); m.built_utc=data.built_utc; store.put(m.camera_id, m);
+  $("saveState").textContent="kept in this browser "+new Date().toTimeString().slice(0,8); drawList();
+  clearTimeout(sendTimer); const id=m.camera_id; sendTimer=setTimeout(()=>send(id), 3000); }
+function flush(){ if (saveTimer&&cam){ clearTimeout(saveTimer); saveTimer=null; saveNote(); } if (sendTimer&&cam){ clearTimeout(sendTimer); send(cam.camera_id); } }
+function saveNote(){ if (!cam) return; const m=marks(cam.camera_id); m.note=$("camNote").value; if (m.note.trim()&&!m.seen) m.seen=now(); $("seen").checked=!!m.seen; save(m); }
 async function send(id){ const url=window.CUES_SUBMIT_URL; sendTimer=null; if (!url) return;
-  const out={schema:"agent-checks-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{[id]:{agent_checks:store.get(id)}}};
+  const out={schema:"agent-checks-export", exported_utc:now(), by:who(), page:location.href.split("#")[0], cameras:{[id]:{agent_checks:store.get(id)}}};
   try { await fetch(url, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(out)}); if (cam&&cam.camera_id===id) $("saveState").textContent="kept here and sent "+new Date().toTimeString().slice(0,8); }
-  catch(e){ $("saveState").textContent="kept here (sending failed: use download my marks)"; } }
-$("camNote").addEventListener("input", ()=>{ if (!cam) return; const m=marks(cam.camera_id); m.note=$("camNote").value; clearTimeout(saveTimer); saveTimer=setTimeout(()=>save(m), 500); });
-$("dl").onclick=()=>{ const out={schema:"agent-checks-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{}};
+  catch(e){ $("saveState").textContent="kept here (sending failed: use download my notes)"; } }
+$("camNote").addEventListener("input", ()=>{ clearTimeout(saveTimer); saveTimer=setTimeout(()=>{ saveTimer=null; saveNote(); }, 600); });
+$("seen").onchange=()=>{ if (!cam) return; const m=marks(cam.camera_id); m.seen=$("seen").checked?now():null; save(m); };
+function nextCamera(){ if (!cam) return; flush(); const m=marks(cam.camera_id); if (!m.seen){ m.seen=now(); m.note=$("camNote").value; save(m); }
+  const v=visible(), i=v.findIndex(c=>c.camera_id===cam.camera_id), rest=v.slice(i+1).concat(v.slice(0,Math.max(i,0)));
+  const nx=rest.find(c=>!stateOf(c))||rest[0]; if (nx) openCam(nx.camera_id); else drawList(); }
+$("next").onclick=nextCamera;
+$("dl").onclick=()=>{ const out={schema:"agent-checks-export", exported_utc:now(), by:who(), page:location.href.split("#")[0], cameras:{}};
   store.ids().forEach(id=>out.cameras[id]={agent_checks:store.get(id)});
-  if (!Object.keys(out.cameras).length) return alert("No marks made in this browser yet.");
+  if (!Object.keys(out.cameras).length) return alert("Nothing looked at in this browser yet.");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:"application/json"}));
   a.download=`agent_checks_${who().replace(/\W+/g,"_")}_${out.exported_utc.slice(0,10)}.json`; a.click(); };
 
-/* ---------- the list of cues ---------- */
+/* ---------- the list of cues (for reference) ---------- */
 function esc(s){ return String(s??"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
-function drawItems(){ const box=$("items"); box.innerHTML=""; if (!cam) return; const m=marks(cam.camera_id);
-  cam.items.forEach((it,i)=>{ const v=(m.items[it.id]||{}).verdict, d=document.createElement("div"); d.className="it"+(i===sel?" sel":"");
+function drawItems(){ const box=$("items"); box.innerHTML=""; if (!cam) return;
+  cam.items.forEach((it,i)=>{ const d=document.createElement("div"); d.className="it"+(i===sel?" sel":"");
     const miss=it.model_miss_deg!=null?` · model ${it.model_miss_deg.toFixed(1)}°`:"";
     d.innerHTML=`<div class="l"><span class="sw" style="background:${COLORS[it.src]}"></span><b>${i+1}</b>
-      <span class="t" title="${esc(it.label)}">${esc(it.label)||KIND[it.kind]} <span class="muted">· ${KIND[it.kind]}${miss}</span></span>
-      <span class="v"><button class="r${v==="right"?" on":""}" title="right (R)">✓</button><button class="w${v==="wrong"?" on":""}" title="wrong (W)">✗</button><button class="u${v==="unsure"?" on":""}" title="cannot tell (U)">?</button></span></div>
-      <div class="more"></div>`;
-    const more=d.querySelector(".more"), lines=[];
+      <span class="t" title="${esc(it.label)}">${esc(it.label)||KIND[it.kind]} <span class="muted">· ${KIND[it.kind]}${miss}</span></span></div><div class="more"></div>`;
+    const lines=[];
     if (it.description && it.description!==it.label) lines.push(esc(it.description));
     if (it.lat!=null) lines.push(`at ${it.lat.toFixed(6)}, ${it.lon.toFixed(6)}${it.alt!=null?`, ${it.alt} m`:""} <a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${it.lat},${it.lon}">map</a>`);
     if (it.model_miss_deg!=null) lines.push(`the camera's model puts it ${it.model_miss_deg.toFixed(2)}° from this pixel${it.model_pixel?"":" (outside the picture)"}`);
     if (it.cam_lat!=null) lines.push(`the agent puts the camera at ${it.cam_lat}, ${it.cam_lon}${it.cam_how?" ("+esc(it.cam_how)+")":""} (dashed ring on the map)`);
     lines.push(`<span class="muted">${esc(it.source)}${it.image_id?" · picture "+esc(it.image_id):""}</span>`);
-    more.innerHTML=lines.map(x=>`<div>${x}</div>`).join("")+(it.text?`<pre>${esc(it.text)}</pre>`:"");
-    const note=document.createElement("textarea"); note.rows=2; note.placeholder="why (optional)"; note.value=(m.items[it.id]||{}).note||"";
-    note.addEventListener("input", ()=>{ clearTimeout(saveTimer); saveTimer=setTimeout(()=>setNote(i, note.value), 500); });
-    note.addEventListener("click", e=>e.stopPropagation()); more.append(note);
-    d.querySelector(".r").onclick=e=>{ e.stopPropagation(); setVerdict(i,"right"); };
-    d.querySelector(".w").onclick=e=>{ e.stopPropagation(); setVerdict(i,"wrong"); };
-    d.querySelector(".u").onclick=e=>{ e.stopPropagation(); setVerdict(i,"unsure"); };
-    d.onclick=()=>select(i); box.append(d); }); }
+    d.querySelector(".more").innerHTML=lines.map(x=>`<div>${x}</div>`).join("")+(it.text?`<pre>${esc(it.text)}</pre>`:"");
+    d.onclick=()=>select(i===sel?-1:i); box.append(d); }); }
 function select(i){ sel=i; drawItems(); draw(); drawMap(); const el=$("items").children[i]; if (el) el.scrollIntoView({block:"nearest"}); }
 
 /* ---------- the picture ---------- */
@@ -199,7 +192,6 @@ function anchor(it){ return it.pixel||(it.pixels&&it.pixels[0])||null; }
 function draw(){ ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); ctx.clearRect(0,0,cv.clientWidth,cv.clientHeight);
   if (!cam) return; if (img) ctx.drawImage(img, view.ox, view.oy, W()*view.s, H()*view.s);
   else { ctx.strokeStyle="#444"; ctx.strokeRect(view.ox, view.oy, W()*view.s, H()*view.s); }
-  const m=marks(cam.camera_id);
   cam.items.forEach((it,i)=>{ if ($("onlySel").checked && i!==sel) return; const c=COLORS[it.src], on=i===sel, lw=on?3.5:2;
     ctx.strokeStyle=c; ctx.fillStyle=c; ctx.lineWidth=lw;
     if (it.pixels&&it.pixels.length){ ctx.beginPath(); it.pixels.forEach((p,k)=>{ const s=scr(...p); k?ctx.lineTo(...s):ctx.moveTo(...s); }); ctx.stroke();
@@ -209,10 +201,9 @@ function draw(){ ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0); ct
         ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(mx,my); ctx.stroke(); ctx.setLineDash([]); ctx.strokeRect(mx-4,my-4,8,8); ctx.strokeStyle=c; ctx.lineWidth=lw; }
       if (it.kind==="aircraft"){ ctx.beginPath(); ctx.moveTo(x,y-7); ctx.lineTo(x+7,y); ctx.lineTo(x,y+7); ctx.lineTo(x-7,y); ctx.closePath(); ctx.stroke(); }
       else { ctx.beginPath(); ctx.arc(x,y,on?9:6,0,7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x-3,y); ctx.lineTo(x+3,y); ctx.moveTo(x,y-3); ctx.lineTo(x,y+3); ctx.stroke(); } }
-    const a=anchor(it); if (!a) return; const [x,y]=scr(...a), v=(m.items[it.id]||{}).verdict;
-    ctx.font="bold 13px sans-serif"; ctx.lineWidth=3; ctx.strokeStyle="#000"; ctx.strokeText(i+1, x+10, y-8);
-    ctx.fillStyle=v==="right"?"#80ed99":v==="wrong"?"#ff6b6b":v==="unsure"?"#ffb703":c; ctx.fillText(i+1, x+10, y-8); });
-  if (img) $("hud").textContent=sel>=0?`${sel+1}: ${cam.items[sel].label}`:"Click a cue (in the picture or the list), then ✓ right, ✗ wrong or ? unsure. Wheel zooms, drag pans.";
+    const a=anchor(it); if (!a) return; const [x,y]=scr(...a);
+    ctx.font="bold 13px sans-serif"; ctx.lineWidth=3; ctx.strokeStyle="#000"; ctx.strokeText(i+1, x+10, y-8); ctx.fillStyle=c; ctx.fillText(i+1, x+10, y-8); });
+  if (img) $("hud").textContent=sel>=0?`${sel+1}: ${cam.items[sel].label}`:"Look the cues over; type a note if something is off, then 'looked at · next camera'. Wheel zooms, drag pans, double-click fits.";
 }
 let drag=null;
 cv.addEventListener("mousedown", e=>{ drag={x:e.offsetX,y:e.offsetY,ox:view.ox,oy:view.oy,moved:false}; });
@@ -220,7 +211,7 @@ cv.addEventListener("mousemove", e=>{ if (!drag) return; const dx=e.offsetX-drag
   if (drag.moved){ view.ox=drag.ox+dx; view.oy=drag.oy+dy; draw(); } });
 cv.addEventListener("mouseup", e=>{ const d=drag; drag=null; if (!d||d.moved||!cam) return;      // a click: the nearest cue within 15 px
   let best=-1, bd=15; cam.items.forEach((it,i)=>{ (it.pixels||[it.pixel]).forEach(p=>{ if (!p) return; const [x,y]=scr(...p), dd=Math.hypot(x-e.offsetX,y-e.offsetY); if (dd<bd){ bd=dd; best=i; } }); });
-  if (best>=0) select(best); });
+  select(best); });
 cv.addEventListener("wheel", e=>{ e.preventDefault(); const k=Math.exp(-e.deltaY*0.0015), [ix,iy]=toImg(e.offsetX,e.offsetY);
   view.s*=k; view.ox=e.offsetX-ix*view.s; view.oy=e.offsetY-iy*view.s; draw(); }, {passive:false});
 cv.addEventListener("dblclick", ()=>{ fit(); draw(); });
@@ -256,9 +247,8 @@ function drawMap(){ if (!map||!cam) return; overlay.forEach(o=>{ if (o.setMap) o
 /* ---------- start ---------- */
 document.addEventListener("keydown", e=>{ if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
   const k=e.key.toLowerCase();
-  if (k==="r") setVerdict(sel,"right"); else if (k==="w") setVerdict(sel,"wrong"); else if (k==="u") setVerdict(sel,"unsure");
-  else if (k==="n"&&cam) select((sel+1)%cam.items.length);
-  else if (k==="]"){ const v=visible(), i=cam?v.findIndex(c=>c.camera_id===cam.camera_id):-1; if (v.length) openCam(v[(i+1)%v.length].camera_id); } });
+  if (k==="n"&&cam) select((sel+1)%cam.items.length);
+  else if (k==="]") nextCamera(); });
 ["state","src","search"].forEach(id=>$(id).addEventListener("input", drawList));
 $("showModel").onchange=draw; $("onlySel").onchange=draw;
 $("who").value=(()=>{ try { return localStorage.getItem("cueName")||""; } catch { return ""; } })();
