@@ -7,11 +7,11 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://www.nps.gov/webcams-glac/ApgarLookout-01.jpg (the camera's picture now, if it is still live); camera page https://www.nps.gov/media/webcam/view.htm?id=81B4691B-1DD8-B71B-0BB9DBEE21A59335; the cue page https://pless.github.io/contrails/cues/#ws-456f1c7c (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Apgar Mountain; about 43% sky
-3. Camera position now: 48.507280, -114.034392; accuracy: city-level; source: OpenStreetMap Nominatim 'Apgar Lookout' (2026-10-12), a point on the lookout trail: the camera is at the summit of Apgar Mountain, within about 2 km; the NPS list gives a park-wide point
+3. Camera position now: 48.507280, -114.034392, 1068 m above sea level; accuracy: city-level; source: OpenStreetMap Nominatim 'Apgar Lookout' (2026-10-12), a point on the lookout trail: the camera is at the summit of Apgar Mountain, within about 2 km; the NPS list gives a park-wide point
 4. Calibration now: candidate
    heading 45.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: operator's description ('view to the northeast from the summit of Apgar Mountain'), not checked
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 4 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
    what would help most here: name a peak (a picture a minute or faster; no calibrated fast camera within 271 km; mountain view: name one peak or pass on the skyline)
 
 Please return what you can find with high confidence:

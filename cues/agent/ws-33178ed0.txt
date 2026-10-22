@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 40.623482, 14.361981, 175 m above sea level; accuracy: approximate; source: Windy webcams API position (webcam 1199821616), 2026-10-05
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 1 map points with a height, 2 without, 0 described only, 0 vertical edges, 3 horizon points
+   cues already recorded: 6 map points with a height, 2 without, 0 described only, 1 vertical edges, 7 horizon points
    what would help most here: confirm (a picture a minute or faster; no calibrated fast camera within 180 km; cues exist: check the trial overlay, add a second landmark if it is off)
 
 Please return what you can find with high confidence:

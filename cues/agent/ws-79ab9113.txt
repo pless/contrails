@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 36.624280, -4.499540, 61 m above sea level; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Torremolinos, Spain)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 6 vertical edges, 2 horizon points
+   cues already recorded: 0 map points with a height, 0 without, 12 described only, 6 vertical edges, 2 horizon points
    what would help most here: one landmark (live video; no calibrated fast camera within 187 km; tilt and roll are known (horizon): one landmark with a map position gives the heading)
 
 Please return what you can find with high confidence:

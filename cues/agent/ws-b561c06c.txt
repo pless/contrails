@@ -11,7 +11,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 4. Calibration now: candidate
    heading 260.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: FAA camera bearing (API cameraBearing), not checked
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 2 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 227 km; flat or coastal view: click the horizon and one landmark; central USA, a picture a minute or faster)
 
 Please return what you can find with high confidence:

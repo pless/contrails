@@ -11,7 +11,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 4. Calibration now: candidate
    heading 222.7 deg (clockwise from north, where the picture centre points), tilt -4.8 deg (up from horizontal), horizontal field of view unknown
    based on: home view from stars over 2 nights, pooled blind star solver (star_joint 2026-10-10); the camera can pan: its daytime view changed on 2 of 8 days, so check the picture label before use
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 3 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 92 km; flat or coastal view: click the horizon and one landmark; central USA, a picture a minute or faster)
 
 Please return what you can find with high confidence:

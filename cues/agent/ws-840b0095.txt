@@ -3,7 +3,7 @@ Camera ws-840b0095: UUNET camera, Neil Armstrong Academy (Looking East) (Univers
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-840b0095.jpg
-   taken 2026-10-21T16:17:01 UTC; 500x375 pixels as linked; x runs right from the left edge, y down from the top edge.
+   taken 2026-10-21T16:17:01 UTC; 500x375 pixels as linked (the camera's own pictures are 768x576); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://horel.chpc.utah.edu/data/station_cameras/armstrong_cam/armstrong_cam_current.jpg (the camera's picture now, if it is still live); camera page https://horel.chpc.utah.edu/uunet_camera_explorer.cgi?cam=NAA; the cue page https://pless.github.io/contrails/cues/#ws-840b0095 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: fields and the snow-capped Wasatch Range to the east; about 75% sky

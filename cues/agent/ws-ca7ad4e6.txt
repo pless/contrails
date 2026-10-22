@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 44.304932, -84.754040, 362 m above sea level; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Houghton Lake, Michigan, USA)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 4 map points with a height, 6 without, 0 described only, 0 vertical edges, 3 horizon points
+   cues already recorded: 10 map points with a height, 6 without, 0 described only, 2 vertical edges, 6 horizon points
    what would help most here: confirm (live video; no calibrated fast camera within 162 km; cues exist: check the trial overlay, add a second landmark if it is off)
 
 Please return what you can find with high confidence:

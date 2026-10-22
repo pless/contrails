@@ -7,11 +7,11 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed http://cams.almeso.net/lapses/tuscaloosa/lapseimage.jpg (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-de4b18fc (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Alabama Mesonet station camera; sky fraction not yet assessed
-3. Camera position now: 33.211000, -87.566000; accuracy: exact; source: Alabama Mesonet (almeso.net), via WorldScope Main
+3. Camera position now: 33.211000, -87.566000, 131 m above sea level; accuracy: exact; source: Alabama Mesonet (almeso.net), via WorldScope Main
 4. Calibration now: candidate
    heading 202.5 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: picture label 'SSW' (16-point pan readout, +-11 deg, north unchecked), same label 2026-10-02..09; view shifts up to 6 px of 960 between days (almeso/labels.py 2026-10-10)
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 18 map points with a height, 0 without, 0 described only, 14 vertical edges, 0 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 84 km; flat or coastal view: click the horizon and one landmark; central USA, a picture a minute or faster)
 
 Please return what you can find with high confidence:
