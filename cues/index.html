@@ -203,7 +203,7 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261022T132622Z"></script>
+<script src="config.js?v=20261023T033518Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -1078,13 +1078,16 @@ $("showSolve").onchange=draw;
 ["landmark","vertical","horizon"].forEach(t=>$("t_"+t).onclick=()=>setTool(t));
 $("prevF").onclick=()=>stepFrame(-1); $("nextF").onclick=()=>stepFrame(1); $("grab").onclick=grabLive;
 function refreshExport(){ if (STATIC) $("export").textContent=`download my cues (${store.ids().length} camera${store.ids().length===1?"":"s"})`; }
-let submitTimer=null;
-function submitCues(id){ clearTimeout(submitTimer); submitTimer=setTimeout(()=>submitNow(id), 3000); }   // one send per burst of saves
-async function submitNow(id){                        // automatic ingestion (tools/cue_submit/README.md); silent when not configured
-  const url=window.CUES_SUBMIT_URL; if (!STATIC || !url || !C) return;
-  const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{[id]:C}};
-  try { await fetch(url, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(out)}); $("saveState").textContent="saved here and sent"; }
-  catch(e){ $("saveState").textContent="saved here (sending failed: use download my cues)"; $("export").style.display=""; refreshExport(); }
+let submitTimer=null, submitFor=null;
+function submitCues(id){                             // one send per burst of saves; a send still waiting for another camera goes now
+  if (submitTimer && submitFor!==id) submitNow(submitFor);
+  clearTimeout(submitTimer); submitFor=id; submitTimer=setTimeout(()=>{ submitTimer=null; submitNow(id); }, 3000); }
+async function submitNow(id, leaving){               // automatic ingestion (tools/cue_submit/README.md); silent when not configured
+  const url=window.CUES_SUBMIT_URL, c=store.get(id); if (!STATIC || !url || !c) return;   // the camera's saved record, not the one open now (2026-10-23:
+  const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{[id]:c}};   // moving on within the 3 s
+  const here=()=>C&&C.camera_id===id;              // sent the next camera's empty record under this one's id, and the import kept it as the newest)
+  try { await fetch(url, {method:"POST", mode:"no-cors", keepalive:!!leaving, headers:{"Content-Type":"text/plain"}, body:JSON.stringify(out)}); if (here()) $("saveState").textContent="saved here and sent"; }
+  catch(e){ if (here()) $("saveState").textContent="saved here (sending failed: use download my cues)"; $("export").style.display=""; refreshExport(); }
 }
 $("export").onclick=()=>{
   const out={schema:"calibration-cues-export", exported_utc:new Date().toISOString().slice(0,19)+"Z", by:who(), page:location.href.split("#")[0], cameras:{}};
@@ -1100,6 +1103,7 @@ $("filter").onchange=drawQueue; $("search").addEventListener("input", drawQueue)
 $("who").value=(()=>{ try { return localStorage.getItem("cueName")||""; } catch { return ""; } })();
 $("who").addEventListener("input", ()=>{ try { localStorage.setItem("cueName",$("who").value); } catch {} });
 window.addEventListener("beforeunload", ()=>{ finishEdge(); if (saveTimer) save(); });
+window.addEventListener("pagehide", ()=>{ if (submitTimer){ clearTimeout(submitTimer); submitTimer=null; submitNow(submitFor, true); } });   // closing within the 3 s
 
 let copiedTimer=null;
 $("agentCopy").addEventListener("click", ()=>{ agentBrief();

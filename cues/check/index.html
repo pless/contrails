@@ -9,7 +9,7 @@
 <meta charset="utf-8">
 <title>Agent cue checks</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="../config.js?v=2026-10-22T174829Z"></script>
+<script src="../config.js?v=2026-10-23T203000Z"></script>
 <style>
   :root { color-scheme: dark; --bg:#111; --panel:#1b1b1f; --line:#333; --text:#ddd; --muted:#8a8a92; --accent:#4cc9f0;
           --ok:#80ed99; --wait:#ffb703; --bad:#ff6b6b; }
@@ -272,7 +272,10 @@ $("who").addEventListener("input", ()=>{ try { localStorage.setItem("cueName",$(
 window.addEventListener("beforeunload", flush);
 window.addEventListener("hashchange", ()=>{ const h=location.hash.slice(1); if (h&&(!cam||cam.camera_id!==h)&&cams.some(c=>c.camera_id===h)) openCam(h); });
 legend();
-(async()=>{ data=await (await fetch("data.json", {cache:"no-cache"})).json(); cams=data.cameras; resize(); drawList(); initMap();
+(async()=>{ data=await (await fetch("data.json", {cache:"no-cache"})).json(); cams=data.cameras;
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$|\.localhost$/.test(location.hostname))   // on this Mac: the pictures that may not go on a public page (local/, never committed)
+    await fetch("local/frames.json", {cache:"no-cache"}).then(r=>r.ok?r.json():{}).then(L=>cams.forEach(c=>{ if (!c.frame&&L[c.camera_id]) Object.assign(c, L[c.camera_id]); })).catch(()=>{});
+  resize(); drawList(); initMap();
   const h=location.hash.slice(1); if (h&&cams.some(c=>c.camera_id===h)) openCam(h); })();
 </script>
 </body>

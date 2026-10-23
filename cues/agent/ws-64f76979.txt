@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed http://g0.ipcamlive.com/player/snapshot.php?alias=61d447f6b5810 (the camera's picture now, if it is still live); camera page https://www.awekas.at/en/instrument.php?id=23167; the cue page https://pless.github.io/contrails/cues/#ws-64f76979 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Infoclimat-listed webcam, now on the operator's image; sky fraction not yet assessed
-3. Camera position now: 43.100000, 5.850000; accuracy: approximate; source: Infoclimat listing, via WorldScope Main
+3. Camera position now: 43.100000, 5.850000, 88 m above sea level; accuracy: approximate; source: Infoclimat listing, via WorldScope Main
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 3 horizon points
    what would help most here: confirm (a picture a minute or faster; no calibrated fast camera within 106 km; a star solve exists for one night frame: one landmark with a map position confirms its heading)
 
 Please return what you can find with high confidence:

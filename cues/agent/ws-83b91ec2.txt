@@ -9,7 +9,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 34.983978, -106.007875, 1899 m above sea level; accuracy: unknown; source: contrailCameras registry (source sheet; accuracy unknown)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 4 horizon points
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 13 horizon points
    what would help most here: one landmark (a picture a minute or faster; no calibrated fast camera within 348 km; tilt and roll are known (horizon): one landmark with a map position gives the heading)
 
 Please return what you can find with high confidence:

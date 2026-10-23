@@ -7,11 +7,11 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://g1.ipcamlive.com/player/snapshot.php?alias=otcam (the camera's picture now, if it is still live); camera page https://www.ipcamlive.com/otcam; the cue page https://pless.github.io/contrails/cues/#ws-77a39e06 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Windy categories: coast, meteo
-3. Camera position now: 43.450120, 4.428550; accuracy: approximate; source: Windy webcams API position (webcam 1694864888), 2026-10-05
+3. Camera position now: 43.450120, 4.428550, 14 m above sea level; accuracy: approximate; source: Windy webcams API position (webcam 1694864888), 2026-10-05
 4. Calibration now: candidate
    heading 225.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: Windy name label 2026-10-10
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 1 without, 0 described only, 0 vertical edges, 2 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 172 km; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:

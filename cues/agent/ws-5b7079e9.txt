@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://images.ambientweather.net/483FDA554DC2/latest.jpg (the camera's picture now, if it is still live); camera page https://ambientweather.net/dashboard/e2803decb3affcbfc4f0a3ff5b32b01c; the cue page https://pless.github.io/contrails/cues/#ws-5b7079e9 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: unknown
-3. Camera position now: 39.775966, -76.287289; accuracy: exact; source: Ambient Weather station position (owner-entered, public dashboard)
+3. Camera position now: 39.775238, -76.287515, 130 m above sea level; accuracy: exact; source: Ambient Weather station position (owner-entered, public dashboard)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 7 map points with a height, 0 without, 0 described only, 0 vertical edges, 2 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 65 km; flat or coastal view: click the horizon and one landmark)
 
 Please return what you can find with high confidence:

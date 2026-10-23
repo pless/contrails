@@ -7,11 +7,11 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://kart.awos.live/#camera=terminal_south (the camera's picture now, if it is still live); camera page https://kart.awos.live/; the cue page https://pless.github.io/contrails/cues/#ws-303e491e (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Mesotech AWOS Live camera at Watertown International Airport, looking South (FAA bearing 185 deg); about 65% sky
-3. Camera position now: 43.993890, -76.024160, 103 m above sea level; accuracy: exact; source: FAA WeatherCams API site record (latitude, longitude, elevation in feet)
+3. Camera position now: 43.994074, -76.024497, 105 m above sea level; accuracy: exact; source: FAA WeatherCams API site record (latitude, longitude, elevation in feet)
 4. Calibration now: candidate
    heading 185.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: FAA camera bearing (API cameraBearing), not checked
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 6 without, 0 described only, 0 vertical edges, 3 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 166 km; flat or coastal view: click the horizon and one landmark)
 
 Please return what you can find with high confidence:

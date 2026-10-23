@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://www.youtube.com/watch?v=OYqo4dqYjh0 (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-edab702d (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: The Rooftop Bar (Fixed Wide West) | Oceanside, CA | San Diego Web Cam
-3. Camera position now: 33.195870, -117.379480; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Oceanside, California, USA)
+3. Camera position now: 33.195870, -117.379480, 23 m above sea level; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Oceanside, California, USA)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 6 without, 0 described only, 3 vertical edges, 3 horizon points
    what would help most here: horizon + landmark (live video; a calibrated fast camera is 18 km away; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:

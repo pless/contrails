@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 39.647940, -84.266374, 36 m above sea level; accuracy: exact; source: ambientweather map position (cams.json)
 4. Calibration now: slow (<1 image/min)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 2 map points with a height, 0 without, 0 described only, 1 vertical edges, 0 horizon points
    what would help most here: horizon + landmark (slow camera (after the fast ones); no calibrated camera within 85 km; flat or coastal view: click the horizon and one landmark)
 
 Please return what you can find with high confidence:

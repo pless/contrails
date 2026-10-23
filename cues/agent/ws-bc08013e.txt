@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 41.597928, -90.335598, 191 m above sea level; accuracy: city-level; source: Wikipedia coordinates of Port Byron, Illinois (https://en.wikipedia.org/wiki/Port_Byron,_Illinois): town level only; the camera's own spot is not known (the stream descriptions could not be read past YouTube's bot check)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 5 without, 0 described only, 2 vertical edges, 2 horizon points
+   cues already recorded: 16 map points with a height, 5 without, 0 described only, 10 vertical edges, 14 horizon points
    what would help most here: horizon + landmark (live video; no calibrated fast camera within 226 km; flat or coastal view: click the horizon and one landmark; central USA, a picture a minute or faster)
 
 Please return what you can find with high confidence:
