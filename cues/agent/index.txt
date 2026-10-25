@@ -1,8 +1,11 @@
 WorldScope cue page: one plain-text file per camera with everything an AI agent needs to help calibrate it
 (its picture, position, current calibration and what to return). The page itself, https://pless.github.io/contrails/cues/, needs JavaScript.
-3341 cameras, most useful first; built 2026-10-23T20:29:48Z.
+3341 cameras, most useful first; built 2026-10-25T02:52:55Z.
 
 camera_id	name	country	instructions
+ws-f7912865	Korinos › North-east: Παραλια Μακρυγιάλου	Greece	https://pless.github.io/contrails/cues/agent/ws-f7912865.txt
+ws-6def91c4	Tickle Pink Inn live web cam, Carmel Highlands CA (HDOnTap snapshot)	USA	https://pless.github.io/contrails/cues/agent/ws-6def91c4.txt
+ws-3db51a94	AVAMET Cullera (26 m, la Ribera Baixa) webcam 3	Spain	https://pless.github.io/contrails/cues/agent/ws-3db51a94.txt
 ws-ed6a2172	Galveston, Texas | 24/7 Live Beach Camera (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-ed6a2172.txt
 ws-d5a6d30c	🔴Live Railcam: Boone Iowa - Cam 1 (West) - Trains On Demand (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-d5a6d30c.txt
 ws-416c7e58	La Plata, Missouri, USA | LIVE Train Camera (Fixed View – East) (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-416c7e58.txt
@@ -416,7 +419,6 @@ ws-7e4a1fd9	Eckernförde - Preußerstraße 1, Eckernförde	Germany	https://pless
 ws-fc9c0242	Gilbert St 2000 (Springfield)	United States	https://pless.github.io/contrails/cues/agent/ws-fc9c0242.txt
 ws-b273f388	Konstanz - Bodanstraße 1, Konstanz	Germany	https://pless.github.io/contrails/cues/agent/ws-b273f388.txt
 ws-b343656c	NPS webcam Kawuneeche Valley (Rocky Mountain National Park)	USA	https://pless.github.io/contrails/cues/agent/ws-b343656c.txt
-ws-f7912865	Korinos › North-east: Παραλια Μακρυγιάλου	Greece	https://pless.github.io/contrails/cues/agent/ws-f7912865.txt
 ws-cd023ee2	Neumunster › North: Gadeland - Schleswig-Holstein, Deutschland	Germany	https://pless.github.io/contrails/cues/agent/ws-cd023ee2.txt
 ws-2d84fcb1	[LIVE] Webcam Pescocostanzo - Impianti Sciistici Vallefura, AQ (1470 m) (YouTube)	Italy	https://pless.github.io/contrails/cues/agent/ws-2d84fcb1.txt
 ws-ee1977b1	Tampa Executive Airport South (Mesotech AWOS Live)	USA	https://pless.github.io/contrails/cues/agent/ws-ee1977b1.txt
@@ -475,7 +477,6 @@ ws-7091ac38	[LIVE] Sunset Grille Live Webcam (YouTube)	United States	https://ple
 ws-c47c9411	laydam	USA	https://pless.github.io/contrails/cues/agent/ws-c47c9411.txt
 ws-e74f430f	Doug's Olde Farm's Weather (Grantham)	United States	https://pless.github.io/contrails/cues/agent/ws-e74f430f.txt
 ws-975e1a13	FlaglerA1A Pier LIVE (YouTube)	United States	https://pless.github.io/contrails/cues/agent/ws-975e1a13.txt
-ws-6def91c4	Tickle Pink Inn live web cam, Carmel Highlands CA (HDOnTap snapshot)	USA	https://pless.github.io/contrails/cues/agent/ws-6def91c4.txt
 ws-e55c7e3e	Suntree/Viera (Melbourne)	United States	https://pless.github.io/contrails/cues/agent/ws-e55c7e3e.txt
 ws-4d47b73b	Tsarevo	Bulgaria	https://pless.github.io/contrails/cues/agent/ws-4d47b73b.txt
 ws-69eea438	Live Sky View Lanzarote – How is the weather like today? (YouTube)	Spain	https://pless.github.io/contrails/cues/agent/ws-69eea438.txt
@@ -1971,7 +1972,6 @@ ws-b4cc93d2	AVAMET Alzira (130 m, la Ribera Alta) webcam 1	Spain	https://pless.g
 ws-afb2e5ae	AVAMET Montserrat (225 m, la Ribera Alta) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-afb2e5ae.txt
 ws-bf7a44ac	AVAMET Montserrat (225 m, la Ribera Alta) webcam 3	Spain	https://pless.github.io/contrails/cues/agent/ws-bf7a44ac.txt
 ws-7ea5deeb	AVAMET Real (131 m, la Ribera Alta) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-7ea5deeb.txt
-ws-3db51a94	AVAMET Cullera (26 m, la Ribera Baixa) webcam 3	Spain	https://pless.github.io/contrails/cues/agent/ws-3db51a94.txt
 ws-4de2e8ab	AVAMET Albaida (327 m, la Vall d′Albaida) webcam 2	Spain	https://pless.github.io/contrails/cues/agent/ws-4de2e8ab.txt
 ws-b035211d	AVAMET Albaida (327 m, la Vall d′Albaida) webcam 3	Spain	https://pless.github.io/contrails/cues/agent/ws-b035211d.txt
 ws-010cac99	AVAMET Albaida (327 m, la Vall d′Albaida) webcam 4	Spain	https://pless.github.io/contrails/cues/agent/ws-010cac99.txt
