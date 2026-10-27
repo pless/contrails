@@ -99,6 +99,7 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
       <span class="muted">|</span>
       <button id="prevF" title="[">◀</button><span id="frameLabel" class="muted">no frame</span><button id="nextF" title="]">▶</button>
       <button id="grab" title="fetch the camera's picture now and add it to the stored frames (useful when the stored ones are dark or cloudy)">live frame</button>
+      <button id="keepPic" title="keep the camera's picture as it is now for calibration (the sun, a short contrail, an aircraft). It is fetched when you click, so it can be a few seconds newer than the frame shown.">save live image</button>
       <label title="the horizon, compass and field of view that the cues imply so far"><input type="checkbox" id="showSolve" checked> rough pose</label>
       <button id="nextCam" style="margin-left:auto" title="N">next camera ▶</button>
     </div>
@@ -203,7 +204,7 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261023T033518Z"></script>
+<script src="config.js?v=20261027T044202Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -584,6 +585,34 @@ async function grabLive(){
     frames=r.frames; markDay(); fi=Math.max(0, frames.findIndex(f=>f.name===r.name)); showBanner(""); loadFrame(!img);
   } catch(e){ showBanner("No live frame: "+e.message); }
   finally { $("grab").disabled=false; $("grab").textContent="live frame"; }
+}
+async function keepPicture(){       // Robert, 2026-10-26: keep a good picture (the sun, a short contrail) for calibration (tools/cue_pictures.py)
+  if (!row) return;
+  const id=row.camera_id, url=STATIC?liveUrl(row):null;
+  if (STATIC&&!url) return showBanner("This camera's picture is not served over https, so the page cannot save it.");
+  if (STATIC&&!window.CUES_SUBMIT_URL) return showBanner("This copy of the page has no submit address, so it cannot save pictures.");
+  const note=prompt("Save the camera's picture as it is now. What makes it useful? (optional: the sun, a contrail, an aircraft, a landmark)", "");
+  if (note===null) return;
+  const btn=$("keepPic"), t=new Date().toISOString().slice(0,19)+"Z", say=m=>{ if (row&&row.camera_id===id) $("saveState").textContent=m; };
+  btn.disabled=true; btn.textContent="saving…";
+  try {
+    if (!STATIC){                   // the local server fetches it and stores it with the captured frames
+      const r=await api("/api/keep/"+id, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({note:note.trim()||null, by:who()})});
+      if (!r.name) return showBanner("Picture not saved: "+r.result);
+      if (row.camera_id===id){ frames=r.frames; markDay(); fi=Math.max(0, frames.findIndex(f=>f.name===r.name)); showBanner(""); loadFrame(!img); }
+      return say("picture saved "+r.name);
+    }
+    if (C) grabLive();              // show the picture of the same moment
+    const out={schema:"calibration-cues-export", kind:"picture_save", exported_utc:t, by:who(), page:location.href.split("#")[0],
+               cameras:{[id]:{camera_id:id, picture_save:{url, clicked_utc:t, note:note.trim()||null}}}};
+    let text;                       // the submit script fetches the picture now and keeps it in Drive (tools/cue_submit/Code.gs)
+    try { text=await (await fetch(window.CUES_SUBMIT_URL, {method:"POST", headers:{"Content-Type":"text/plain"}, body:JSON.stringify(out)})).text(); }
+    catch(e){ return say("asked to save the picture (no reply could be read)"); }
+    let reply; try { reply=JSON.parse(text); } catch(e){ reply={error:/^ok\b/.test(text)?"the request was logged, but the submit script does not fetch pictures yet (it needs its 2026-10-26 version)":text.slice(0,120)}; }
+    if (reply.error){ say(""); return showBanner("Picture not saved: "+reply.error); }
+    say("picture saved, "+String(reply.fetched_utc||"").slice(11,19)+" UTC");
+  } catch(e){ showBanner("Picture not saved: "+e.message); }
+  finally { btn.disabled=false; btn.textContent="save live image"; }
 }
 function links(){
   const g=C&&C.gps_prior, a=[];
@@ -1076,7 +1105,7 @@ $("useZ").onclick=()=>{                      // take the camera height the point
 $("horKind").onchange=dirty; $("rState").onchange=dirty; $("rNote").addEventListener("input", dirty);
 $("showSolve").onchange=draw;
 ["landmark","vertical","horizon"].forEach(t=>$("t_"+t).onclick=()=>setTool(t));
-$("prevF").onclick=()=>stepFrame(-1); $("nextF").onclick=()=>stepFrame(1); $("grab").onclick=grabLive;
+$("prevF").onclick=()=>stepFrame(-1); $("nextF").onclick=()=>stepFrame(1); $("grab").onclick=grabLive; $("keepPic").onclick=keepPicture;
 function refreshExport(){ if (STATIC) $("export").textContent=`download my cues (${store.ids().length} camera${store.ids().length===1?"":"s"})`; }
 let submitTimer=null, submitFor=null;
 function submitCues(id){                             // one send per burst of saves; a send still waiting for another camera goes now
