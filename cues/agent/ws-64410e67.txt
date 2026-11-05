@@ -7,12 +7,12 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://clubnautiquesaintmichel.ca/weewx/vantage.jpg (the camera's picture now, if it is still live); camera page https://clubnautiquesaintmichel.ca/weewx/; the cue page https://pless.github.io/contrails/cues/#ws-64410e67 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: the marina basin, its stone jetties and the St. Lawrence, with Ile d'Orleans and the Laurentians beyond, looking north-west
-3. Camera position now: 46.878667, -70.909000, 14 m above sea level; accuracy: approximate; source: the operator's weather-station page (https://clubnautiquesaintmichel.ca/weewx/, 'Situation geographique': 46 deg 52.72' N, 070 deg 54.54' W, altitude 9 m), the club's station at the marina; Windy's position is 120 m away
+3. Camera position now: 46.877580, -70.908068, 15 m above sea level; accuracy: approximate; source: the operator's weather-station page (https://clubnautiquesaintmichel.ca/weewx/, 'Situation geographique': 46 deg 52.72' N, 070 deg 54.54' W, altitude 9 m), the club's station at the marina; Windy's position is 120 m away
 4. Calibration now: candidate
    heading 315.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: Windy listing direction 'North-west' (8 points, set by the camera's owner), coarse
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
-   what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 140 km; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
+   cues already recorded: 3 map points with a height, 2 without, 0 described only, 2 vertical edges, 2 horizon points
+   what would help most here: confirm (a picture a minute or faster; no calibrated fast camera within 140 km; cues exist: check the trial overlay, add a second landmark if it is off)
 
 Please return what you can find with high confidence:
 1. Map points: things you can find both in the picture and on a map (a building corner at ground level, the foot of a tower, mast or post, a road junction, a pier end, a mountain summit). For each: the pixel; the latitude and longitude (6 decimals) of that exact spot, not of a nearby road node; and height_above_ground_m: 0 for a point on the ground (a summit too), else its height above the ground there (a roof edge, a mast top). Measure each position on a map or satellite view; if you cannot place the spot to about 10 m, leave lat and lon out (the pixel and what it is still help). Prefer points 100 m or more away, spread left to right and near to far; skip anything within 20 m of the camera.

@@ -3,14 +3,14 @@ Camera ws-0f123b6a: Balchik (Europe; camera type rectilinear)
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-0f123b6a.jpg
-   taken 2026-10-04T12:10:23 UTC; 1280x724 pixels as linked (the camera's own pictures are 2688x1520); x runs right from the left edge, y down from the top edge.
+   taken 2026-10-31T12:26:51 UTC; 1280x762 pixels as linked (the camera's own pictures are 2688x1600); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://balchik.root.bg/current2.jpeg (the camera's picture now, if it is still live); camera page https://balchik.root.bg/; the cue page https://pless.github.io/contrails/cues/#ws-0f123b6a (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Infoclimat-listed webcam (proxy URL); sky fraction not yet assessed
-3. Camera position now: 43.418000, 28.201600; accuracy: approximate; source: Infoclimat listing, via WorldScope Main
+3. Camera position now: 43.418000, 28.201600, 187 m above sea level; accuracy: approximate; source: Infoclimat listing, via WorldScope Main
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 1 map points with a height, 3 without, 0 described only, 0 vertical edges, 31 horizon points
    what would help most here: one landmark (a picture a minute or faster; no calibrated fast camera within 148 km; tilt and roll are known (GeoCalib): one landmark with a map position gives the heading)
 
 Please return what you can find with high confidence:
@@ -27,7 +27,7 @@ How to answer: do not type into the cue page. Give the person who sent you one J
  "camera_id": "ws-0f123b6a",
  "agent": "model and version, and the app or tool it ran in (e.g. Gemini 3.8 Flash in Antigravity)",
  "picture": "https://pless.github.io/contrails/cues/frames/ws-0f123b6a.jpg",
- "picture_size": [1280, 724],
+ "picture_size": [1280, 762],
  "camera_position": {
   "lat": 0,
   "lon": 0,

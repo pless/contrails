@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 36.500261, -121.936711; accuracy: exact; source: HDOnTap stream page (schema.org geo for this camera), within about 15 m of OpenStreetMap's 'Tickle Pink Inn, Highland Drive, Carmel Highlands'
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 15 horizon points
    what would help most here: camera position + landmarks (the sea horizon is in its file (tilt and roll); click the camera's position on the map, then two or three landmarks along the coast: that gives the heading)
 
 Please return what you can find with high confidence:

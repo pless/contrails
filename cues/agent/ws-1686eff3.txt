@@ -7,7 +7,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://www.meteoales.fr/webcams/cevennes_HD.jpg (the camera's picture now, if it is still live); camera page https://www.meteoales.fr/plugins/webcam-st-jean-du-gard/; the cue page https://pless.github.io/contrails/cues/#ws-1686eff3 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Infoclimat-listed webcam, now on the operator's image; sky fraction not yet assessed
-3. Camera position now: 44.105230, 3.885660; accuracy: approximate; source: Infoclimat listing, via WorldScope Main
+3. Camera position now: 44.105230, 3.885660, 0 m above sea level; accuracy: approximate; source: Infoclimat listing, via WorldScope Main
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points

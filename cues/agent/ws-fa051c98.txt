@@ -7,11 +7,11 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://cams.elaticam.com/output/soufli/webcamimage.jpg?t= (the camera's picture now, if it is still live); camera page https://www.meteolive.gr/p/soufli.html; the cue page https://pless.github.io/contrails/cues/#ws-fa051c98 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Windy categories: meteo, village
-3. Camera position now: 41.193480, 26.303600; accuracy: approximate; source: Windy webcams API position (webcam 1656527141), 2026-10-05
+3. Camera position now: 41.194372, 26.298061, 79 m above sea level; accuracy: approximate; source: Windy webcams API position (webcam 1656527141), 2026-10-05
 4. Calibration now: candidate
    heading 135.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: Windy name label 2026-10-10
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 10 without, 0 described only, 0 vertical edges, 2 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; no calibrated fast camera within 146 km; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:

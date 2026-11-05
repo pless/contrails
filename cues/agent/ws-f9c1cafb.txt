@@ -3,7 +3,7 @@ Camera ws-f9c1cafb: Les Estables (Europe; camera type rectilinear)
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-f9c1cafb.jpg
-   taken 2026-10-06T16:11:07 UTC; 1280x720 pixels as linked (the camera's own pictures are 3840x2160); x runs right from the left edge, y down from the top edge.
+   taken 2026-10-06T16:11:07 UTC; 1280x720 pixels as linked (the camera's own pictures are 1920x1080); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed http://meteomezenc.fr/~meteo/montalambre.jpg (the camera's picture now, if it is still live); camera page http://meteosaintjeures.free.fr/webcamdelaregion/index.html; the cue page https://pless.github.io/contrails/cues/#ws-f9c1cafb (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Infoclimat-listed webcam (proxy URL); sky fraction not yet assessed

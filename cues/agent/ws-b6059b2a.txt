@@ -7,11 +7,11 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://webcam.soluzionimeteo.it/arino/webcam.jpg (the camera's picture now, if it is still live); camera page http://www.vincymeteo.altervista.org/; the cue page https://pless.github.io/contrails/cues/#ws-b6059b2a (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Windy categories: city, meteo
-3. Camera position now: 45.432710, 12.052580, 14 m above sea level; accuracy: approximate; source: Windy webcams API position (webcam 1726856066), 2026-10-05
+3. Camera position now: 45.432136, 12.052864, 13 m above sea level; accuracy: approximate; source: Windy webcams API position (webcam 1726856066), 2026-10-05
 4. Calibration now: candidate
    heading 225.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: Windy name label 2026-10-10
-   cues already recorded: 0 map points with a height, 2 without, 0 described only, 0 vertical edges, 3 horizon points
+   cues already recorded: 0 map points with a height, 12 without, 0 described only, 0 vertical edges, 7 horizon points
    what would help most here: confirm (a picture a minute or faster; no calibrated fast camera within 129 km; cues exist: check the trial overlay, add a second landmark if it is off)
 
 Please return what you can find with high confidence:

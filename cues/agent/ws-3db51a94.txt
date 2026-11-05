@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 39.188912, -0.224522, 26 m above sea level; accuracy: exact; source: AVAMET station page mx-fitxa.php?id=c21m105e06 (station coordinates)
 4. Calibration now: slow (<1 image/min)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 4 map points with a height, 4 without, 0 described only, 0 vertical edges, 18 horizon points
    what would help most here: camera position + landmarks (the sea horizon is in its file (tilt and roll), and a sun fit came close (heading about 78 deg); click the camera's position on the map, then two or three landmarks: that confirms the heading)
 
 Please return what you can find with high confidence:

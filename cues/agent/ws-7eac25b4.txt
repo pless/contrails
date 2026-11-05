@@ -10,7 +10,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 3. Camera position now: 43.451820, -76.544080; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (SUNY Oswego, Oswego, New York, USA)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 10 without, 0 described only, 0 vertical edges, 4 horizon points
    what would help most here: horizon + landmark (live video; no calibrated fast camera within 107 km; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:

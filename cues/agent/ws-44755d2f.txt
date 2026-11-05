@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://www.youtube.com/watch?v=MfqAgiqY4-0 (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-44755d2f (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Live Weather Camera at Oxnard Airport (KOXR) | Axis Air FBO | Ventura County, CA
-3. Camera position now: 34.200090, -119.207890; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Oxnard Airport, Oxnard, California, USA)
+3. Camera position now: 34.198242, -119.197349, 23 m above sea level; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Oxnard Airport, Oxnard, California, USA)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 8 without, 0 described only, 0 vertical edges, 3 horizon points
    what would help most here: fix the position (live video; a calibrated fast camera is 12 km away; mountain view, position only approximate: place the camera on the map first, then name a peak)
 
 Please return what you can find with high confidence:

@@ -11,7 +11,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 4. Calibration now: candidate
    heading 315.0 deg (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    based on: Windy name label 2026-10-10
-   cues already recorded: 0 map points with a height, 2 without, 0 described only, 2 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 7 without, 0 described only, 4 vertical edges, 0 horizon points
    what would help most here: confirm (a picture a minute or faster; a calibrated fast camera is 44 km away; cues exist: check the trial overlay, add a second landmark if it is off)
 
 Please return what you can find with high confidence:
