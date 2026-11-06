@@ -104,8 +104,13 @@
   // sources whose terms do not allow showing their images on other sites: link to them instead
   // their terms do not allow showing the images; the second line (Greek camera sites, Robert 2026-10-10) may be stored for our own research but not republished
   const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr|video\\.nest\\.com|cdn-surfline\\.com"
-    + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr|weatherstem\\.com|panomax\\.com|kymesonet\\.org|hpwren\\.ucsd\\.edu|flugschule-eichenberger\\.ch|elektro-wagner\\.com)$", "i");
-  const noEmbed = (r) => { try { return NO_EMBED.test(new URL(r.image_url).hostname); } catch { return false; } };
+    + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr|weatherstem\\.com|panomax\\.com|kymesonet\\.org|hpwren\\.ucsd\\.edu|flugschule-eichenberger\\.ch|elektro-wagner\\.com|kbzk\\.com|weathernews\\.jp|wni\\.co\\.jp|webcamera\\.pl|webcam-hd\\.fr|houstontranstar\\.org|campanialive\\.it|webcam-kroev\\.de|dreis-tiefenbach-wetter\\.de|greco-immobilien\\.com|enka\\.com|ui\\.nabu\\.casa|vedetta\\.org|dot511\\.nebraska\\.gov|elcat\\.kg)$", "i");
+  // TV-station skycams, matched by the camera's page: their stills come from hosts shared with cleared cameras (Robert, 2026-10-17: "yes, links only"; build_dashboard.NO_PUBLISH_PAGES)
+  const NO_EMBED_PAGE = /(^|\.)(12newsnow\.com|ksdk\.com|ktvo\.com|ky3\.com|news9\.com|kjrh\.com|3newsnow\.com|fox9\.com|klkntv\.com|fox6now\.com|wsaw\.com|weau\.com|kob\.com|fox5dc\.com|wlbt\.com|wxxv25\.com|kwtx\.com|wdbj7\.com|wvva\.com|wsls\.com|25newsnow\.com|wsaz\.com|katv\.com|nexstardigital\.net|wfxg\.com|wral\.com|kanu-hecht\.de|koamnewsnow\.com|21alivenews\.com|wndu\.com|13wmaz\.com|wgxa\.tv|41nbc\.com|newschannel10\.com|kctv5\.com|ksnt\.com|tristatehomepage\.com|ozarksfirst\.com|tetrion\.com|robuck\.net|bayoustateweather\.com|api\.wetmet\.net)$/i;
+  const hostOf = (u) => { try { return new URL(u).hostname; } catch { return ""; } };
+  // a picture address with a camera's guest login (Robert, 2026-10-23: link-only; build_dashboard.has_login blanks it in the data)
+  const HAS_LOGIN = /[?&;](pwd|passwd|password)=|^[a-z]+:\/\/[^/@]+:[^/@]+@/i;
+  const noEmbed = (r) => !r.image_url || HAS_LOGIN.test(r.image_url) || NO_EMBED.test(hostOf(r.image_url)) || NO_EMBED_PAGE.test(hostOf(r.page_url));
   // foto-webcam.eu allows its current image on other sites only as a link to the camera's own page, uncropped, with the source named (each camera's "Webcam-Infos")
   const CLICK_THROUGH = /(^|\.)foto-webcam\.eu$/i;
   const clickThrough = (r) => { try { return !!r.page_url && CLICK_THROUGH.test(new URL(r.image_url).hostname); } catch { return false; } };
@@ -364,7 +369,7 @@
 
     $("#page").innerHTML = `
       <div class="titlebar"><h2>${esc(r.name || r.camera_id)}</h2> ${badge(r)} <span class="muted">${esc(net)} · ${esc(r.region)}${r.country && r.country !== r.region ? " · " + esc(r.country) : ""}</span>
-        <span class="nav"><a href="camera.html?id=${esc(prev.camera_id)}" title="${esc(prev.name)}">← prev</a> · <a href="index.html">list</a> · <a href="camera.html?id=${esc(next.camera_id)}" title="${esc(next.name)}">next →</a></span></div>
+        <span class="nav"><span id="cuelink"></span><a href="camera.html?id=${esc(prev.camera_id)}" title="${esc(prev.name)}">← prev</a> · <a href="index.html">list</a> · <a href="camera.html?id=${esc(next.camera_id)}" title="${esc(next.name)}">next →</a></span></div>
       <div class="cols">
         <div>
           <div class="card current">
@@ -407,6 +412,16 @@
           ${noteCard()}
         </div>
       </div>`;
+
+    // "calibrate this camera" (Robert, 2026-11-06): a link to the cue page for a camera that is not calibrated, skipped,
+    // dead or stale. The cue page opens only the cameras on its list, and tools/build_cue_site.py writes one agent text
+    // per camera on that list (../cues/agent/<id>.txt), so that file says whether the link would work.
+    if (!["calibrated", "skip", "dead", "stale"].includes(sc)) {
+      fetch(`../cues/agent/${encodeURIComponent(r.camera_id)}.txt`, { method: "HEAD" }).then((res) => {
+        $("#cuelink").innerHTML = res.ok ? `<a href="../cues/#${esc(r.camera_id)}">calibrate this camera</a> · `
+          : `<span class="muted" title="The cue page lists cameras with a stored daytime picture; a rebuild of it adds new ones.">not on the cue page yet</span> · `;
+      }).catch(() => {});
+    }
 
     // current image
     const box = $("#imgbox");
