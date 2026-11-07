@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://www.youtube.com/watch?v=wN1lcy77SyE (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-ae321c52 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Harrison, AR - Live Weather Camera | Sponsored by Estes Ace Hardware
-3. Camera position now: 36.229790, -93.107680; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Harrison, Arkansas, USA)
+3. Camera position now: 36.255138, -93.123579, 370 m above sea level; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Harrison, Arkansas, USA)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 8 without, 0 described only, 3 vertical edges, 0 horizon points
    what would help most here: compass direction (live video; no calibrated fast camera within 137 km; mostly sky: a rough facing direction is all that can be given; central USA, a picture a minute or faster)
 
 Please return what you can find with high confidence:

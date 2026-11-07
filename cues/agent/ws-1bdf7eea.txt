@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://api.wetmet.net/widgets/image/frame.php?uid=3607ed7b7d3d709b54f5661cea1cc8fa&type=image&format=image.jpg (the camera's picture now, if it is still live); camera page https://www.actionnewsjax.com/weather/skycams/; the cue page https://pless.github.io/contrails/cues/#ws-1bdf7eea (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Action News Jax First Alert Skycam, Orange Park (WetMet); about 45% sky
-3. Camera position now: 30.163074, -81.695736; accuracy: approximate; source: OpenStreetMap Nominatim, "Club Continental, Orange Park, Florida" (2143 Astor Street, on the west bank of the St. Johns); host named on the station page; building level, about 60 m
+3. Camera position now: 30.163074, -81.695736, 25 m above sea level; accuracy: approximate; source: OpenStreetMap Nominatim, "Club Continental, Orange Park, Florida" (2143 Astor Street, on the west bank of the St. Johns); host named on the station page; building level, about 60 m
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 1 without, 0 described only, 0 vertical edges, 3 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; a calibrated fast camera is 33 km away; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:

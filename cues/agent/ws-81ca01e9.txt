@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://api.wetmet.net/widgets/image/frame.php?uid=b917a5cc386425cdbfb2b8ef085bac08&type=image&format=image.jpg (the camera's picture now, if it is still live); camera page https://www.actionnewsjax.com/weather/skycams/; the cue page https://pless.github.io/contrails/cues/#ws-81ca01e9 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Action News Jax First Alert Skycam, Downtown Jacksonville (WetMet); about 38% sky
-3. Camera position now: 30.320112, -81.657972; accuracy: approximate; source: OpenStreetMap Nominatim, "DoubleTree by Hilton Hotel Jacksonville Riverfront" (1201 Riverplace Boulevard, Southbank); host building named on the station page; building level, about 60 m
+3. Camera position now: 30.320112, -81.657972, 12 m above sea level; accuracy: approximate; source: OpenStreetMap Nominatim, "DoubleTree by Hilton Hotel Jacksonville Riverfront" (1201 Riverplace Boulevard, Southbank); host building named on the station page; building level, about 60 m
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 9 without, 0 described only, 2 vertical edges, 2 horizon points
    what would help most here: horizon + landmark (a picture a minute or faster; a calibrated fast camera is 25 km away; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:
