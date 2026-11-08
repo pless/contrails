@@ -7,10 +7,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://www.youtube.com/watch?v=k8ZgLw6kBCA (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-e818924b (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Rhodes town (municipality cam, seafront park)
-3. Camera position now: 36.434000, 28.217600; accuracy: approximate; source: channel DHMOS RODOY + own knowledge; geocoded 2026-10-05 (Rhodes town (municipality cam, seafront park))
+3. Camera position now: 36.456967, 28.220696, 12 m above sea level; accuracy: approximate; source: channel DHMOS RODOY + own knowledge; geocoded 2026-10-05 (Rhodes town (municipality cam, seafront park))
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
-   cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
+   cues already recorded: 0 map points with a height, 8 without, 0 described only, 0 vertical edges, 2 horizon points
    what would help most here: horizon + landmark (live video; no calibrated fast camera within 430 km; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:

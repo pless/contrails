@@ -3,7 +3,7 @@ Camera ws-80e8ae40: Lawai Beach Resort, Poipu, Kauai HI (YouTube) (USA, USA; cam
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-80e8ae40.jpg
-   taken 2026-10-27T18:30:30 UTC; 1280x720 pixels as linked (the camera's own pictures are 1920x1080); x runs right from the left edge, y down from the top edge.
+   taken 2026-10-27T18:30:30 UTC; 1280x720 pixels as linked; x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://www.youtube.com/watch?v=wTLnC0o0UJ0 (the camera's picture now, if it is still live); camera page https://www.youtube.com/@OurLawaiBeachResort; the cue page https://pless.github.io/contrails/cues/#ws-80e8ae40 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: A lawn and palms to the sea south of Kauai; about 48% sky
