@@ -92,6 +92,19 @@
     if (s.startsWith("in progress")) return "in";
     return s.split(/[\s(:]/)[0];
   }
+  // The five groups of the map, the list and the badges (Robert, 2026-11-11: "Calibrated, Candidate, Stale/Dead,
+  // Intermittent", plus "skipped"). The registry's first status word (statusClass) falls in one of them: slow, in
+  // progress, rotating and anything else count as candidates; the "fast only" filter keeps the cadence.
+  const GROUPS = [
+    ["calibrated", "calibrated", "#0f8a8a", "has a checked camera model"],
+    ["candidate", "candidate", "#2a9d3f", "not calibrated yet (slow cameras too)"],
+    ["intermittent", "intermittent", "#8a4fbf", "gives pictures only some of the time"],
+    ["stale", "stale / dead", "#c2571f", "no new pictures: frozen, failing or gone"],
+    ["skip", "skipped", "#8a8f98", "not used: too little sky, a duplicate or a similar reason"],
+  ];
+  const toGroup = (s) => !s ? "" : GROUPS.some((g) => g[0] === s) ? s : s === "dead" ? "stale" : "candidate";
+  const statusGroup = (r) => toGroup(statusClass(r));
+  const groupLabel = (g) => (GROUPS.find((x) => x[0] === g) || GROUPS[1])[1];
   function cadence(r) {
     const n = parseFloat(r.frame_interval_s);
     const sc = statusClass(r);
@@ -106,7 +119,7 @@
   const NO_EMBED = new RegExp("(^|\\.)(idokep\\.hu|viaero\\.com|skylinewebcams\\.com|hazcams\\.com|myairportcams\\.com|infoclimat\\.fr|video\\.nest\\.com|cdn-surfline\\.com"
     + "|elaticam\\.com|meteolive\\.gr|alphastream\\.eu|meteothes\\.gr|weatherdata\\.gr|meteo\\.gr|livecameras\\.gr|kopaida\\.gr|meteovolos\\.gr|stravon\\.gr|weatherstem\\.com|panomax\\.com|kymesonet\\.org|hpwren\\.ucsd\\.edu|flugschule-eichenberger\\.ch|elektro-wagner\\.com|kbzk\\.com|weathernews\\.jp|wni\\.co\\.jp|webcamera\\.pl|webcam-hd\\.fr|houstontranstar\\.org|campanialive\\.it|webcam-kroev\\.de|dreis-tiefenbach-wetter\\.de|greco-immobilien\\.com|enka\\.com|ui\\.nabu\\.casa|vedetta\\.org|dot511\\.nebraska\\.gov|elcat\\.kg)$", "i");
   // TV-station skycams, matched by the camera's page: their stills come from hosts shared with cleared cameras (Robert, 2026-10-17: "yes, links only"; build_dashboard.NO_PUBLISH_PAGES)
-  const NO_EMBED_PAGE = /(^|\.)(12newsnow\.com|ksdk\.com|ktvo\.com|ky3\.com|news9\.com|kjrh\.com|3newsnow\.com|fox9\.com|klkntv\.com|fox6now\.com|wsaw\.com|weau\.com|kob\.com|fox5dc\.com|wlbt\.com|wxxv25\.com|kwtx\.com|wdbj7\.com|wvva\.com|wsls\.com|25newsnow\.com|wsaz\.com|katv\.com|nexstardigital\.net|wfxg\.com|wral\.com|kanu-hecht\.de|koamnewsnow\.com|21alivenews\.com|wndu\.com|13wmaz\.com|wgxa\.tv|41nbc\.com|newschannel10\.com|kctv5\.com|ksnt\.com|tristatehomepage\.com|ozarksfirst\.com|tetrion\.com|robuck\.net|bayoustateweather\.com|api\.wetmet\.net)$/i;
+  const NO_EMBED_PAGE = /(^|\.)(12newsnow\.com|ksdk\.com|ktvo\.com|ky3\.com|news9\.com|kjrh\.com|3newsnow\.com|fox9\.com|klkntv\.com|fox6now\.com|wsaw\.com|weau\.com|kob\.com|fox5dc\.com|wlbt\.com|wxxv25\.com|kwtx\.com|wdbj7\.com|wvva\.com|wsls\.com|25newsnow\.com|wsaz\.com|katv\.com|nexstardigital\.net|wfxg\.com|wral\.com|kanu-hecht\.de|koamnewsnow\.com|21alivenews\.com|wndu\.com|13wmaz\.com|wgxa\.tv|41nbc\.com|newschannel10\.com|kctv5\.com|ksnt\.com|tristatehomepage\.com|ozarksfirst\.com|tetrion\.com|robuck\.net|bayoustateweather\.com|kwqc\.com|ourquadcities\.com|api\.wetmet\.net)$/i;
   const hostOf = (u) => { try { return new URL(u).hostname; } catch { return ""; } };
   // a picture address with a camera's guest login (Robert, 2026-10-23: link-only; build_dashboard.has_login blanks it in the data)
   const HAS_LOGIN = /[?&;](pwd|passwd|password)=|^[a-z]+:\/\/[^/@]+:[^/@]+@/i;
@@ -116,7 +129,7 @@
   const clickThrough = (r) => { try { return !!r.page_url && CLICK_THROUGH.test(new URL(r.image_url).hostname); } catch { return false; } };
   const CREDIT = `<div class="credit" style="font-size:12px;margin-top:4px">Image: <a href="https://www.foto-webcam.eu/" target="_blank" rel="noopener">www.foto-webcam.eu</a></div>`;
   const hasCoords = (r) => !isNaN(parseFloat(r.lat)) && !isNaN(parseFloat(r.lon));
-  const badge = (r) => `<span class="badge ${esc(statusClass(r))}" title="${esc(r.status)}">${esc((r.status || "?").split(" (")[0])}</span>`;
+  const badge = (r) => { const g = statusGroup(r); return `<span class="badge ${esc(g)}" title="${esc(r.status)}">${esc(groupLabel(g))}</span>`; };
 
   // current-image URL with cache-buster; http sources go through a fetch proxy
   // because this page is served over https (browsers block http images).
@@ -166,7 +179,7 @@
     const byId = new Map(reg.rows.map((r) => [r.camera_id, r]));
     const cams = ver.cameras.map((c) => {
       const r = byId.get(c.camera_id) || { status: c.status };
-      return Object.assign(c, { _r: r, _sc: statusClass(r), _ev: c.skyline && c.sun ? "both" : c.skyline ? "skyline" : "sun" });
+      return Object.assign(c, { _r: r, _sc: statusClass(r), _sg: statusGroup(r), _ev: c.skyline && c.sun ? "both" : c.skyline ? "skyline" : "sun" });
     });
     const s = ver.summary, n = (f) => cams.filter(f).length;
     $("#vsummary").innerHTML = `
@@ -180,10 +193,10 @@
         Click a picture for the full size. Numbers: <a href="data/verify.csv">verify.csv</a> · skyline run ${esc((s.skyline_run_utc || "").slice(0, 16).replace("T", " "))} UTC · ${s.sun_frames_checked} sun frames checked, the last at ${esc(frameTime(s.sun_last_frame))} · <a href="about.html#verification">how it works</a></p>`;
 
     const sel = $("#v-status");
-    for (const v of [...new Set(cams.map((c) => c._sc))].sort()) { const o = document.createElement("option"); o.value = v; o.textContent = v === "in" ? "in progress" : v; sel.appendChild(o); }
+    for (const [k, label] of GROUPS) if (cams.some((c) => c._sg === k)) { const o = document.createElement("option"); o.value = k; o.textContent = label; sel.appendChild(o); }
     const state = { q: "", ev: "", sun: "", status: "", sort: "name" };
     const ctl = { q: "#v-q", ev: "#v-ev", sun: "#v-sun", status: "#v-status", sort: "#v-sort" };
-    const readHash = () => { const p = new URLSearchParams(location.hash.slice(1)); for (const k of Object.keys(state)) { state[k] = p.get(k) || (k === "sort" ? "name" : ""); $(ctl[k]).value = state[k]; } };
+    const readHash = () => { const p = new URLSearchParams(location.hash.slice(1)); for (const k of Object.keys(state)) { state[k] = p.get(k) || (k === "sort" ? "name" : ""); if (k === "status") state[k] = toGroup(state[k]); $(ctl[k]).value = state[k]; } };
     readHash();
     const abs = (v) => (v == null ? -1 : Math.abs(v));
     const key = {
@@ -192,7 +205,7 @@
     };
     function render() {
       const q = state.q.trim().toLowerCase(), k = key[state.sort] || key.name;
-      const list = cams.filter((c) => (!state.ev || c._ev === state.ev) && (!state.sun || (c.sun && c.sun.verdict === state.sun)) && (!state.status || c._sc === state.status)
+      const list = cams.filter((c) => (!state.ev || c._ev === state.ev) && (!state.sun || (c.sun && c.sun.verdict === state.sun)) && (!state.status || c._sg === state.status)
         && (!q || c.name.toLowerCase().includes(q) || c.camera_id.includes(q))).sort((a, b) => k(a) - k(b));   // the list arrives sorted by name; the sort is stable
       $("#v-count").textContent = `${list.length} of ${cams.length} cameras`;
       $("#vtable tbody").innerHTML = list.map((c) => `<tr>
@@ -215,38 +228,38 @@
     const reg = await loadRegistry(INDEX_FIELDS);
     setSourceBadge(reg);
     const rows = reg.rows;
-    rows.forEach((r, i) => { r._i = i; r._net = network(r); r._sc = statusClass(r); r._cad = cadence(r); });
+    rows.forEach((r, i) => { r._i = i; r._net = network(r); r._sc = statusClass(r); r._sg = statusGroup(r); r._cad = cadence(r); });
 
     const fill = (sel, vals) => { const s = $(sel); for (const v of vals) { const o = document.createElement("option"); o.value = v; o.textContent = v; s.appendChild(o); } };
     const uniq = (f) => [...new Set(rows.map(f).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b)));
-    fill("#f-status", uniq((r) => r._sc));
+    for (const [k, label] of GROUPS) if (rows.some((r) => r._sg === k)) { const o = document.createElement("option"); o.value = k; o.textContent = label; $("#f-status").appendChild(o); }
     fill("#f-region", uniq((r) => r.region));
     fill("#f-net", uniq((r) => r._net));
 
     const map = L.map("map", { preferCanvas: true }).setView([38, -30], 3);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "&copy; OpenStreetMap" }).addTo(map);
-    const col = { candidate: "#2a9d3f", slow: "#d9a400", dead: "#d62828", stale: "#c2571f", needs: "#5a7aa6", intermittent: "#8a4fbf", in: "#1f5fbf", calibrated: "#0f8a8a", skip: "#8a8f98" };
+    const col = Object.fromEntries(GROUPS.map(([k, , c]) => [k, c]));
     const layer = L.layerGroup().addTo(map);
     const leg = L.control({ position: "bottomleft" });
-    leg.onAdd = () => { const d = L.DomUtil.create("div", "legend"); d.innerHTML = Object.entries(col).map(([k, c]) => `<span class="dot" style="background:${c}"></span>${k}`).join("<br>"); return d; };
+    leg.onAdd = () => { const d = L.DomUtil.create("div", "legend"); d.innerHTML = GROUPS.map(([, label, c, what]) => `<span title="${esc(what)}"><span class="dot" style="background:${c}"></span>${esc(label)}</span>`).join("<br>"); return d; };
     leg.addTo(map);
 
     const state = { q: "", status: "", region: "", net: "", fast: false, sort: "name", dir: 1 };
-    const readHash = () => { const p = new URLSearchParams(location.hash.slice(1)); for (const k of ["q", "status", "region", "net", "sort"]) if (p.has(k)) state[k] = p.get(k); state.fast = p.get("fast") === "1"; if (p.has("dir")) state.dir = +p.get("dir") || 1; };
+    const readHash = () => { const p = new URLSearchParams(location.hash.slice(1)); for (const k of ["q", "status", "region", "net", "sort"]) if (p.has(k)) state[k] = p.get(k); state.status = toGroup(state.status); state.fast = p.get("fast") === "1"; if (p.has("dir")) state.dir = +p.get("dir") || 1; };
     const writeHash = () => { const p = new URLSearchParams(); for (const k of ["q", "status", "region", "net", "sort"]) if (state[k]) p.set(k, state[k]); if (state.fast) p.set("fast", "1"); if (state.dir < 0) p.set("dir", "-1"); history.replaceState(null, "", "#" + p.toString()); };
     readHash();
     $("#f-q").value = state.q; $("#f-status").value = state.status; $("#f-region").value = state.region; $("#f-net").value = state.net; $("#f-fast").checked = state.fast;
 
     function filtered() {
       const q = state.q.trim().toLowerCase();
-      return rows.filter((r) => (!state.status || r._sc === state.status) && (!state.region || r.region === state.region) && (!state.net || r._net === state.net)
+      return rows.filter((r) => (!state.status || r._sg === state.status) && (!state.region || r.region === state.region) && (!state.net || r._net === state.net)
         && (!state.fast || r._cad === "fast")
         && (!q || [r.name, r.camera_id, r.country, r.region, r._net, r.image_url].some((v) => (v || "").toLowerCase().includes(q))));
     }
     const num = (v) => { const n = parseFloat(v); return isNaN(n) ? -Infinity : n; };
     function sorted(list) {
       const k = state.sort, d = state.dir;
-      const key = { name: (r) => (r.name || "").toLowerCase(), net: (r) => r._net.toLowerCase(), region: (r) => r.region || "", status: (r) => r._sc,
+      const key = { name: (r) => (r.name || "").toLowerCase(), net: (r) => r._net.toLowerCase(), region: (r) => r.region || "", status: (r) => GROUPS.findIndex((g) => g[0] === r._sg),
         interval: (r) => num(r.frame_interval_s), size: (r) => num(r.image_width) * num(r.image_height), verified: (r) => r.last_verified || "", captured: (r) => r._last_capture || "" }[k] || ((r) => r._i);
       return list.slice().sort((a, b) => { const x = key(a), y = key(b); return (x < y ? -1 : x > y ? 1 : 0) * d; });
     }
@@ -258,12 +271,12 @@
         <td>${esc(r._net)}</td><td>${esc(r.region)}${r.country && r.country !== r.region ? " · " + esc(r.country) : ""}</td><td>${badge(r)}</td>
         <td class="num">${esc(r.frame_interval_s)}</td><td class="num">${r.image_width ? esc(r.image_width) + "×" + esc(r.image_height) : ""}</td><td class="num" title="last frame saved by the hourly capture job">${r._last_capture ? esc(r._last_capture.slice(4, 6) + "-" + r._last_capture.slice(6, 8) + " " + r._last_capture.slice(9, 11) + ":" + r._last_capture.slice(11, 13)) : ""}</td></tr>`).join("");
       layer.clearLayers();
-      const pts = [];
-      for (const r of list) {
+      const pts = [], under = (r) => -GROUPS.findIndex((g) => g[0] === r._sg);   // calibrated cameras drawn last, on top
+      for (const r of list.slice().sort((a, b) => under(a) - under(b))) {
         if (!hasCoords(r)) continue;
         const ll = [parseFloat(r.lat), parseFloat(r.lon)];
         pts.push(ll);
-        const c = col[r._sc] || "#8a8f98";
+        const c = col[r._sg] || "#8a8f98";
         L.circleMarker(ll, { radius: 6, color: c, fillColor: c, fillOpacity: 0.85, weight: 1 })
           .bindPopup(() => `<b>${esc(r.name)}</b><br><code>${esc(r.camera_id)}</code> ${badge(r)}<br>${esc(r._net)} · ${esc(r.frame_interval_s || "?")} s · ${esc(r.region)}<br>
             <a href="camera.html?id=${esc(r.camera_id)}">open camera page</a>` + (r._sc !== "dead" && !isYouTube(r) && !isStream(r) && !noEmbed(r) ? (clickThrough(r) ? `<br><a href="${esc(r.page_url)}" target="_blank" rel="noopener"><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy"></a>${CREDIT}` : `<br><img src="${esc(liveUrl(r.image_url))}" referrerpolicy="no-referrer" loading="lazy">`) : ""), { maxWidth: 320 })
@@ -286,6 +299,68 @@
   }
 
   // ---------- camera page ----------
+  // Plain words for two registry notes (Robert, 2026-11-11: "something more human readable"); the note itself stays one
+  // click away. "How measured" (frame_interval_source) is free text from many sessions, so only its method is read from
+  // its wording: the first rule that matches wins.
+  const HOW = [
+    [/surfline still/i, "We read a still picture that the camera's live video gives every few minutes."],
+    [/median gap|mean gap|median step/i, "We downloaded the picture many times and measured the usual gap between new pictures."],
+    [/two-look|two looks|probe|between (two )?(fetches|looks)|changed within|unchanged over|refresh check|station crawl/i, "We downloaded the picture two times and compared."],
+    [/live (video|hls|stream)|youtube live|video stream/i, "Live video: the picture changes all the time."],
+    [/\blists?\b|listing|archive|folders|frame names|frame times|dated addresses/i, "From the times of the pictures that the operator keeps."],
+    [/last-modified/i, "From the time stamp that the server sends with the picture, read at two or more downloads."],
+    [/\bold\b.*\b(look|read|fetch)/i, "From the age of the pictures when we downloaded them."],
+    [/usual|not measured|assumed|publishes|polls|updated every|renews|faq|help page/i, "Not measured on this camera: the usual interval of its network."],
+  ];
+  function howMeasured(t) {
+    if (!t) return "";
+    const rule = HOW.find(([re]) => re.test(t));
+    if (!rule) return esc(t);
+    let s = rule[1], m;
+    if (rule === HOW[2]) {
+      if ((m = t.match(/timestamp advanced (\d+) s/))) s += ` The time on the picture went forward by ${m[1]} s.`;
+      else if ((m = t.match(/unchanged over ~?(\d+) s/))) s += ` After ${m[1]} s, the picture was the same.`;
+      else if ((m = t.match(/changed (?:between (?:two )?(?:fetches|looks) |within )~?(\d+) s/))) s += ` After ${m[1]} s, the picture was new.`;
+    }
+    const day = (t.match(/\d{4}-\d{2}-\d{2}/) || [])[0];
+    return `${esc(s)}${day ? ` Checked ${esc(day)}.` : ""}<details class="rawnote"><summary>our note</summary>${esc(t)}</details>`;
+  }
+  // The release's uncertainty basis: publish/build_release.py joins fixed phrases with "; ". Each phrase becomes a
+  // sentence; a phrase not in this list is shown as it is.
+  const n2 = (v) => String(Number((+v).toPrecision(2)));
+  const BASIS = [
+    [/^(?:fit residual (?:rms|median)|horizon fit median|line fit median|fit misfit, median) ([\d.]+) px/, (m) => `On the points used to fit it, the model is about ${m[1]} pixels off.`],
+    [/^stars after the refit of ([\d-]+), median ([\d.]+) px/, (m) => `After the refit of ${m[1]}, the model is about ${m[2]} pixels off on the stars.`],
+    [/^star residual of the fit, median ([\d.]+) deg/, (m) => `On the stars used to fit it, the model is about ${m[1]}° off.`],
+    [/^twice the fit residual$/, () => "The error given here is two times that, to be safe."],
+    [/^stars on a night not used in the fit: rms ([\d.]+) px(?: \((\d+) stars\))?/, (m) => `On a night that the fit did not use, the model is about ${m[1]} pixels off on ${m[2] ? m[2] + " " : ""}stars.`],
+    [/^the moon on a night not used in the fit: worst night, median ([\d.]+) deg/, (m) => `On nights that the fit did not use, the model is ${m[1]}° off on the moon (the worst night).`],
+    [/^the two nights agree to ([\d.]+) deg/, (m) => `Two nights give the same direction to within ${m[1]}°.`],
+    [/^the sun, median ([\d.]+) deg(?: over (\d+) frames)?/, (m) => `The model is about ${m[1]}° off on the sun${m[2] ? ` (${m[2]} pictures)` : ""}.`],
+    [/^the larger of the independent check and twice the fit residual$/, () => "The error given here is the larger of this check and two times the fit's own error."],
+    [/^terrain-skyline correction to the published pan and tilt$/, () => "This camera turns. We use the pan and tilt that its operator publishes, corrected with the shape of the skyline."],
+    [/^([\d.]+) deg is the published pan's own scatter/, (m) => `The published pan itself varies by about ${m[1]}° (sun study, 2026-10-01).`],
+    [/^published pan and tilt only, no correction$/, () => "This camera turns. We use only the pan and tilt that its operator publishes, with no correction."],
+    [/^the sun after the correction ([\d.]+) deg off$/, (m) => `After the correction, the sun is ${m[1]}° from where the model puts it.`],
+    [/^the sun ([\d.]+) deg off$/, (m) => `The sun is ${m[1]}° from where the model puts it.`],
+    [/^([\d.]+) deg is a stated guess$/, (m) => `${m[1]}° is our estimate, not a measurement.`],
+    [/^no figure in the file$/, () => "The model file gives no error figure."],
+    [/^a guess for /, () => "The value given is usual for this method, not a measurement."],
+    [/^the AllSky7 network's own star calibration/, () => "This is the AllSky7 network's own star calibration."],
+    [/^checked on stars in our own frames: the pattern sits ([\d.]+) deg off/, (m) => `On stars in our own pictures, it is ${m[1]}° off.`],
+    [/^the camera has moved since$/, () => "The camera moved after that calibration."],
+    [/^our stars measured the shift .*leaving ([\d.]+) deg/, (m) => `We measured the move on stars and corrected it; ${m[1]}° remains.`],
+    [/^not checked on our own frames: ([\d.]+) deg is a stated guess/, (m) => `We did not check it on our own pictures: ${m[1]}° is our estimate.`],
+    [/^the network's model moves a fixed direction by up to [\d.]+ px over a day \(([\d.]+) deg\)/, (m) => `During a day, the network's model moves by up to ${m[1]}°.`],
+    [/^combined: /, () => "The error given here adds these together."],
+  ];
+  function uncertaintyText(deg, basis) {
+    if (!deg) return "";
+    const said = (basis || "").split("; ").filter(Boolean).map((p) => { const b = BASIS.find(([re]) => re.test(p)); return b ? b[1](p.match(b[0])) : p; });
+    return `<b>about ${esc(n2(deg))}°</b> <span class="muted">usual error of the sky direction that the model gives for a pixel (one standard deviation)</span>`
+      + (said.length ? `<br>${esc(said.join(" "))}<details class="rawnote"><summary>our note</summary>${esc(basis)}</details>` : "");
+  }
+
   // ---------- notes from visitors (Robert, 2026-10-17) ----------
   // A note goes through the cue page's Apps Script into the registry spreadsheet's "cues" tab (kind "camera_note");
   // the calibration side lists new ones with calibration/tools/camera_notes.py. The tab is readable by anyone with the
@@ -401,27 +476,32 @@
             ${row("est. HFOV", r.est_hfov_deg ? r.est_hfov_deg + "°" : "")}${row("heading / tilt", r.heading_deg ? `${r.heading_deg}° / ${r.tilt_deg || "?"}°` : "")}${row("pointing source", r.pointing_source)}
             ${row("sky fraction", r.sky_fraction)}${row("view", r.view_description)}</dl></div>
           <div class="card"><h3>Timing</h3><dl>
-            ${row("cadence", cadLabel)}${row("frame interval", r.frame_interval_s ? r.frame_interval_s + " s" : "")}${row("how measured", r.frame_interval_source)}
+            ${row("cadence", cadLabel)}${row("frame interval", r.frame_interval_s ? r.frame_interval_s + " s" : "")}${row("how measured", howMeasured(r.frame_interval_source), true)}
             ${row("last hourly capture", r._last_capture ? r._last_capture.replace(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/, "$1-$2-$3 $4:$5 UTC") : "")}</dl></div>
           <div class="card"><h3>Calibration</h3><dl>
             ${row("folder", driveFolder, true)}${row("constraints.json", r._constraints ? (r._constraints_file_id ? link(`https://drive.google.com/file/d/${r._constraints_file_id}/view`, "present (open)") : "present") : "not yet", true)}
-            ${row("model", r._model ? `${esc(r._model)} <code>${esc(r._model_file)}</code>` : (r._calibration ? "present" : "not yet"), true)}${row("uncertainty", r._pointing_deg ? `${esc(r._pointing_deg)}° (one sigma) <span class="muted">${esc(r._uncertainty_basis)}</span>` : "", true)}
+            ${row("model", r._model ? `${esc(r._model)} <code>${esc(r._model_file)}</code>` : (r._calibration ? "present" : "not yet"), true)}${row("uncertainty", uncertaintyText(r._pointing_deg, r._uncertainty_basis), true)}
             ${row("calibrated on", r._calibrated_on)}${row("release", r._release ? `${esc(r._release)} of the camera records (private)` : "")}${row("tier", ((r.status || "").match(/^calibrated \((T\d)/) || [])[1] || (r._calibration ? "" : "T0 (metadata only)"))}
-            ${row("evidence", v ? "skyline and sun pictures in the Verification card" : "")}</dl></div>
+            ${row("evidence", v ? "skyline and sun pictures in the Verification card" : "")}${row("cues", `<span id="cuerow" class="muted">checking the cue page…</span>`, true)}</dl></div>
           ${r.notes ? `<div class="card"><h3>Notes</h3><div class="notes">${esc(r.notes)}</div></div>` : ""}
           ${noteCard()}
         </div>
       </div>`;
 
-    // "calibrate this camera" (Robert, 2026-11-06): a link to the cue page for a camera that is not calibrated, skipped,
-    // dead or stale. The cue page opens only the cameras on its list, and tools/build_cue_site.py writes one agent text
-    // per camera on that list (../cues/agent/<id>.txt), so that file says whether the link would work.
-    if (!["calibrated", "skip", "dead", "stale"].includes(sc)) {
-      fetch(`../cues/agent/${encodeURIComponent(r.camera_id)}.txt`, { method: "HEAD" }).then((res) => {
-        $("#cuelink").innerHTML = res.ok ? `<a href="../cues/#${esc(r.camera_id)}">calibrate this camera</a> · `
-          : `<span class="muted" title="The cue page lists cameras with a stored daytime picture; a rebuild of it adds new ones.">not on the cue page yet</span> · `;
-      }).catch(() => {});
-    }
+    // The cue page link (Robert, 2026-11-06 "calibrate this camera"; 2026-11-11: on every camera page). The cue page opens
+    // only the cameras on its list, and tools/build_cue_site.py writes one agent text per camera on that list
+    // (../cues/agent/<id>.txt), so that file says whether the link would work. Otherwise the Calibration card says why.
+    fetch(`../cues/agent/${encodeURIComponent(r.camera_id)}.txt`, { method: "HEAD" }).then((res) => {
+      if (res.ok) {
+        $("#cuelink").innerHTML = `<a href="../cues/#${esc(r.camera_id)}">calibrate this camera</a> · `;
+        $("#cuerow").innerHTML = `<a href="../cues/#${esc(r.camera_id)}">add calibration cues for this camera</a>`;
+        return;
+      }
+      const why = [sc === "calibrated" && "the camera is calibrated already", /alertcalifornia\.org/i.test(r.image_url || "") && "it turns, so cues on one picture do not hold for the next",
+        sc === "skip" && "the camera is skipped", ["dead", "stale"].includes(sc) && "it gives no new pictures", noEmbed(r) && "its pictures may not be shown on other sites"].filter(Boolean);
+      $("#cuerow").textContent = why.length ? `Not on the cue page: ${why.join("; ")}.`
+        : "Not on the cue page yet. The cue page lists cameras in the USA and Europe with a stored daytime picture; a rebuild adds new ones.";
+    }).catch(() => { $("#cuerow").textContent = "The cue page could not be checked."; });
 
     // current image
     const box = $("#imgbox");

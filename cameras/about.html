@@ -28,18 +28,15 @@
 <p>Every camera picture belongs to its operator; the camera page names and links each one. Among the operators: Deutscher Wetterdienst (DWD), MeteoSwiss, the U.S. Geological Survey (the FAA weather cameras through USGS AshCam) and the Czech Hydrometeorological Institute (ČHMÚ).</p>
 
 <h2>Status vocabulary</h2>
+<p>The map and the list put each camera in one of five groups. The camera page also shows the registry's own status text, with the evidence.</p>
 <table>
-<tr><td><span class="badge candidate">candidate</span></td><td>live and fast (≥ 1 image/min), nobody has started on it yet</td></tr>
-<tr><td><span class="badge slow">slow</span></td><td>live but updates less than once a minute: fine for calibration, not for cloud tracking</td></tr>
-<tr><td><span class="badge dead">dead</span></td><td>the image URL fails (date in parentheses)</td></tr>
-<tr><td><span class="badge stale">stale</span></td><td>the URL works but the image is old</td></tr>
-<tr><td><span class="badge needs">needs location</span></td><td>no coordinates yet</td></tr>
-<tr><td><span class="badge in">in progress</span></td><td>someone is collecting evidence / solving</td></tr>
-<tr><td><span class="badge calibrated">calibrated (T1–T4)</span></td><td>solved; the tier says how well: T1 coarse (~5°), T2 horizon and landmarks (~0.5°), T3 celestial (a few pixels), T4 independently validated</td></tr>
-<tr><td><span class="badge skip">skip: reason</span></td><td>not worth pursuing</td></tr>
-<tr><td><span class="badge">rotating</span></td><td>the camera sweeps back and forth; each frame is pointed by matching it to a panorama of the view, so it has no fixed model</td></tr>
+<tr><td><span class="badge calibrated">calibrated</span></td><td>The camera has a checked model: we know the sky direction of each pixel. The tier in the status text tells how well: T1 coarse (~5°), T2 horizon and landmarks (~0.5°), T3 stars or other sky objects (a few pixels), T4 checked independently.</td></tr>
+<tr><td><span class="badge candidate">candidate</span></td><td>Not calibrated yet. This group includes cameras that give less than one picture a minute (registry word “slow”), cameras with some evidence (“in progress”) and one camera that sweeps back and forth (“rotating”). The “fast only” filter shows the cameras with one picture a minute or more.</td></tr>
+<tr><td><span class="badge intermittent">intermittent</span></td><td>The camera gives pictures only some of the time.</td></tr>
+<tr><td><span class="badge stale">stale / dead</span></td><td>No new pictures: the picture stays the same (“stale”), or its address fails (“dead”). The status text gives the date.</td></tr>
+<tr><td><span class="badge skip">skipped</span></td><td>We do not use the camera, for example because less than 35 % of the picture is sky. The status text gives the reason.</td></tr>
 </table>
-<p>The first word is the machine-readable part; anything after it is evidence. Cadence is a fixed property of a camera, measured once with a two-look check (two requests about 62 s apart), not monitored.</p>
+<p>In the registry, the first word of the status is the machine-readable part; the text after it is evidence. Cadence is a fixed property of a camera, measured once with a two-look check (two requests about 62 s apart), not monitored.</p>
 
 <h2 id="verification">Verification</h2>
 <p>The <a href="verify.html">verification page</a> shows the evidence behind each ALERTCalifornia camera marked calibrated. These cameras turn, so what is checked is the pointing the network publishes (pan, tilt, field of view) for the frame in hand. Two checks, independent of each other:</p>
