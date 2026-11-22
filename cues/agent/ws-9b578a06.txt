@@ -8,7 +8,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=OYVUBm7AB1Y (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-9b578a06 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Beachside Cafe, Bowleaze Cove, Weymouth
 3. Camera position now: 50.636980, -2.423390; accuracy: exact; source: nominatim: Bowleaze Cove, Weymouth; geocoded 2026-10-05 (Beachside Cafe, Bowleaze Cove, Weymouth)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 34% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 10-09 34, 10-12 31, 10-19 36; looked at by eye; the 45% before was judged by eye)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
    what would help most here: horizon + landmark (live video; no calibrated fast camera within 93 km; flat or coastal view: click the horizon and one landmark)

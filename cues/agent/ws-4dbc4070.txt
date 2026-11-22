@@ -8,7 +8,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=KxWuwC7R5kY (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-4dbc4070 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: 🔴 Live Webcam »München • Berg am Laim • Michaelianger«
 3. Camera position now: 48.123480, 11.633450; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Berg am Laim, München, Germany)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 32% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 10-12 32, 10-19 32; looked at by eye; the 79% before was a label of the YouTube sky-cam search)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
    what would help most here: fix the position (live video; a calibrated fast camera is 35 km away; mountain view, position only approximate: place the camera on the map first, then name a peak)

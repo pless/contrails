@@ -52,6 +52,9 @@
   #map .nomap { padding:10px; color:var(--muted); }
   .camdot { width:14px; height:14px; border-radius:50%; background:#e63946; border:2px solid #fff; cursor:default; }
   .camring { width:16px; height:16px; border-radius:50%; border:2px dashed #e63946; background:#ffffff66; cursor:default; }
+  .posdot { width:14px; height:14px; border-radius:3px; background:#fb8500; border:2px solid #fff; cursor:default; }
+  #posCheck { border:1px solid #fb8500; border-radius:6px; padding:6px; margin:6px 0; }
+  #posCheck .q { font-style:italic; }
   #panel { flex:1; overflow-y:auto; padding:8px 10px; min-height:0; }
   .item { padding:3px 6px; border-bottom:1px solid #2a2a2a; cursor:pointer; display:flex; gap:6px; }
   .item.sel { background:#123; } .item .t { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -76,7 +79,7 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
 <div id="queue">
   <div class="top">
     <input id="who" placeholder="your name (saved with each cue)">
-    <select id="filter"><option value="todo">to do</option><option value="cues">has cues</option><option value="all">all cameras</option></select>
+    <select id="filter"><option value="todo">to do</option><option value="cues">has cues</option><option value="all">all cameras</option><option value="pos">position checks</option></select>
     <input id="search" placeholder="search name, country, id">
     <div class="muted" id="count" style="margin-top:4px"></div>
     <button id="export" style="width:100%;margin-top:6px;display:none" title="all the cues made in this browser, as one file to send to Robert">download my cues</button>
@@ -120,6 +123,9 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
 
     <h3>Camera position</h3>
     <div id="camPos" class="muted"></div>
+    <div id="posCheck" style="display:none"><div id="posText"></div>
+      <div class="row"><button id="usePos" title="move the camera to the orange square">use the orange point</button>
+      <button id="keepPos" title="the red dot is right; record that it was checked">keep the red dot</button></div></div>
     <div id="resect" class="muted" style="display:none"><span id="resectText"></span> <button id="useResect" title="take the position the landmarks imply">move the camera there</button></div>
     <div id="camZ" class="muted" style="display:none"><span id="camZText"></span> <button id="useZ" title="take the camera height the points of known height imply">use this height</button></div>
     <div class="row">
@@ -204,7 +210,7 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261027T044202Z"></script>
+<script src="config.js?v=20261122T041725Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -367,6 +373,7 @@ function visibleCams(){
   return cams.filter(c=>{ const st=camState(c);
     if (f==="todo" && st!=="todo" && !(row&&c.camera_id===row.camera_id)) return false;
     if (f==="cues" && st==="todo") return false;
+    if (f==="pos" && !posChecks[c.camera_id]) return false;
     return !s || (c.name+" "+c.country+" "+c.camera_id).toLowerCase().includes(s); });
 }
 function drawQueue(){
@@ -377,14 +384,16 @@ function drawQueue(){
     d.innerHTML=`<div class="n"><span class="dot ${camState(c)}"></span></div><div class="s"></div>`;
     d.firstChild.append(c.name||c.camera_id);
     const h=c.help, help=h?`#${h.rank} · ${h.gap_km>=48?"no calibrated camera within "+Math.round(h.gap_km)+" km":"covered: "+Math.round(h.gap_km)+" km"} · ${h.task}`:"";
-    d.lastChild.textContent=[help, c.country, kind, cueText(c.cues)].filter(Boolean).join(" · ");
+    d.lastChild.textContent=[posChecks[c.camera_id]?"position check":"", help, c.country, kind, cueText(c.cues)].filter(Boolean).join(" · ");
     d.onclick=()=>openCamera(c.camera_id); list.appendChild(d); });
   list.scrollTop=top;
   const done=cams.filter(c=>camState(c)!=="todo").length;
   $("count").textContent=`${vis.length} shown · ${done} of ${cams.length} touched`;
 }
 let published = {};                 // static: camera_id -> {row, seed, frames}
+let posChecks = {}, posFitFor = null;                 // positions.json: camera_id -> another point for the camera, for a person to check (2026-11-22)
 async function loadQueue(){
+  try { posChecks=(await (await fetch("positions.json", {cache:"no-cache"})).json()).cameras||{}; } catch(e){ posChecks={}; }
   if (STATIC){
     const q=await (await fetch("queue.json", {cache:"no-cache"})).json();
     cams=q.cameras.map(c=>{ published[c.camera_id]=c; const mine=store.get(c.camera_id);
@@ -966,6 +975,11 @@ function drawMap(){
     if (sel&&sel.t==="mark"&&marks[sel.i].lat==null)   // where to look for the selected landmark
       line([cam, destination(cam[0],cam[1],unproject(...marks[sel.i].pixel,calib)[0],60000)], dashed("#ffb703")); }
   const dot=document.createElement("div"); dot.className="camdot"; placeMarker(cam[0], cam[1], dot, "camera");
+  const pc=row&&posChecks[row.camera_id];
+  if (pc){ line([cam, [pc.lat, pc.lon]], dashed("#fb8500"));
+    const sq=document.createElement("div"); sq.className="posdot"; placeMarker(pc.lat, pc.lon, sq, pc.kind+": "+pc.what);
+    if (posFitFor!==row.camera_id){ posFitFor=row.camera_id;      // show both points once when the camera opens
+      const b=new google.maps.LatLngBounds(); b.extend(ll(cam)); b.extend(ll([pc.lat,pc.lon])); map.fitBounds(b, 80); } }
   const rs=solveInfo&&solveInfo.resect;
   if (rs && rs.dist>=3){ line([cam, [rs.lat, rs.lon]], dashed("#e63946"));
     const ring=document.createElement("div"); ring.className="camring"; placeMarker(rs.lat, rs.lon, ring, `camera by the landmarks (${rs.dist.toFixed(0)} m away)`); }
@@ -1007,6 +1021,23 @@ function usePaste(){ const p=parseCoords($("paste").value);
   if ((sel&&sel.t==="mark")||moveCam){ setPoint(p[0],p[1]); $("paste").value=""; } }
 $("paste").addEventListener("paste", ()=>setTimeout(usePaste,0)); $("paste").addEventListener("change", usePaste);
 $("moveCam").onclick=()=>setMoveCam(!moveCam);
+function metresApart(a1,o1,a2,o2){ const R=6371000, p=D2R, x=(o2-o1)*p*Math.cos((a1+a2)/2*p), y=(a2-a1)*p; return R*Math.hypot(x,y); }
+function bearingTo(a1,o1,a2,o2){ const p=D2R, x=(o2-o1)*Math.cos((a1+a2)/2*p), y=a2-a1; return (Math.atan2(x,y)/p+360)%360; }
+$("usePos").onclick=()=>{                    // the operator's (or the map's) point for the camera; the source says "map click" so cue_import takes it
+  const pc=row&&posChecks[row.camera_id]; if (!C||!pc) return;
+  const g=C.gps_prior, lat=+(+pc.lat).toFixed(7), lon=+(+pc.lon).toFixed(7);
+  Object.assign(g,{lat_deg:lat, lon_deg:lon, sigma_horizontal_m:pc.sigma_m||30,
+    source:`map click by ${who()} (cue page, position check): took the ${pc.kind} (${pc.what}; ${pc.source_url}); the registry had ${row.lat}, ${row.lon}`});
+  if (pc.alt_m!=null){ g.alt_m=pc.alt_m; g.alt_datum="msl"; g.sigma_vertical_m=20; }
+  else elevation(lat, lon).then(e=>{ if (C&&C.gps_prior===g&&g.lat_deg===lat&&g.lon_deg===lon){ g.alt_m=Math.round(e+10); g.alt_datum="msl"; g.sigma_vertical_m=20; dirty(); } }).catch(()=>{});
+  links(); dirty();
+};
+$("keepPos").onclick=()=>{                   // the red dot is right: record the check (same position)
+  const pc=row&&posChecks[row.camera_id]; if (!C||!pc) return;
+  const g=C.gps_prior;
+  g.source=`map click by ${who()} (cue page, position check): kept the red dot against the ${pc.kind} at ${pc.lat}, ${pc.lon} (${pc.source_url}); before: ${(g.source||"").slice(0,120)}`;
+  dirty();
+};
 $("useResect").onclick=()=>{                 // take the position the landmarks imply (the rough pose then re-solves from there)
   if (!C) return; setPose(); const rs=solveInfo&&solveInfo.resect; if (!rs) return;
   const g=C.gps_prior, lat=+rs.lat.toFixed(7), lon=+rs.lon.toFixed(7), sig=Math.max(10, Math.round(rs.spread));
@@ -1065,6 +1096,15 @@ function refresh(){
   const gp=C&&C.gps_prior;
   $("camPos").textContent=!gp?"":`${(+gp.lat_deg).toFixed(6)}, ${(+gp.lon_deg).toFixed(6)}`+(gp.alt_m!=null?`, ${Math.round(gp.alt_m)} m above sea level`:"")+
     " · "+(/map click/.test(gp.source||"")?`set by hand (±${gp.sigma_horizontal_m} m)`:`from the registry (±${gp.sigma_horizontal_m??"?"} m): the red dot on the map`);
+  const pc=row&&posChecks[row.camera_id];
+  $("posCheck").style.display=pc&&gp?"":"none";
+  if (pc&&gp){ const d=metresApart(+gp.lat_deg,+gp.lon_deg,pc.lat,pc.lon), t=$("posText"); t.innerHTML="";
+    const done=/position check/.test(gp.source||"")?(/kept the red dot/.test(gp.source)?" You kept the red dot.":" You took the orange point."):"";
+    t.append(`The orange square is the ${pc.kind}: ${pc.what}. ${pc.lat.toFixed(6)}, ${pc.lon.toFixed(6)}`+(pc.alt_m!=null?`, ${pc.alt_m} m`:"")+
+      `, ${d<1?"on":d.toFixed(0)+" m to the "+compass(bearingTo(+gp.lat_deg,+gp.lon_deg,pc.lat,pc.lon))+" of"} the red dot. `);
+    const q=document.createElement("span"); q.className="q"; q.textContent=`“${pc.quote}” `; t.append(q);
+    const a=document.createElement("a"); a.href=pc.source_url; a.target="_blank"; a.rel="noopener"; a.textContent="source"; t.append(a);
+    t.append(` Which is right? Look at the frame and the satellite picture.${done}`); }
   const rs=solveInfo&&solveInfo.resect, firm=rs&&rs.spread<=Math.max(30,rs.dist);
   $("resect").style.display=rs?"":"none"; $("useResect").style.display=rs&&rs.dist>=3&&firm?"":"none";
   if (rs) $("resectText").textContent=rs.dist<3?`The ${rs.n} landmarks alone agree with the dot (within 3 m).`

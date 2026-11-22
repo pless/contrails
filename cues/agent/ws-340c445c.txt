@@ -8,7 +8,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=98jOtUeM3m8 (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-340c445c (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: 🔴 Venice Beach Cam LIVE NOW 24/7 🌴 North Boardwalk Cam | Ocean Views & People Watching
 3. Camera position now: 33.979960, -118.468770; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Venice Beach, Los Angeles, California, USA)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 31% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 10-05 32, 10-12 51, 10-14 40, 10-16 28, 10-19 31, 10-21 31; looked at by eye; the 56% before was a label of the YouTube sky-cam search)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
    what would help most here: horizon + landmark (live video; a calibrated fast camera is 5 km away; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)

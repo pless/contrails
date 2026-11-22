@@ -8,7 +8,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=6G4_xtIDgy8 (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-8c698df0 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Kap Arkona lighthouses, Ruegen
 3. Camera position now: 54.677300, 13.432600; accuracy: exact; source: title; own knowledge; geocoded 2026-10-05 (Kap Arkona lighthouses, Ruegen)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 34% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 10-12 34, 10-19 34; looked at by eye; the 40% before was judged by eye)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
    what would help most here: horizon + landmark (live video; a calibrated fast camera is 33 km away; flat or coastal view: click the horizon and one landmark)

@@ -8,10 +8,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=VsQekhPeUKs (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-19ac0045 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Live Webcam Can Pastilla Mallorca ☀️ BonaOna Webcam 🏖️ #canpastilla #mallorca #baleares 🌎 🅻🅸🆅🅴
 3. Camera position now: 39.537120, 2.716500; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Can Pastilla, Mallorca, Spain)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 32% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 10-12 33, 10-19 32; looked at by eye; the 44% before was a label of the YouTube sky-cam search)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
-   what would help most here: horizon + landmark (live video; a calibrated fast camera is 41 km away; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
+   what would help most here: horizon + landmark (live video; a calibrated fast camera is 23 km away; flat or coastal view: click the horizon and one landmark; the position is approximate, place the camera first if you can)
 
 Please return what you can find with high confidence:
 1. Map points: things you can find both in the picture and on a map (a building corner at ground level, the foot of a tower, mast or post, a road junction, a pier end, a mountain summit). For each: the pixel; the latitude and longitude (6 decimals) of that exact spot, not of a nearby road node; and height_above_ground_m: 0 for a point on the ground (a summit too), else its height above the ground there (a roof edge, a mast top). Measure each position on a map or satellite view; if you cannot place the spot to about 10 m, leave lat and lon out (the pixel and what it is still help). Prefer points 100 m or more away, spread left to right and near to far; skip anything within 20 m of the camera.

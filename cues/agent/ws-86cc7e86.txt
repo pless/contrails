@@ -8,10 +8,10 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=rHwnGweYPvU (the camera's picture now, if it is still live); camera page https://www.youtube.com/@steelhighwayrailcams; the cue page https://pless.github.io/contrails/cues/#ws-86cc7e86 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: the rail line along 2nd Street in downtown Bellevue, shops at right; about 42% sky
 3. Camera position now: 42.256390, -90.426390, 221 m above sea level; accuracy: city-level; source: Wikipedia coordinates of Bellevue, Iowa (https://en.wikipedia.org/wiki/Bellevue,_Iowa): town level only; the camera's own spot is not known (the stream descriptions could not be read past YouTube's bot check)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 34% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 11-01 34; looked at by eye; the registry had 42%)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
-   what would help most here: horizon + landmark (live video; no calibrated fast camera within 123 km; flat or coastal view: click the horizon and one landmark; central USA, a picture a minute or faster)
+   what would help most here: horizon + landmark (live video; a calibrated fast camera is 33 km away; flat or coastal view: click the horizon and one landmark; central USA, a picture a minute or faster)
 
 Please return what you can find with high confidence:
 1. Map points: things you can find both in the picture and on a map (a building corner at ground level, the foot of a tower, mast or post, a road junction, a pier end, a mountain summit). For each: the pixel; the latitude and longitude (6 decimals) of that exact spot, not of a nearby road node; and height_above_ground_m: 0 for a point on the ground (a summit too), else its height above the ground there (a roof edge, a mast top). Measure each position on a map or satellite view; if you cannot place the spot to about 10 m, leave lat and lon out (the pixel and what it is still help). Prefer points 100 m or more away, spread left to right and near to far; skip anything within 20 m of the camera.

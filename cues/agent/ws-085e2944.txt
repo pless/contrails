@@ -7,7 +7,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://images.ambientweather.net/48E72954FF0D/latest.jpg (the camera's picture now, if it is still live); camera page https://ambientweather.net/dashboard/e943f03fd044db93b6688444d945771e?pip=map; the cue page https://pless.github.io/contrails/cues/#ws-085e2944 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: bearing 340.0
-3. Camera position now: 41.355618, -82.155701, 246 m above sea level; accuracy: exact; source: ambientweather map position (cams.json)
+3. Camera position now: 41.355618, -82.155701; accuracy: exact; source: ambientweather map position (cams.json)
 4. Calibration now: candidate
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points

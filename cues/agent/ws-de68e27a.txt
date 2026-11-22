@@ -8,7 +8,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=_QnRnQEKGnU (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-de68e27a (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Grangesises, Sauze di Cesana
 3. Camera position now: 44.942370, 6.869380; accuracy: exact; source: description; Nominatim; geocoded 2026-10-05 (Grangesises, Sauze di Cesana)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 34% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 10-06 35, 10-12 26, 10-22 34, 10-29 34, 10-31 34, 11-01 38; the readings of 10-07 and 10-14 are frames inside cloud; looked at by eye; the 35.2% before was judged by eye)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 0 map points with a height, 0 without, 0 described only, 0 vertical edges, 0 horizon points
    what would help most here: horizon + landmark (live video; a calibrated fast camera is 6 km away; flat or coastal view: click the horizon and one landmark)

@@ -8,7 +8,7 @@ Goal: find where this camera is and exactly where it points, by matching things 
 2. Links: image feed https://www.youtube.com/watch?v=NLhxcyzXQxM (the camera's picture now, if it is still live); camera page none; the cue page https://pless.github.io/contrails/cues/#ws-9a5e6427 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: SIESTA KEY BEACH - LIVE
 3. Camera position now: 27.275600, -82.556160, 204 m above sea level; accuracy: approximate; source: place named in the stream title, geocoded with OpenStreetMap Nominatim 2026-10-02 (Siesta Key, Florida, USA)
-4. Calibration now: candidate
+4. Calibration now: candidate (back from skip 2026-11-11: Robert keeps the cameras with 30-35 % sky); was: skip: sky 30% < 35% (SegFormer, sky recheck 2026-11-02, fifth pass: by day 10-09 30, 10-12 16, 10-14 98, 10-16 33, 10-19 28, 10-21 31; looked at by eye; the 94% before was a label of the YouTube sky-cam search)
    heading unknown (clockwise from north, where the picture centre points), tilt unknown (up from horizontal), horizontal field of view unknown
    cues already recorded: 2 map points with a height, 0 without, 0 described only, 0 vertical edges, 8 horizon points
    what would help most here: confirm (live video; a calibrated fast camera is 1 km away; cues exist: check the trial overlay, add a second landmark if it is off)
