@@ -192,6 +192,8 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
       copy. Click peaks, masts or towers far apart around the strip and find each one on the map. Give a peak its altitude
       (known altitude), or put it on the ground. Points of known height around the strip give the horizon row and the tilt of
       the axis the head turns on. Two landmarks 60° or more apart also show whether the strip covers less than a full turn.<br>
+      <b>360° pictures</b> (the whole sphere, twice as wide as high, the bottom row straight down): use them as strips. The
+      page knows the span and the horizon row. Two points of known height 30° or more apart give the tilt of the camera.<br>
       Drag to pan, scroll to zoom. Click a cue in the list (or in the picture, with its tool active) to select it; Delete removes it; Shift-click moves the selected landmark, or adds a point to the selected edge.
       Everything saves by itself<span class="static-only" id="staticHelp">, in this browser: when you are done, press
       <b>download my cues</b> (top left) and send the file to Robert</span>.
@@ -215,7 +217,7 @@ The list of all cameras is https://pless.github.io/contrails/cues/agent/index.tx
 </div>
 
 <script>window.CUES_STATIC = true;</script>
-<script src="config.js?v=20261122T161456Z"></script>
+<script src="config.js?v=20261122T203739Z"></script>
 <script>
 "use strict";
 const $ = id => document.getElementById(id);
@@ -331,16 +333,21 @@ function unproject(u, v, cal){       // pixel -> [az, el] in degrees
 /* panorama strips (Robert, 2026-11-22: "Start on panoramas"; notes/2026-11-22-cue-page-panoramas.md): camera_type panorama
    and at least twice as wide as high. The model is panorama_cylinder (webcam_calib.camera.PanoramaCamera, PANORAMA_PROJECTION):
    each column one azimuth about the turning axis, rows v = v0 - fv tan(e) (e: the elevation about the axis), R the frame of
-   column 0 = rotFromView(column 0's azimuth, pitch, roll), as in tools/panorama_fit.py's model() */
-let pano = false;                    // the open camera is a panorama strip
+   column 0 = rotFromView(column 0's azimuth, pitch, roll), as in tools/panorama_fit.py's model().
+   360-degree spheres (Robert, 2026-11-22: "Yes, add it"): "360" in the name and exactly twice as wide as high (six YouTube
+   streams); the same frame R, but rows linear in elevation, v = v0 - fv e, with the span 360, v0 = H/2 and fv = H/pi fixed
+   by the format (equirectangular: the bottom row looks straight down) */
+let pano = false;                    // the open camera is a panorama strip or a 360-degree sphere
+let sphere = false;                  // the open camera is a 360-degree sphere
 function isPano(r, c){ const s=c&&c.image_size; return !!(r&&s) && /panorama/i.test(r.camera_type||"") && s.width>=2*s.height; }
+function isSphere(r, c){ const s=c&&c.image_size; return !!(r&&s) && /(^|\D)360(\D|$)/.test(r.name||"") && s.width===2*s.height; }
 function panoProject(p, cal){        // ENU point or direction -> [u,v], or null when its column is not in the strip
   const R=cal.R, x=R[0][0]*p[0]+R[0][1]*p[1]+R[0][2]*p[2], y=R[1][0]*p[0]+R[1][1]*p[1]+R[1][2]*p[2], z=R[2][0]*p[0]+R[2][1]*p[1]+R[2][2]*p[2];
   const a=((Math.atan2(x,z)/D2R)%360+360)%360, e=Math.atan2(-y, Math.hypot(x,z)), u=a/cal.span*cal.W;
-  return u<cal.W ? [u, cal.v0-cal.fv*Math.tan(e)] : null;
+  return u<cal.W ? [u, cal.v0-cal.fv*(cal.sphere?e:Math.tan(e))] : null;
 }
 function panoUnproject(u, v, cal){   // pixel -> [az, el] in degrees
-  const a=u/cal.W*cal.span*D2R, e=Math.atan((cal.v0-v)/cal.fv), d=[Math.cos(e)*Math.sin(a), -Math.sin(e), Math.cos(e)*Math.cos(a)], R=cal.R;
+  const a=u/cal.W*cal.span*D2R, e=cal.sphere?(cal.v0-v)/cal.fv:Math.atan((cal.v0-v)/cal.fv), d=[Math.cos(e)*Math.sin(a), -Math.sin(e), Math.cos(e)*Math.cos(a)], R=cal.R;
   const E=R[0][0]*d[0]+R[1][0]*d[1]+R[2][0]*d[2], N=R[0][1]*d[0]+R[1][1]*d[1]+R[2][1]*d[2], U=R[0][2]*d[0]+R[1][2]*d[1]+R[2][2]*d[2];
   return [(Math.atan2(E,N)/D2R+360)%360, Math.atan2(U,Math.hypot(E,N))/D2R];
 }
@@ -363,17 +370,20 @@ function roughPosePano(c){           // the rough panorama pose: the parameters 
   const g=c.gps_prior; if (!g) return null;
   const Wc=c.image_size.width, Hc=c.image_size.height, k=panoCues(c);
   if (!k.nAz) return null;
-  const freeV0=k.nEl>=1, freeScale=k.nEl>=2&&k.elRange>=2, freeTilt=k.nEl>=3&&k.elSpread>=120;
+  // a sphere: span, middle row and scale are the format's; only the camera's turn is free, so two points of known direction
+  // 30 deg or more apart fix the tilt (a quarter turn first: Beigang's 8 sun discs over 73 deg then assumed it level, 2.2 deg up)
+  const freeV0=!sphere&&k.nEl>=1, freeScale=!sphere&&k.nEl>=2&&k.elRange>=2,
+        freeTilt=sphere?k.nEl>=2&&k.elSpread>=30:k.nEl>=3&&k.elSpread>=120;
   // the span: a full turn unless the cues reject it. Most strips are full turns (15 of the 18 known answers: 359.7-363.0 deg),
   // and a span fitted to cues over a third of the circle drifted 1-2 deg (the sun-disc test of 2026-11-22); a part turn
   // (Evolene 271, Gutsch 310, Brugnasco 320) shows as misses of more than 0.5 deg under the full turn
   const full=fitPano(k, Wc, Hc, false, freeV0, freeScale, freeTilt);
-  const canSpan=k.nAz>=2&&k.azSpread>=60, part=canSpan&&full.miss>0.5?fitPano(k, Wc, Hc, true, freeV0, freeScale, freeTilt):null;
+  const canSpan=!sphere&&k.nAz>=2&&k.azSpread>=60, part=canSpan&&full.miss>0.5?fitPano(k, Wc, Hc, true, freeV0, freeScale, freeTilt):null;
   const f=part&&part.miss<full.miss?part:full, q=f.q, cal=f.cal, up=[-cal.R[1][0],-cal.R[1][1],-cal.R[1][2]], assumed=[];
-  if (f===full) assumed.push("a full turn (360°)"+(canSpan?"":": two landmarks 60° or more apart can show a part turn"));
-  if (!freeTilt) assumed.push("a level turning axis");
-  if (!freeV0) assumed.push("the horizon at the middle row"); if (!freeScale) assumed.push("as many pixels a degree up as across");
-  return {pano:true, az:((q.a0%360)+360)%360, el:q.pitch, roll:q.roll, span:q.span, v0:q.v0, fv:cal.fv, R:cal.R,
+  if (f===full&&!sphere) assumed.push("a full turn (360°)"+(canSpan?"":": two landmarks 60° or more apart can show a part turn"));
+  if (!freeTilt) assumed.push(sphere?"a level camera":"a level turning axis");
+  if (!sphere&&!freeV0) assumed.push("the horizon at the middle row"); if (!sphere&&!freeScale) assumed.push("as many pixels a degree up as across");
+  return {pano:true, sphere, az:((q.a0%360)+360)%360, el:q.pitch, roll:q.roll, span:q.span, v0:q.v0, fv:cal.fv, R:cal.R,
           axisTilt:Math.acos(Math.min(1,up[2]))/D2R, axisToward:(Math.atan2(up[0],up[1])/D2R+360)%360,
           tilt_from:freeTilt?(k.horizon?"horizon and landmarks of known height":"landmarks of known height"):null,
           assumed, ignored:[], resect:null, dz:null, n_alt:k.nEl, miss:f.miss};
@@ -382,7 +392,7 @@ function fitPano(k, Wc, Hc, freeSpan, freeV0, freeScale, freeTilt){   // one fit
   const pts=k.pts;
   const unpack=x=>{ let i=1; const a0=x[0], pitch=freeTilt?x[i++]:0, roll=freeTilt?x[i++]:0, span=freeSpan?x[i++]:360,
     v0=freeV0?x[i++]:Hc/2, dpr=(freeScale?Math.exp(x[i++]):1)*span/Wc; return {a0, pitch, roll, span, v0, dpr}; };   // dpr: degrees a row at the horizon
-  const calOf=q=>({pano:true, R:rotFromView(q.a0,q.pitch,q.roll), span:q.span, v0:q.v0, fv:1/(q.dpr*D2R), W:Wc, H:Hc});
+  const calOf=q=>({pano:true, sphere, R:rotFromView(q.a0,q.pitch,q.roll), span:q.span, v0:q.v0, fv:1/(q.dpr*D2R), W:Wc, H:Hc});   // a 2:1 sphere: fv = H/pi
   const soft=r=>2*(Math.sqrt(1+(r/0.5)**2)-1);                   // in degrees: about squares below 0.5 deg, about linear above
   const cost=x=>{ const q=unpack(x), cal=calOf(q); let s=0;
     if (!(q.span>90&&q.span<420&&q.dpr>0)) return 1e9;
@@ -573,7 +583,7 @@ async function openCamera(id){
     try { d=await api("/api/camera/"+id); } catch(e){ showBanner(e.message); return; }
   }
   row=d.row; C=d.constraints; base=d.base; frames=d.frames; sel=null; pending=null; img=null; calib=null; setMoveCam(false);
-  pano=isPano(row, C);
+  sphere=isSphere(row, C); pano=sphere||isPano(row, C);
   marks=[]; verts=[]; hors=[]; kept={}; $("saveState").textContent="";
   location.hash=id; showBanner("");
   $("title").textContent=row.name||id;
@@ -601,7 +611,7 @@ async function openCamera(id){
   // a panorama on the published page: the published frame is a copy at most 2,560 px wide, so by day at the camera the
   // operator's own strip at full size is shown (2026-11-22: 12.7 px a degree for Roundshot, 19.7 for Panomax, against 7.1)
   const sun=g&&sunEl(new Date().toISOString(), g.lat_deg, g.lon_deg);
-  if (STATIC && pano && liveUrl(row) && sun!=null && sun>2) grabLive();
+  if (STATIC && pano && !sphere && liveUrl(row) && sun!=null && sun>2) grabLive();
 }
 /* ============================ instructions for agents ============================ */
 let agentTextFor=null;
@@ -729,7 +739,7 @@ function loadFrame(fit){
   if (!f){ $("frameLabel").textContent="no frame"; $("hud").textContent="No stored frame for this camera yet."; draw(); return; }
   const im=new Image(), id=C.camera_id;
   const label=()=>{ const shown=frames.filter(x=>x.day===f.day), k=shown.indexOf(f)+1;
-    const size=pano&&im.naturalWidth?(f.live?", live, full size":im.naturalWidth<W?`, a copy ${im.naturalWidth} px wide: full size by day at the camera`:", full size"):"";
+    const size=pano&&im.naturalWidth?(f.live?", live, full size":im.naturalWidth<W?`, a copy ${im.naturalWidth} px wide`+(sphere?"":": full size by day at the camera"):", full size"):"";
     $("frameLabel").textContent=(f.time?f.time.replace("T"," ").slice(0,16)+" UTC":f.name)+` (${k}/${shown.length}${f.day?"":" night"}${size})`; };
   im.onload=()=>{ if (!C||C.camera_id!==id||frames[fi]!==f) return;   // a slower picture must not replace the one asked for since
     img=im; label();
@@ -893,7 +903,7 @@ function setPose(){
   if (C){ try { mergeCues(); const p=roughPose(C);
       if (p){ const g=C.gps_prior; solveInfo={tilt_from:p.tilt_from, assumed:p.assumed, resect:p.resect||null, dz:p.dz, n_alt:p.n_alt,
           ignored:(p.ignored||[]).map(px=>marks.findIndex(m=>m.pixel[0]===px[0]&&m.pixel[1]===px[1])+1).filter(n=>n>0)};
-        calib=p.pano?{pano:true, lat:g.lat_deg, lon:g.lon_deg, alt:g.alt_m||0, R:p.R, span:p.span, v0:p.v0, fv:p.fv, W, H,
+        calib=p.pano?{pano:true, sphere:!!p.sphere, lat:g.lat_deg, lon:g.lon_deg, alt:g.alt_m||0, R:p.R, span:p.span, v0:p.v0, fv:p.fv, W, H,
                az:p.az, el:p.el, roll:p.roll, hfov:p.span, axisTilt:p.axisTilt, axisToward:p.axisToward}
           :{lat:g.lat_deg, lon:g.lon_deg, alt:g.alt_m||0, R:p.R, fx:p.f, fy:p.f, cx:W/2, cy:H/2, k1:0, k2:0, k3:0, W, H,
                az:p.az, el:p.el, roll:p.roll, hfov:2*Math.atan(W/(2*p.f))/D2R}; } }
@@ -1233,12 +1243,18 @@ function refresh(){
   else needs.push(["ok","Heading: "+onMap.length+" landmark"+(onMap.length>1?"s":"")+" on the map."]);
   if (pano && C && C.gps_prior){      // a strip: the same tests that free the parameters in roughPosePano
     const k=panoCues(C), more=k.horizon?" (the horizon counts)":"";
+    if (sphere){
+      needs.push(["ok","360° picture: the format gives the span (360°) and the horizon row (the middle row)."]);
+      needs.push(k.nEl>=2&&k.elSpread>=30?["ok","Tilt of the camera: points of known height around the picture."]
+        :["miss",`Tilt of the camera: needs two or more points of known height${more}, 30° or more apart.`]);
+    } else {
     needs.push(k.nAz>=2&&k.azSpread>=60?["ok",`Span of the strip: landmarks ${Math.round(k.azSpread)}° apart.`]
       :["part","Span of the strip: a full turn (360°) is assumed; two landmarks 60° or more apart measure it (some strips cover less)."]);
     needs.push(k.nEl>=1?["ok",`Horizon row: ${k.nEl} point${k.nEl>1?"s":""} of known height or on the horizon.`]
       :["miss","Horizon row: needs a landmark of known height (a peak and its altitude, or a point on the ground), or the horizon."]);
     needs.push(k.nEl>=3&&k.elSpread>=120?["ok","Tilt of the turning axis: points of known height around the strip."]
       :["miss",`Tilt of the turning axis: needs three or more points of known height${more} spread over a third of the strip or more.`]);
+    }
   }
   else if (onMap.length<2) needs.push(["miss","Field of view: needs two landmarks far apart left and right."]);
   else if (spread<0.3) needs.push(["part","Field of view: the landmarks are close together; add one on the other side of the picture."]);
@@ -1249,7 +1265,11 @@ function refresh(){
   const wait=marks.length-onMap.length;
   if (wait) needs.push(["part",wait+" described point"+(wait>1?"s":"")+" without a map position (someone can find "+(wait>1?"them":"it")+" later)."]);
   $("needs").innerHTML=""; needs.forEach(([cls,t])=>{ const d=document.createElement("div"); d.className="need "+cls; d.textContent=t; $("needs").appendChild(d); });
-  $("solveText").textContent=!C?"":calib&&calib.pano?`Rough panorama pose from these cues: the left end looks ${calib.az.toFixed(1)}° (${compass(calib.az)}); `+
+  $("solveText").textContent=!C?"":calib&&calib.sphere?`Rough pose of the 360° picture from these cues: the left edge looks ${calib.az.toFixed(1)}° (${compass(calib.az)}); `+
+      `the camera's up axis leans ${calib.axisTilt.toFixed(2)}° toward ${calib.axisToward.toFixed(0)}° (${compass(calib.axisToward)}).`+
+      (solveInfo.tilt_from?" Tilt from the "+solveInfo.tilt_from+".":"")+
+      (solveInfo.assumed&&solveInfo.assumed.length?" Assumed: "+solveInfo.assumed.join(", ")+".":"")
+    :calib&&calib.pano?`Rough panorama pose from these cues: the left end looks ${calib.az.toFixed(1)}° (${compass(calib.az)}); `+
       `the strip covers ${calib.span.toFixed(1)}°, ${(W/calib.span).toFixed(1)} px a degree across; the turning axis leans ${calib.axisTilt.toFixed(2)}° `+
       `toward ${calib.axisToward.toFixed(0)}° (${compass(calib.axisToward)}); elevation 0 about the axis at row ${calib.v0.toFixed(0)}.`+
       (solveInfo.tilt_from?" Tilt from the "+solveInfo.tilt_from+".":"")+
