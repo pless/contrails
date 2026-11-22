@@ -3,7 +3,7 @@ Camera ws-b0b30387: Arizona DEQ - Phoenix (Roundshot) (USA, USA; camera type pan
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-b0b30387.jpg
-   taken 2026-11-21T19:14:58 UTC; 1024x109 pixels as linked (the camera's own pictures are 7496x800); x runs right from the left edge, y down from the top edge.
+   taken 2026-11-22T19:26:01 UTC; 2560x273 pixels as linked (the camera's own pictures are 7496x800); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://backend.roundshot.com/cams/1615/default (the camera's picture now, if it is still live); camera page https://azdeq.roundshot.com/phoenix/; the cue page https://pless.github.io/contrails/cues/#ws-b0b30387 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Arizona DEQ - Phoenix; 360 deg panorama; about 76% sky
@@ -27,7 +27,7 @@ How to answer: do not type into the cue page. Give the person who sent you one J
  "camera_id": "ws-b0b30387",
  "agent": "model and version, and the app or tool it ran in (e.g. Gemini 3.8 Flash in Antigravity)",
  "picture": "https://pless.github.io/contrails/cues/frames/ws-b0b30387.jpg",
- "picture_size": [1024, 109],
+ "picture_size": [2560, 273],
  "camera_position": {
   "lat": 0,
   "lon": 0,
