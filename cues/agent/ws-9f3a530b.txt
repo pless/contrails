@@ -3,7 +3,7 @@ Camera ws-9f3a530b: Hotel Viktor - Genuss mit Weitblick (Panomax) (Austria, Euro
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-9f3a530b.jpg
-   taken 2026-11-21T11:27:22 UTC; 1024x357 pixels as linked (the camera's own pictures are 3100x1080); x runs right from the left edge, y down from the top edge.
+   taken 2026-11-22T11:17:24 UTC; 2560x892 pixels as linked (the camera's own pictures are 3100x1080); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://live-image.panomax.com/cams/2730/recent_hd.jpg (the camera's picture now, if it is still live); camera page https://hotel-viktor.panomax.com; the cue page https://pless.github.io/contrails/cues/#ws-9f3a530b (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Hotel Viktor - Genuss mit Weitblick; 100 deg panorama; about 52% sky
@@ -27,7 +27,7 @@ How to answer: do not type into the cue page. Give the person who sent you one J
  "camera_id": "ws-9f3a530b",
  "agent": "model and version, and the app or tool it ran in (e.g. Gemini 3.8 Flash in Antigravity)",
  "picture": "https://pless.github.io/contrails/cues/frames/ws-9f3a530b.jpg",
- "picture_size": [1024, 357],
+ "picture_size": [2560, 892],
  "camera_position": {
   "lat": 0,
   "lon": 0,

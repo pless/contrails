@@ -3,7 +3,7 @@ Camera ws-f3ba1954: Flumserberg Bergbahnen AG - Leist (Roundshot) (Switzerland, 
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-f3ba1954.jpg
-   taken 2026-10-14T08:05:28 UTC; 1024x211 pixels as linked (the camera's own pictures are 3887x800); x runs right from the left edge, y down from the top edge.
+   taken 2026-10-14T08:05:28 UTC; 2560x527 pixels as linked (the camera's own pictures are 3887x800); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://backend.roundshot.com/cams/1443/default (the camera's picture now, if it is still live); camera page https://flumserberg.roundshot.com/leist/; the cue page https://pless.github.io/contrails/cues/#ws-f3ba1954 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Flumserberg Bergbahnen AG - Leist; 360 deg panorama; about 44% sky
@@ -27,7 +27,7 @@ How to answer: do not type into the cue page. Give the person who sent you one J
  "camera_id": "ws-f3ba1954",
  "agent": "model and version, and the app or tool it ran in (e.g. Gemini 3.8 Flash in Antigravity)",
  "picture": "https://pless.github.io/contrails/cues/frames/ws-f3ba1954.jpg",
- "picture_size": [1024, 211],
+ "picture_size": [2560, 527],
  "camera_position": {
   "lat": 0,
   "lon": 0,

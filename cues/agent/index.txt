@@ -1,6 +1,6 @@
 WorldScope cue page: one plain-text file per camera with everything an AI agent needs to help calibrate it
 (its picture, position, current calibration and what to return). The page itself, https://pless.github.io/contrails/cues/, needs JavaScript.
-6931 cameras, most useful first; built 2026-11-22T05:22:38Z.
+6931 cameras, most useful first; built 2026-11-22T16:15:28Z.
 
 camera_id	name	country	instructions
 ws-f7912865	Korinos › North-east: Παραλια Μακρυγιάλου	Greece	https://pless.github.io/contrails/cues/agent/ws-f7912865.txt

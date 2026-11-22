@@ -3,7 +3,7 @@ Camera ws-a8ee2f60: Rehbach / Edersee / Region Edersee (PanoCloud rehbach-ederse
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-a8ee2f60.jpg
-   taken 2026-11-21T11:06:40 UTC; 1024x181 pixels as linked (the camera's own pictures are 4527x800); x runs right from the left edge, y down from the top edge.
+   taken 2026-11-22T11:14:53 UTC; 2560x452 pixels as linked (the camera's own pictures are 4527x800); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://rehbach-edersee.panocloud.webcam/panorama1_raw.jpg (the camera's picture now, if it is still live); camera page https://rehbach-edersee.panocloud.webcam/; the cue page https://pless.github.io/contrails/cues/#ws-a8ee2f60 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Panorama from Rehbach; about 38% sky
@@ -27,7 +27,7 @@ How to answer: do not type into the cue page. Give the person who sent you one J
  "camera_id": "ws-a8ee2f60",
  "agent": "model and version, and the app or tool it ran in (e.g. Gemini 3.8 Flash in Antigravity)",
  "picture": "https://pless.github.io/contrails/cues/frames/ws-a8ee2f60.jpg",
- "picture_size": [1024, 181],
+ "picture_size": [2560, 452],
  "camera_position": {
   "lat": 0,
   "lon": 0,

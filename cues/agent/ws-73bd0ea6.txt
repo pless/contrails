@@ -3,7 +3,7 @@ Camera ws-73bd0ea6: Grande Motte - Port de Plaisance Public (Roundshot) (France,
 Goal: find where this camera is and exactly where it points, by matching things in its picture with places on a map. Only give what you are confident of.
 
 1. The picture: https://pless.github.io/contrails/cues/frames/ws-73bd0ea6.jpg
-   taken 2026-11-20T11:34:19 UTC; 1024x183 pixels as linked (the camera's own pictures are 4480x800); x runs right from the left edge, y down from the top edge.
+   taken 2026-11-22T11:09:06 UTC; 2560x457 pixels as linked (the camera's own pictures are 4480x800); x runs right from the left edge, y down from the top edge.
    Work only from this picture of this camera (or the same picture, attached by the person who sent you). If you cannot open it, say so and stop: do not use any other picture, from this conversation or elsewhere.
 2. Links: image feed https://backend.roundshot.com/cams/1000/default (the camera's picture now, if it is still live); camera page https://grandemotte.roundshot.com/portdeplaisance/; the cue page https://pless.github.io/contrails/cues/#ws-73bd0ea6 (it needs a browser with JavaScript; everything on it about this camera is in this text)
    what the camera shows: Grande Motte - Port de Plaisance Public; 360 deg panorama; about 42% sky
@@ -27,7 +27,7 @@ How to answer: do not type into the cue page. Give the person who sent you one J
  "camera_id": "ws-73bd0ea6",
  "agent": "model and version, and the app or tool it ran in (e.g. Gemini 3.8 Flash in Antigravity)",
  "picture": "https://pless.github.io/contrails/cues/frames/ws-73bd0ea6.jpg",
- "picture_size": [1024, 183],
+ "picture_size": [2560, 457],
  "camera_position": {
   "lat": 0,
   "lon": 0,
